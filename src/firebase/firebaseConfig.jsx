@@ -4,14 +4,16 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com", // IMPORTANT
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyA0j7AWq6NxvlCrfU_A5-M_7nAcilMJj6o",
+  authDomain: "novaekoevents.firebaseapp.com",
+  databaseURL: "https://novaekoevents-default-rtdb.firebaseio.com",
+  projectId: "novaekoevents",
+  storageBucket: "novaekoevents.firebasestorage.app",
+  messagingSenderId: "955833805272",
+  appId: "1:955833805272:web:50fb063a01813a26f06aad",
+  measurementId: "G-MQSXRWSX55"
 };
+// Initialize Firebase
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

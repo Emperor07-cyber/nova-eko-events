@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { database } from "../../firebase/firebaseConfig";
 import { ref, onValue } from "firebase/database";
 import { Link } from "react-router-dom";
-import "./main.css"; // Optional: for styling
 
 const EventList = () => {
   const [events, setEvents] = useState([]);

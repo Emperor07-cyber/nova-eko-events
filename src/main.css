@@ -102,6 +102,51 @@ button:hover {
 .auth-form button:hover {
   background-color: #0056b3;
 }
+.home {
+  padding: 20px;
+  text-align: center;
+}
+
+.event-list {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-top: 20px;
+}
+
+.event-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+}
+
+.event-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.view-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background-color: #005dc1;
+}
+
 
 /* Event Cards */
 .event-card {
@@ -228,3 +273,112 @@ button:hover {
 .mt-2 { margin-top: 0.5rem; }
 .mt-4 { margin-top: 1rem; }
 .mt-8 { margin-top: 2rem; }
+.buy-ticket-container {
+  max-width: 400px;
+  margin: auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #ddd;
+}
+
+.ticket-inputs input,
+.ticket-inputs select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.pay-btn {
+  width: 100%;
+  background-color: #0aa83f;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pay-btn:hover {
+  background-color: #0a9342;
+}
+.qr-section {
+  margin-top: 30px;
+  text-align: center;
+}
+.my-tickets-page {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.ticket-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+.ticket-card h3 {
+  margin-bottom: 0.5rem;
+}
+.site-footer {
+  background-color: #141414;
+  color: #ccc;
+  text-align: center;
+  padding: 16px;
+  margin-top: 40px;
+  font-size: 0.9rem;
+}
+
+.social-icons {
+  margin-bottom: 10px;
+}
+
+.social-icons a {
+  margin: 0 10px;
+  color: #ccc;
+  font-size: 1.4rem;
+  transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+  color: #00c6ff;
+}
+.site-footer p {
+  margin: 0;
+}
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #141414;
+  padding: 16px 24px;
+  color: white;
+}
+
+.site-header .logo a {
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a {
+  margin-left: 16px;
+  color: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #00c6ff;
+}
+.site-header .nav-links {
+  display: flex;
+  align-items: center;
+}

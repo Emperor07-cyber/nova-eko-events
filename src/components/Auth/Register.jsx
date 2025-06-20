@@ -1,10 +1,9 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
-import { auth, database } from "../firebase/firebaseConfig";
+import { auth, database } from "../../firebase/firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import "./main.css"; // Optional: for styling
 
 function Register() {
   const [email, setEmail] = useState("");
