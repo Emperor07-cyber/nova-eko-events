@@ -98,7 +98,7 @@ const eventList = Object.keys(data)
             <ul className="ticket-types">
               {event.tickets.map((ticket, idx) => (
                 <li key={idx}>
-                  {ticket.type} - ₦{ticket.price} ({ticket.limit} tickets)
+                  {ticket.type} - ₦{ticket.price}
                 </li>
               ))}
             </ul>
