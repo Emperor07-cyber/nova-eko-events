@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { database } from "../../firebase/firebaseConfig";
 import { ref, onValue } from "firebase/database";
 import { Link } from "react-router-dom";
+import Header1 from "../Layout/Header1";
+import Footer from "../Layout/Footer";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -21,6 +23,9 @@ const EventList = () => {
   }, []);
 
   return (
+    <>
+    <Header1 />
+    <div className="eventlist container">
     <div className="event-list">
       {events.length === 0 ? (
         <p>No events available.</p>
@@ -37,6 +42,9 @@ const EventList = () => {
         ))
       )}
     </div>
+    </div>
+    <Footer />
+    </>
   );
 };
 

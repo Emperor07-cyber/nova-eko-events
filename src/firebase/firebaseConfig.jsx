@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA0j7AWq6NxvlCrfU_A5-M_7nAcilMJj6o",
@@ -19,4 +20,5 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app); // This gives us the realtime DB
 
+export const storage = getStorage(app);
 export { app, auth, database };

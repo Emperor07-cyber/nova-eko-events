@@ -1,21 +1,31 @@
-// src/components/Auth/RequireAdmin.jsx
-import React from "react";
+import { useEffect, useState } from "react";
+import { ref, get } from "firebase/database";
+import { auth, database } from "../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Navigate } from "react-router-dom";
-import { auth } from "../../firebase/firebaseConfig";
+import { Navigate, useLocation } from "react-router-dom";
 
-const RequireAdmin = ({ EventList }) => {
+const RequireAdmin = ({ Component }) => {
   const [user, loading] = useAuthState(auth);
+  const [isAdmin, setIsAdmin] = useState(null);
+  const location = useLocation();
 
-  const adminEmail = "admin@example.com"; // <-- your only admin email
+  useEffect(() => {
+    if (user) {
+      const userRef = ref(database, `users/${user.uid}`);
+      get(userRef).then((snapshot) => {
+        const data = snapshot.val();
+        setIsAdmin(data?.role === "admin");
+      });
+    }
+  }, [user]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading || isAdmin === null) return <div>Loading...</div>;
 
-  if (!user || user.email !== adminEmail) {
-    return <Navigate to="/" EventList />;
+  if (!user || !isAdmin) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return EventList;
+  return <Component />;
 };
 
 export default RequireAdmin;

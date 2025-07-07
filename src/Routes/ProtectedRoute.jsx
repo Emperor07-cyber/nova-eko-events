@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/firebaseConfig";
 
-const adminEmail = "admin@example.com"; // 👈 Replace with your actual admin email
+const adminEmail = "Ekotix234@gmail.com"; // 👈 Replace with your actual admin email
 
 function ProtectedRoute({ Component, adminOnly = false }) {
   const [user, loading] = useAuthState(auth);

@@ -1,43 +1,36 @@
-import React, { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, database } from "../../firebase/firebaseConfig";
-import { ref, onValue } from "firebase/database";
-import QRCode from "react-qr-code";
+import { ref, get, onValue } from "firebase/database";
+import { useEffect, useState } from "react";
 
 const MyTickets = () => {
+  const [user] = useAuthState(auth);
   const [tickets, setTickets] = useState([]);
-  const currentUser = auth.currentUser;
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!user) return;
 
-    const userTicketsRef = ref(database, "tickets/");
-    onValue(userTicketsRef, (snapshot) => {
+    const ticketsRef = ref(database, "tickets");
+    onValue(ticketsRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) {
-        const userTickets = Object.values(data).filter(
-          (ticket) => ticket.userId === currentUser.uid
-        );
-        setTickets(userTickets);
-      }
+      const userTickets = Object.values(data || {}).filter(
+        (ticket) => ticket.email === user.email
+      );
+      setTickets(userTickets);
     });
-  }, [currentUser]);
-
-  if (!currentUser) return <p>Please log in to view your tickets.</p>;
+  }, [user]);
 
   return (
-    <div className="my-tickets-page">
+    <div>
       <h2>My Tickets</h2>
       {tickets.length === 0 ? (
-        <p>You have no tickets yet.</p>
+        <p>No tickets found.</p>
       ) : (
         tickets.map((ticket, index) => (
-          <div className="ticket-card" key={index}>
-            <h3>{ticket.eventTitle}</h3>
-            <p>Type: {ticket.ticketType}</p>
-            <p>Email: {ticket.email}</p>
-            <p>Name: {ticket.name}</p>
-            <p>Ticket Ref: {ticket.ticketId}</p>
-            <QRCode value={JSON.stringify(ticket)} size={160} />
+          <div key={index}>
+            <h4>{ticket.ticketType}</h4>
+            <p>Quantity: {ticket.quantity}</p>
+            <p>Event ID: {ticket.eventId}</p>
           </div>
         ))
       )}

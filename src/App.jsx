@@ -6,20 +6,46 @@ import EventList from './components/Events/EventList';
 import EventForm from './components/Events/EventForm';
 import EventDetails from './components/Events/EventDetails';
 import MyTickets from "./components/Tickets/MyTickets";
+import Dashboard from "./pages/AdminDashboard"; // 👈 Import it
 import Home from './pages/Home'; // 👈 Import your Home page
 import RequireAdmin from './components/Auth/RequireAdmin'; // If you're using admin protection
+import RequireAuth from './components/Auth/RequireAuth'; // ✅ Add this
+import RequireHost from "./components/Auth/RequireHost";
+import RequireHostOrAdmin from "./components/Auth/RequireHostOrAdmin";
+import HostDashboard from "./pages/HostDashboard";
+import EditEvent from "./components/Events/EditEvent"; // or wherever you keep it
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} /> {/* 👈 Set Home as the default route */}
-      <Route path="/admin" element={<RequireAdmin EventList={EventList} />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/event/new" element={<EventForm />} />
-      <Route path="/event/:eventId" element={<EventDetails />} />
-      <Route path="/my-tickets" element={<MyTickets />} />
-    </Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/eventlist" element={<EventList />} />
+  <Route
+  path="/admin/dashboard"
+  element={<RequireAdmin Component={Dashboard} />}
+/>
+  <Route path="/edit-event/:eventId" element={<EditEvent />} />
+  <Route path="/register" element={<Register />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/event/new" element={<RequireHostOrAdmin Component={EventForm} />} />
+  <Route path="/event/:eventId" element={<EventDetails />} />
+  <Route
+  path="/my-tickets"
+  element={
+    <RequireAuth>
+      <MyTickets />
+    </RequireAuth>
+  }
+/>
+  <Route
+  path="/host/dashboard"
+  element={
+    <RequireHost>
+      <HostDashboard />
+    </RequireHost>
+  }
+/>
+</Routes>
   );
 }
 
