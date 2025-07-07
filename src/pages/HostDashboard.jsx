@@ -3,7 +3,8 @@ import { ref, onValue } from "firebase/database";
 import { database, auth } from "../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { CSVLink } from "react-csv";
-
+import Header from "../components/Layout/Header";
+import Footer from "../components/Layout/Footer";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const HostDashboard = () => {
@@ -47,6 +48,8 @@ const HostDashboard = () => {
   );
 
   return (
+    <>
+    <Header />
     <div className="host-dashboard">
       <h1>🎤 Host Dashboard</h1>
 
@@ -127,6 +130,8 @@ const HostDashboard = () => {
         </tbody>
       </table>
     </div>
+    <Footer />
+    </>
   );
 };
 
