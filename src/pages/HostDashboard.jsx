@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, remove } from "firebase/database";
 import { database, auth } from "../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { CSVLink } from "react-csv";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -11,7 +12,7 @@ const HostDashboard = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
-  const myEvents = events.filter(event => event.createdBy === user?.email);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -34,6 +35,13 @@ const HostDashboard = () => {
       setTickets(hostTickets);
     });
   }, [user]);
+
+  const handleDelete = async (eventId) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      await remove(ref(database, `events/${eventId}`));
+      alert("Event deleted successfully.");
+    }
+  };
 
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map(t => t.email)).size;
@@ -70,6 +78,7 @@ const HostDashboard = () => {
             <th>Date</th>
             <th>Location</th>
             <th>Tickets Sold</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -79,6 +88,10 @@ const HostDashboard = () => {
               <td>{event.date}</td>
               <td>{event.location}</td>
               <td>{tickets.filter(t => t.eventId === event.id).length}</td>
+              <td>
+                <button onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
+                <button onClick={() => handleDelete(event.id)} style={{ marginLeft: '0.5rem' }}>Delete</button>
+              </td>
             </tr>
           ))}
         </tbody>
