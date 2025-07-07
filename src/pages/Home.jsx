@@ -136,12 +136,12 @@ const eventList = Object.keys(data)
   <div className="pricing-card">
     <FaPercentage />
     <h3>Commission</h3>
-    <p>A small percentage of each ticket sold is retained as commission.</p>
+    <p>A small percentage of 5% for each ticket sold is retained as commission.</p>
   </div>
   <div className="pricing-card">
     <FaLock />
     <h3>Payment Processing</h3>
-    <p>Secure handling of all transactions with minimal processing fees.</p>
+    <p>Secure handling of all transactions with minimal processing methods.</p>
   </div>
 </div>
     <p>By hosting with us, you agree to our <Link to="/terms">Terms and Conditions</Link>, ensuring a seamless experience for you and your attendees.</p>
