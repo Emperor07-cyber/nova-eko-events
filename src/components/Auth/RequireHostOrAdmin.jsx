@@ -11,27 +11,40 @@ const RequireHostOrAdmin = ({ Component }) => {
 
   React.useEffect(() => {
     const checkRole = async () => {
-      if (user) {
-        const userRef = ref(database, "users/" + user.uid);
+      if (!user) {
+        setAuthorized(false); // user is not logged in
+        return;
+      }
+
+      try {
+        const userRef = ref(database, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         const role = userData?.role;
+
         if (role === "host" || role === "admin") {
           setAuthorized(true);
         } else {
           setAuthorized(false);
         }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        setAuthorized(false);
       }
     };
-    checkRole();
-  }, [user]);
 
+    if (!loading) checkRole();
+  }, [user, loading]);
+
+  // Still waiting on auth state or role check
   if (loading || authorized === null) return <div>Loading...</div>;
 
+  // Not logged in or not authorized
   if (!user || !authorized) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Authorized
   return <Component />;
 };
 
