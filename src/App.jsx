@@ -27,7 +27,14 @@ function App() {
   <Route path="/edit-event/:eventId" element={<EditEvent />} />
   <Route path="/register" element={<Register />} />
   <Route path="/login" element={<Login />} />
-  <Route path="/event/new" element={<RequireHostOrAdmin Component={EventForm} />} />
+  <Route
+  path="/event/new"
+  element={
+    <RequireHostOrAdmin>
+      <EventForm />
+    </RequireHostOrAdmin>
+  }
+/>
   <Route path="/event/:eventId" element={<EventDetails />} />
   <Route
   path="/my-tickets"

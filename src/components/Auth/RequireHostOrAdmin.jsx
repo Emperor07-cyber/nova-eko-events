@@ -4,7 +4,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { auth, database } from "../../firebase/firebaseConfig";
 import { ref, get } from "firebase/database";
 
-const RequireHostOrAdmin = ({ Component }) => {
+const RequireHostOrAdmin = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const location = useLocation();
   const [authorized, setAuthorized] = React.useState(null);
@@ -12,7 +12,7 @@ const RequireHostOrAdmin = ({ Component }) => {
   React.useEffect(() => {
     const checkRole = async () => {
       if (!user) {
-        setAuthorized(false); // user is not logged in
+        setAuthorized(false);
         return;
       }
 
@@ -28,7 +28,7 @@ const RequireHostOrAdmin = ({ Component }) => {
           setAuthorized(false);
         }
       } catch (error) {
-        console.error("Error fetching user role:", error);
+        console.error("Error checking user role:", error);
         setAuthorized(false);
       }
     };
@@ -36,16 +36,13 @@ const RequireHostOrAdmin = ({ Component }) => {
     if (!loading) checkRole();
   }, [user, loading]);
 
-  // Still waiting on auth state or role check
   if (loading || authorized === null) return <div>Loading...</div>;
 
-  // Not logged in or not authorized
   if (!user || !authorized) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Authorized
-  return <Component />;
+  return children;
 };
 
 export default RequireHostOrAdmin;
