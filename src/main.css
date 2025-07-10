@@ -1,3 +1,7 @@
+/* Swiper core styles */
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+
 /* Global Reset */
 * {
   margin: 0;
@@ -63,9 +67,10 @@ button:hover {
   background-color: #0056b3;
 }
 .hero-section {
+  
   position: relative;
   width: 100%;
-  height: 80vh;
+  height: 95vh;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -75,7 +80,7 @@ button:hover {
 
 .hero-content {
   margin-left: 0;
-  height: 90vh;
+  height: 95vh;
    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/images/partypic.jpg');
   background-size: cover;
   background-position: center;
@@ -99,10 +104,13 @@ button:hover {
   line-height: 1.6;
 }
 
+
 .hero-buttons {
   display: flex;
-  
+  margin: 0 auto;
+
   gap: 1rem;
+  justify-content: center; /* new */
 }
 
 .hero-buttons .btn {
@@ -140,48 +148,67 @@ button:hover {
   to { opacity: 1; }
 }
 .pricing-section {
-  background-color: #f9f9f9;
-  padding: 4rem 2rem;
+  background: #f9fafb;
+  padding: 3rem 1.5rem;
   text-align: center;
-  margin-top: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.pricing-section h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
-.pricing-cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  
 }
 
-.pricing-card {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  flex: 1 1 calc(33.333% - 2rem); /* 3 per row with gap */
-  box-sizing: border-box;
-  transition: transform 0.3s ease;
-  min-width: 280px;
-  max-width: 350px;
-}
-.pricing-card:hover {
-  transform: translateY(-10px);
-}
-.pricing-card h3 {
-  font-size: 1.5rem;
+.pricing-section h2 {
+  font-size: 2rem;
   margin-bottom: 1rem;
+  color: #222;
 }
-.pricing-card p {
-  font-size: 1rem;
+
+.pricing-section p {
+  max-width: 600px;
+  margin: 0 auto 2rem;
   color: #555;
-  margin-bottom: 1.5rem;
+}
+
+.pricing-details {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+
+.pricing-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  max-width: 80%;
+  flex: 1 1 300px;
+  height: 150px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  transition: transform 0.3s ease;
+  justify-content: center;
+  margin: 0 auto; /* new */
+}
+
+
+.pricing-card h3 {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  color: #333;
+}
+
+.pricing-card p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.pricing-card svg {
+  font-size: 2rem;
+  color: #6a0dad;
+}
+.pricing-card .price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
+  margin: 1rem 0;
 }
 /* FAQ Section */
 .faq-section {
@@ -393,12 +420,18 @@ button:hover {
 }
 
 .event-card {
-  background: white;
+  background-color: #fff;
+  padding: 1.25rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   text-align: center;
-  transition: transform 0.2s ease;
+}
+.event-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
 }
 
 .event-card:hover {
@@ -767,9 +800,10 @@ button:hover {
 }
 .ticket-types {
   list-style: none;
-  padding-left: 0;
-  margin-top: 8px;
-  margin-bottom: 12px;
+  padding: 0;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #444;
 }
 
 .ticket-types li {
@@ -1278,4 +1312,166 @@ button:hover {
   font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
+}
+.trending-section {
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+.trending-events {
+  padding: 3rem 1.5rem;
+  background-color: #fff;
+  text-align: center;
+}
+
+.trending-events h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+.trending-card {
+  background-color: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.trending-card:hover {
+  transform: translateY(-5px);
+}
+
+.trending-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.trending-card h3 {
+  margin: 0.8rem 0 0.3rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.trending-card p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.trending-card .view-button {
+  margin-top: 1rem;
+  background-color: #6a0dad;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.trending-card .view-button:hover {
+  background-color: #4d078c;
+}
+.see-more-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.trending-fallback-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 2rem;
+}
+@media (max-width: 768px) {
+  .trending-fallback-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 1024px) {
+  .swiper {
+    display: none;
+  }
+
+  .trending-fallback-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+}
+.party-carousel-section {
+  background: #f5f7fa;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.carousel-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+.carousel-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+/* Mobile styles */
+@media (max-width: 460px) {
+  .carousel-image {
+    height: 360px;
+    object-fit: cover;
+  }
+  .carousel-wrapper {
+    max-width: 100%;
+  }
+
+  .carousel-title {
+    font-size: 1rem;
+  }
+
+  .party-carousel-section {
+    padding: 0.5rem;
+  }
+}
+.countdown-section, .featured-party-section {
+  text-align: center;
+  margin: 2rem 1rem;
+}
+
+.countdown {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: #ff5e00;
+}
+
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.featured-card img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+}
+
+.featured-details h3 {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
 }

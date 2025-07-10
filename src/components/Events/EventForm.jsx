@@ -1,311 +1,144 @@
-import React, { useEffect, useState } from "react";
-import { ref, push, get } from "firebase/database";
-import { database, auth } from "../../firebase/firebaseConfig";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserSessionPersistence
+} from "firebase/auth";
+import { auth, database } from "../../firebase/firebaseConfig";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ref, set, get } from "firebase/database";
+import { FaGoogle } from "react-icons/fa";
+import Header1 from "../Layout/Header1";
+import Footer from "../Layout/Footer";
 
-function EventForm() {
-  const [user] = useAuthState(auth);
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [authorized, setAuthorized] = useState(null);
+  const location = useLocation();
 
-  const [eventData, setEventData] = useState({
-    title: "",
-    description: "",
-    date: "",
-    location: "",
-    startTime: "",
-    endTime: "",
-    category: "",
-    isPaid: true,
-    maxPurchaseLimit: 1,
-  });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      // 🔐 Force session-based persistence
+      await setPersistence(auth, browserSessionPersistence);
 
-  const [ticketTypes, setTicketTypes] = useState([
-    { type: "Regular", price: "", limit: "", perks: [], newPerk: "" },
-  ]);
-  const [imageFile, setImageFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    const checkUserRole = async () => {
-      if (!user) return;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
       const userRef = ref(database, "users/" + user.uid);
       const snapshot = await get(userRef);
-      const userData = snapshot.val();
+      let userData = snapshot.val();
 
-      if (userData?.role === "host" || userData?.role === "admin") {
-        setAuthorized(true);
-      } else {
-        navigate("/");
+      if (!userData) {
+        userData = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "",
+          role: "user",
+        };
+        await set(userRef, userData);
       }
-    };
 
-    checkUserRole();
-  }, [user, navigate]);
+      alert("Login successful!");
 
-  if (!user || authorized === null) {
-    return <div>Loading...</div>;
-  }
-
-  const handleChange = (e) => {
-    setEventData({ ...eventData, [e.target.name]: e.target.value });
-  };
-
-  const handlePerkChange = (index, value) => {
-    const updatedTickets = [...ticketTypes];
-    updatedTickets[index].newPerk = value;
-    setTicketTypes(updatedTickets);
-  };
-
-  const handleAddPerk = (index) => {
-    const updatedTickets = [...ticketTypes];
-    if (updatedTickets[index].newPerk.trim()) {
-      updatedTickets[index].perks.push(updatedTickets[index].newPerk.trim());
-      updatedTickets[index].newPerk = "";
-      setTicketTypes(updatedTickets);
+      if (userData.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (userData.role === "host") {
+        navigate("/host/dashboard");
+      } else {
+        const from = location.state?.from?.pathname || "/my-tickets";
+        navigate(from);
+      }
+    } catch (error) {
+      alert("Error: " + error.message);
     }
   };
 
-  const handleRemovePerk = (index, perkIndex) => {
-    const updatedTickets = [...ticketTypes];
-    updatedTickets[index].perks.splice(perkIndex, 1);
-    setTicketTypes(updatedTickets);
-  };
-
-  const handleTicketChange = (index, field, value) => {
-    const updatedTickets = [...ticketTypes];
-    updatedTickets[index][field] = value;
-    setTicketTypes(updatedTickets);
-  };
-
-  const handleAddTicket = () => {
-    setTicketTypes([
-      ...ticketTypes,
-      { type: "", price: "", limit: "", perks: [], newPerk: "" },
-    ]);
-  };
-
-  const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleForgotPassword = async () => {
+    if (!email) return alert("Please enter your email to reset password.");
     try {
-      setUploading(true);
-
-      let imageUrl = "";
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append("file", imageFile);
-        formData.append("upload_preset", "nova-eko-events");
-
-        const response = await fetch(
-          "https://api.cloudinary.com/v1_1/dkse7snw2/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error("Cloudinary upload failed: " + errorText);
-        }
-
-        const data = await response.json();
-        imageUrl = data.secure_url;
-      }
-
-      if (!imageUrl) {
-        imageUrl =
-          "https://res.cloudinary.com/dkse7snw2/image/upload/v1234567890/default-event.jpg";
-      }
-
-      await push(ref(database, "events"), {
-        ...eventData,
-        image: imageUrl,
-        tickets: ticketTypes,
-        createdBy: user.email,
-        timestamp: Date.now(),
-      });
-
-      alert("✅ Event created successfully!");
-      setEventData({
-        title: "",
-        description: "",
-        date: "",
-        location: "",
-        startTime: "",
-        endTime: "",
-        category: "",
-        isPaid: true,
-        maxPurchaseLimit: 1,
-      });
-      setTicketTypes([
-        { type: "Regular", price: "", limit: "", perks: [], newPerk: "" },
-      ]);
-      setImageFile(null);
-
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent!");
     } catch (error) {
-      alert("❌ Failed to create event: " + error.message);
-    } finally {
-      setUploading(false);
+      alert("Error: " + error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await setPersistence(auth, browserSessionPersistence); // also for Google
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      await set(ref(database, "users/" + user.uid), {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        role: "user",
+      });
+
+      alert("Google sign-in successful!");
+      navigate("/");
+    } catch (error) {
+      alert("Google sign-in failed: " + error.message);
     }
   };
 
   return (
-    <div className="event-form-container">
-      <h2>Create New Event</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          <input
-            type="checkbox"
-            checked={!eventData.isPaid}
-            onChange={() =>
-              setEventData({ ...eventData, isPaid: !eventData.isPaid })
-            }
-          />
-          This is a free event
-        </label>
+    <>
+      <Header1 />
+      <div className="register-wrapper">
+        <div className="register-image">
+          <img src="/images/loginpic.png" />
+        </div>
+        <div className="register-form">
+          <div className="login-logo">
+            <img src="/images/Logo4.jpg" alt="Logo" />
+          </div>
 
-        <input
-          name="title"
-          placeholder="Event Title"
-          value={eventData.title}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={eventData.description}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="date"
-          type="date"
-          value={eventData.date}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="startTime"
-          type="time"
-          value={eventData.startTime}
-          onChange={handleChange}
-          required
-          placeholder="Start Time"
-        />
-        <input
-          name="endTime"
-          type="time"
-          value={eventData.endTime}
-          onChange={handleChange}
-          required
-          placeholder="End Time"
-        />
-        <input
-          name="location"
-          placeholder="Location"
-          value={eventData.location}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="category"
-          placeholder="Category (e.g. Music, Tech, Art)"
-          value={eventData.category}
-          onChange={handleChange}
-        />
-        <input
-          name="maxPurchaseLimit"
-          type="number"
-          placeholder="Max tickets per person"
-          value={eventData.maxPurchaseLimit}
-          onChange={handleChange}
-        />
+          <h2 className="register-title">Login</h2>
+          <form onSubmit={handleLogin} className="auth-form">
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button type="submit">Login</button>
+          </form>
 
-        <label>Upload Image:</label>
-        <input type="file" accept="image/*" onChange={handleImageChange} />
+          <button onClick={handleForgotPassword} className="forgot-btn">
+            Forgot Password?
+          </button>
 
-        <div className="ticket-types">
-          <label>Ticket Types:</label>
-          {ticketTypes.map((ticket, index) => (
-            <div key={index} className="ticket-row">
-              <input
-                type="text"
-                placeholder="Type (e.g. Regular, VIP)"
-                value={ticket.type}
-                onChange={(e) =>
-                  handleTicketChange(index, "type", e.target.value)
-                }
-                required
-              />
-              <input
-                type="number"
-                placeholder="Price (₦)"
-                value={ticket.price}
-                onChange={(e) =>
-                  handleTicketChange(index, "price", e.target.value)
-                }
-                required={eventData.isPaid}
-              />
-              <input
-                type="number"
-                placeholder="Limit"
-                value={ticket.limit}
-                onChange={(e) =>
-                  handleTicketChange(index, "limit", e.target.value)
-                }
-                required
-              />
+          <p className="register-link">
+            Don't have an account? <a href="/register">Sign Up</a>
+          </p>
 
-              <div className="ticket-perks">
-                <input
-                  type="text"
-                  placeholder="Add a perk"
-                  value={ticket.newPerk}
-                  onChange={(e) =>
-                    handlePerkChange(index, e.target.value)
-                  }
-                />
-                <button type="button" onClick={() => handleAddPerk(index)}>
-                  Add Perk
-                </button>
-                <ul>
-                  {ticket.perks.map((perk, perkIndex) => (
-                    <li key={perkIndex}>
-                      {perk}{" "}
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePerk(index, perkIndex)}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-          <button type="button" onClick={handleAddTicket}>
-            Add New Ticket Type
+          <hr style={{ margin: "1.5rem 0" }} />
+
+          <button onClick={handleGoogleSignIn} className="google-btn">
+            <FaGoogle style={{ marginRight: "8px" }} />
+            Sign in with Google
           </button>
         </div>
-
-        <button type="submit" disabled={uploading}>
-          {uploading ? "Uploading..." : "Create Event"}
-        </button>
-      </form>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }
 
-export default EventForm;
+export default Login;

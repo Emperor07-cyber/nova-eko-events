@@ -29,17 +29,19 @@ const handleLogin = async (e) => {
     const snapshot = await get(userRef);
     let userData = snapshot.val();
 
-    // If user record doesn't exist, create it as a regular user
     if (!userData) {
-      userData = {
-        uid: user.uid,
-        email: user.email,
-        name: user.displayName || "", // fallback in case name is missing
-        role: "user",
-      };
-      await set(userRef, userData);
-    }
-
+  userData = {
+    uid: user.uid,
+    email: user.email,
+    name: user.displayName || "",
+    role: "user",
+  };
+  await set(userRef, userData);
+} else {
+  // Refresh userData from Firebase after initial check
+  const refreshedSnapshot = await get(userRef);
+  userData = refreshedSnapshot.val();
+}
     alert("Login successful!");
 
     if (userData.role === "admin") {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import { auth, database } from "../../firebase/firebaseConfig";
@@ -7,41 +7,37 @@ import { ref, get } from "firebase/database";
 const RequireHostOrAdmin = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const location = useLocation();
-  const [authorized, setAuthorized] = React.useState(null);
+  const [authorized, setAuthorized] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkRole = async () => {
-      if (!user) {
-        setAuthorized(false);
-        return;
-      }
-
-      try {
-        const userRef = ref(database, `users/${user.uid}`);
+      if (user) {
+        console.log("🔍 User found:", user.email);
+        const userRef = ref(database, "users/" + user.uid);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
-        const role = userData?.role;
+        console.log("📦 User data from DB:", userData);
 
-        if (role === "host" || role === "admin") {
-          setAuthorized(true);
-        } else {
-          setAuthorized(false);
-        }
-      } catch (error) {
-        console.error("Error checking user role:", error);
-        setAuthorized(false);
+        const role = userData?.role;
+        setAuthorized(role === "host" || role === "admin");
+        console.log("✅ Is authorized:", role === "host" || role === "admin");
       }
     };
 
-    if (!loading) checkRole();
-  }, [user, loading]);
+    checkRole();
+  }, [user]);
 
-  if (loading || authorized === null) return <div>Loading...</div>;
+  if (loading || authorized === null) {
+    console.log("⏳ Waiting for auth/role...");
+    return <div>Loading...</div>;
+  }
 
   if (!user || !authorized) {
+    console.log("⛔ Redirecting to login: unauthorized");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  console.log("✅ Authorized access to protected route");
   return children;
 };
 
