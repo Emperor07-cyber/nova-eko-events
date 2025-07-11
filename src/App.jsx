@@ -33,7 +33,11 @@ function App() {
   <Route path="/login" element={<Login />} />
   <Route
   path="/event/new"
-  element={<RequireHostOrAdmin><EventForm /></RequireHostOrAdmin>}
+  element={
+    <RequireHostOrAdmin>
+      <EventForm />
+    </RequireHostOrAdmin>
+  }
 />
   <Route path="/event/:eventId" element={<EventDetails />} />
   <Route
