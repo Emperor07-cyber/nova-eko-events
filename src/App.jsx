@@ -14,9 +14,13 @@ import RequireHost from "./components/Auth/RequireHost";
 import RequireHostOrAdmin from "./components/Auth/RequireHostOrAdmin";
 import HostDashboard from "./pages/HostDashboard";
 import EditEvent from "./components/Events/EditEvent"; // or wherever you keep it
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
+    <>
     <Routes>
   <Route path="/" element={<Home />} />
   <Route path="/eventlist" element={<EventList />} />
@@ -29,11 +33,7 @@ function App() {
   <Route path="/login" element={<Login />} />
   <Route
   path="/event/new"
-  element={
-    <RequireHostOrAdmin>
-      <EventForm />
-    </RequireHostOrAdmin>
-  }
+  element={<RequireHostOrAdmin><EventForm /></RequireHostOrAdmin>}
 />
   <Route path="/event/:eventId" element={<EventDetails />} />
   <Route
@@ -44,6 +44,7 @@ function App() {
     </RequireAuth>
   }
 />
+
   <Route
   path="/host/dashboard"
   element={
@@ -53,6 +54,8 @@ function App() {
   }
 />
 </Routes>
+<ToastContainer position="top-center" autoClose={3000} />
+    </>
   );
 }
 

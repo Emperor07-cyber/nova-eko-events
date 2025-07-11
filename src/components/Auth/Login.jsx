@@ -11,6 +11,8 @@ import { ref, set, get } from "firebase/database"; // ✅ FIXED HERE
 import { FaGoogle } from "react-icons/fa";
 import Header1 from "../Layout/Header1";
 import Footer from "../Layout/Footer";
+import { toast } from "react-toastify";
+
 
 
 function Login() {
@@ -26,37 +28,42 @@ const handleLogin = async (e) => {
     const user = userCredential.user;
 
     const userRef = ref(database, "users/" + user.uid);
-    const snapshot = await get(userRef);
+    let snapshot = await get(userRef);
     let userData = snapshot.val();
 
+    // If user is new, set basic info
     if (!userData) {
-  userData = {
-    uid: user.uid,
-    email: user.email,
-    name: user.displayName || "",
-    role: "user",
-  };
-  await set(userRef, userData);
-} else {
-  // Refresh userData from Firebase after initial check
-  const refreshedSnapshot = await get(userRef);
-  userData = refreshedSnapshot.val();
-}
-    alert("Login successful!");
+      userData = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || "",
+        role: "user",
+      };
+      await set(userRef, userData);
+    } else {
+      // Refresh to ensure role is up-to-date
+      snapshot = await get(userRef);
+      userData = snapshot.val();
+    }
 
-    if (userData.role === "admin") {
+    toast.success("🎉 Login successful!");
+
+
+    const from = location.state?.from?.pathname;
+
+if (from) {
+  navigate(from); // 🔁 Redirect to the originally intended page
+} else if (userData.role === "admin") {
   navigate("/admin/dashboard");
 } else if (userData.role === "host") {
   navigate("/host/dashboard");
 } else {
-  const from = location.state?.from?.pathname || "/my-tickets";
-  navigate(from);
+  navigate("/my-tickets");
 }
 
-
   } catch (error) {
-    alert("Error: " + error.message);
-  }
+    toast.error("❌ " + error.message);
+    console.error("Login error:", error);}
 };
 
 

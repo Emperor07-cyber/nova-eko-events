@@ -24,6 +24,7 @@
     "react-qr-code": "^2.0.16",
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.6.2",
+    "react-toastify": "^11.0.5",
     "recharts": "^3.0.2",
     "swiper": "^11.2.10"
   },

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { CSVLink } from "react-csv";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -132,6 +132,11 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+<div className="create-event-btn-wrapper">
+  <Link to="/event/new">
+    <button className="create-event-btn">+ Create New Event</button>
+  </Link>
+</div>
       <h2>📈 Sales Trends</h2>
       <div className="sales-chart-container">
         <ResponsiveContainer width="100%" height={250}>

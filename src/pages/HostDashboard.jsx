@@ -59,7 +59,12 @@ const HostDashboard = () => {
     <>
     <Header />
     <div className="host-dashboard">
-      <h1>🎤 Host Dashboard</h1>
+      <h2>📋 My Events</h2>
+<div className="create-event-btn-wrapper">
+  <Link to="/event/new">
+    <button className="create-event-btn">+ Create New Event</button>
+  </Link>
+</div>
 
       {/* 1. Summary */}
       <div className="summary-cards">

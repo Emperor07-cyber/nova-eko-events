@@ -1,144 +1,177 @@
 import React, { useState } from "react";
-import {
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  signInWithPopup,
-  setPersistence,
-  browserSessionPersistence
-} from "firebase/auth";
-import { auth, database } from "../../firebase/firebaseConfig";
-import { useNavigate, useLocation } from "react-router-dom";
-import { ref, set, get } from "firebase/database";
-import { FaGoogle } from "react-icons/fa";
-import Header1 from "../Layout/Header1";
+import { ref, push } from "firebase/database";
+import { database, auth } from "../../firebase/firebaseConfig";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useNavigate } from "react-router-dom";
+import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
+import { toast } from "react-toastify";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+const EventForm = () => {
+  const [user] = useAuthState(auth);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const handleLogin = async (e) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    date: "",
+    startTime: "",
+    endTime: "",
+    location: "",
+    category: "",
+    maxPerUser: 1,
+    image: "",
+    tickets: [
+      { type: "Regular", price: "", perks: [] }
+    ],
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", "nova-eko-events"); // Replace
+    const res = await fetch("https://api.cloudinary.com/v1_1/dkse7snw2/image/upload", {
+      method: "POST",
+      body: form,
+    });
+    const data = await res.json();
+    setFormData(prev => ({ ...prev, image: data.secure_url }));
+  };
+
+  const handleTicketChange = (index, field, value) => {
+    const updated = [...formData.tickets];
+    updated[index][field] = value;
+    setFormData(prev => ({ ...prev, tickets: updated }));
+  };
+
+  const handleAddTicket = () => {
+    setFormData(prev => ({
+      ...prev,
+      tickets: [...prev.tickets, { type: "", price: "", perks: [] }],
+    }));
+  };
+
+  const handleRemoveTicket = (index) => {
+    const updated = formData.tickets.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, tickets: updated }));
+  };
+
+  const handlePerkChange = (ticketIndex, perkIndex, value) => {
+    const updated = [...formData.tickets];
+    updated[ticketIndex].perks[perkIndex] = value;
+    setFormData(prev => ({ ...prev, tickets: updated }));
+  };
+
+  const handleAddPerk = (ticketIndex) => {
+    const updated = [...formData.tickets];
+    updated[ticketIndex].perks.push("");
+    setFormData(prev => ({ ...prev, tickets: updated }));
+  };
+
+  const handleRemovePerk = (ticketIndex, perkIndex) => {
+    const updated = [...formData.tickets];
+    updated[ticketIndex].perks.splice(perkIndex, 1);
+    setFormData(prev => ({ ...prev, tickets: updated }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // 🔐 Force session-based persistence
-      await setPersistence(auth, browserSessionPersistence);
-
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      const userRef = ref(database, "users/" + user.uid);
-      const snapshot = await get(userRef);
-      let userData = snapshot.val();
-
-      if (!userData) {
-        userData = {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "",
-          role: "user",
-        };
-        await set(userRef, userData);
-      }
-
-      alert("Login successful!");
-
-      if (userData.role === "admin") {
+    const newEvent = {
+      ...formData,
+      createdBy: user.email,
+      timestamp: Date.now()
+    };
+    await push(ref(database, "events"), newEvent);
+    toast.success("Event created successfully!");
+    if (user) {
+      const snapshot = await (await import("firebase/database")).get(ref(database, "users/" + user.uid));
+      const role = snapshot.val()?.role;
+      if (role === "admin") {
         navigate("/admin/dashboard");
-      } else if (userData.role === "host") {
-        navigate("/host/dashboard");
       } else {
-        const from = location.state?.from?.pathname || "/my-tickets";
-        navigate(from);
+        navigate("/host/dashboard");
       }
-    } catch (error) {
-      alert("Error: " + error.message);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) return alert("Please enter your email to reset password.");
-    try {
-      await sendPasswordResetEmail(auth, email);
-      alert("Password reset email sent!");
-    } catch (error) {
-      alert("Error: " + error.message);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await setPersistence(auth, browserSessionPersistence); // also for Google
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      await set(ref(database, "users/" + user.uid), {
-        uid: user.uid,
-        name: user.displayName,
-        email: user.email,
-        role: "user",
-      });
-
-      alert("Google sign-in successful!");
-      navigate("/");
-    } catch (error) {
-      alert("Google sign-in failed: " + error.message);
     }
   };
 
   return (
     <>
-      <Header1 />
-      <div className="register-wrapper">
-        <div className="register-image">
-          <img src="/images/loginpic.png" />
-        </div>
-        <div className="register-form">
-          <div className="login-logo">
-            <img src="/images/Logo4.jpg" alt="Logo" />
-          </div>
+      <Header />
+      <div className="event-form-container">
+        <h2>Create New Event</h2>
+        <form onSubmit={handleSubmit}>
+          <input name="title" placeholder="Event Title" value={formData.title} onChange={handleChange} required />
+          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
+          <input name="date" type="date" value={formData.date} onChange={handleChange} required />
+          <input name="startTime" type="time" value={formData.startTime} onChange={handleChange} required />
+          <input name="endTime" type="time" value={formData.endTime} onChange={handleChange} required />
+          <input name="location" placeholder="Location" value={formData.location} onChange={handleChange} required />
+          <select name="category" value={formData.category} onChange={handleChange}>
+            <option value="">Select Category</option>
+            <option value="Party">Party</option>
+            <option value="Concert">Concert</option>
+            <option value="Meetup">Meetup</option>
+          </select>
+          <input
+            name="maxPerUser"
+            type="number"
+            value={formData.maxPerUser}
+            min="1"
+            onChange={handleChange}
+            placeholder="Max tickets per user"
+          />
 
-          <h2 className="register-title">Login</h2>
-          <form onSubmit={handleLogin} className="auth-form">
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button type="submit">Login</button>
-          </form>
+          <input type="file" accept="image/*" onChange={handleImageUpload} />
+          {formData.image && <img src={formData.image} alt="Preview" style={{ height: "100px" }} />}
 
-          <button onClick={handleForgotPassword} className="forgot-btn">
-            Forgot Password?
-          </button>
+          <h3>Ticket Types</h3>
+          {formData.tickets.map((ticket, i) => (
+            <div key={i} className="ticket-type">
+              <input
+                placeholder="Type"
+                value={ticket.type}
+                onChange={(e) => handleTicketChange(i, "type", e.target.value)}
+              />
+              <input
+                placeholder="Price"
+                type="number"
+                value={ticket.price}
+                onChange={(e) => handleTicketChange(i, "price", e.target.value)}
+              />
+              <button type="button" onClick={() => handleRemoveTicket(i)}>Remove Ticket</button>
 
-          <p className="register-link">
-            Don't have an account? <a href="/register">Sign Up</a>
-          </p>
+              <div className="perks">
+                {ticket.perks.map((perk, j) => (
+                  <div key={j}>
+                    <input
+                      placeholder="Perk"
+                      value={perk}
+                      onChange={(e) => handlePerkChange(i, j, e.target.value)}
+                    />
+                    <button type="button" onClick={() => handleRemovePerk(i, j)}>Remove</button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => handleAddPerk(i)}>Add Perk</button>
+              </div>
+            </div>
+          ))}
 
-          <hr style={{ margin: "1.5rem 0" }} />
-
-          <button onClick={handleGoogleSignIn} className="google-btn">
-            <FaGoogle style={{ marginRight: "8px" }} />
-            Sign in with Google
-          </button>
-        </div>
+          <button type="button" onClick={handleAddTicket}>Add Ticket Type</button>
+          <button type="submit">Create Event</button>
+        </form>
       </div>
       <Footer />
     </>
   );
-}
+};
 
-export default Login;
+export default EventForm;

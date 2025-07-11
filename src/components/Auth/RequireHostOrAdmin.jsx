@@ -11,6 +11,12 @@ const RequireHostOrAdmin = ({ children }) => {
 
   useEffect(() => {
     const checkRole = async () => {
+      if (!user && !loading) {
+        console.log("🚫 No user, setting authorized = false");
+        setAuthorized(false);
+        return;
+      }
+
       if (user) {
         console.log("🔍 User found:", user.email);
         const userRef = ref(database, "users/" + user.uid);
@@ -19,17 +25,23 @@ const RequireHostOrAdmin = ({ children }) => {
         console.log("📦 User data from DB:", userData);
 
         const role = userData?.role;
-        setAuthorized(role === "host" || role === "admin");
-        console.log("✅ Is authorized:", role === "host" || role === "admin");
+        const isAuthorized = role === "host" || role === "admin";
+        setAuthorized(isAuthorized);
+        console.log("✅ Is authorized:", isAuthorized);
       }
     };
 
     checkRole();
-  }, [user]);
+  }, [user, loading]);
 
   if (loading || authorized === null) {
     console.log("⏳ Waiting for auth/role...");
-    return <div>Loading...</div>;
+    return (
+  <div style={{ textAlign: "center", marginTop: "5rem" }}>
+    <div className="loader"></div>
+    <p>Checking permissions...</p>
+  </div>
+);
   }
 
   if (!user || !authorized) {
