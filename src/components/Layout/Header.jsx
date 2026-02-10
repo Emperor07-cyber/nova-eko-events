@@ -1,21 +1,31 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // ✅ Detect host routes
+  const isHostRoute = location.pathname.startsWith("/host");
 
   const handleLinkClick = () => {
-    setMenuOpen(false); // Close menu after click
+    setMenuOpen(false);
   };
+
+  // ✅ Hide header entirely on host routes (mobile-first)
+  if (isHostRoute) return null;
 
   return (
     <header className="site-header">
       <div className="home-logo">
-              <Link to="/">
-                <img src="/images/Logo4.jpg" alt="NovaEko Logo" />
-              </Link>
-              
-            </div>
+        <Link to="/">
+          <img
+            src="/images/Logo4.jpg"
+            alt="NovaEko Logo"
+            className="logo-img"
+          />
+        </Link>
+      </div>
 
       <div
         className={`menu-toggle ${menuOpen ? "open" : ""}`}

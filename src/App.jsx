@@ -15,6 +15,7 @@ import RequireHostOrAdmin from "./components/Auth/RequireHostOrAdmin";
 import HostDashboard from "./pages/HostDashboard";
 import EditEvent from "./components/Events/EditEvent"; // or wherever you keep it
 import { ToastContainer } from 'react-toastify';
+import HostSetup from './components/Auth/HostSetup';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -24,11 +25,12 @@ function App() {
     <Routes>
   <Route path="/" element={<Home />} />
   <Route path="/eventlist" element={<EventList />} />
+  <Route path="/host-setup" element={<HostSetup />} />
   <Route
   path="/admin/dashboard"
   element={<RequireAdmin Component={Dashboard} />}
 />
-  <Route path="/edit-event/:eventId" element={<EditEvent />} />
+  <Route path="/event/edit/:eventId" element={<EditEvent />} />
   <Route path="/register" element={<Register />} />
   <Route path="/login" element={<Login />} />
   <Route

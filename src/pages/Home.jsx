@@ -58,25 +58,30 @@ const Home = () => {
       <Header />
 
       <div className="home">
-        <section className="hero-section">
-          <div className="hero-content">
-            <h1>Unlock unforgettable experiences with EKOTIX</h1>
-            <p>
-              We offer a seamless, user-friendly platform to discover 
+        <section className="hero-split">
+  <div className="hero-text">
+    <h1>Unlock unforgettable experiences with EKOTIX</h1>
+    <p>
+      We offer a seamless, user-friendly platform to discover 
               and book tickets to the events you love. <br /> Enjoy swift payment
                processing and secure gateway access, ensuring a hassle-free 
                journey from event selection to attendance. Your next adventure is just a click away!
-            </p>
-            <div className="hero-buttons">
-              <Link to="/eventlist">
-                <button className="btn purple">Find Events</button>
-              </Link>
-              <Link to="/event/new">
-                <button className="btn outline">Create Events</button>
-              </Link>
-            </div>
-          </div>
-        </section>
+    </p>
+    <div className="hero-buttons">
+      <Link to="/eventlist">
+        <button className="btn purple">Find Events</button>
+      </Link>
+      <Link to="/event/new">
+        <button className="btn outline">Create Events</button>
+      </Link>
+    </div>
+  </div>
+
+  <div className="hero-image">
+    <img src="/images/nova-2.jpg" alt="Hero" />
+  </div>
+</section>
+
 
         <section className="party-carousel-section">
   {/* <h2 className="carousel-title">🎉 Party Moments</h2> */}
@@ -128,85 +133,57 @@ const Home = () => {
   )}
 </section>
 
-{events.length > 0 && (
+{/* {events.length > 0 && (
   <section className="countdown-section">
     <h2>⏳ Next Party Countdown</h2>
     <div className="countdown-timer">
       <Countdown targetDate={new Date(events[0].date)} />
     </div>
   </section>
-)}
+)} */}
         <section className="trending-section">
-          <h1>🔥 Trending Events</h1>
-          {loading && <div className="loading">Loading events...</div>}
-          {error && <div className="error">{error}</div>}
+  <h2>🔥 Trending Events</h2>
 
-          <Swiper
-            modules={[Autoplay, Pagination]}
-            spaceBetween={20}
-            slidesPerView={1}
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 7000, disableOnInteraction: false }}
-            breakpoints={{
-              640: { slidesPerView: 1 },
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-          >
-            {trendingEvents.map((event) => (
-              <SwiperSlide key={event.id}>
-                <div className="event-card">
-                  <img
-                    src={event.image || "/default-event.jpg"}
-                    alt={event.title}
-                    className="event-image"
-                  />
-                  <h2>{event.title}</h2>
-                  <p>{event.date} @ {event.location}</p>
-                  {event.tickets?.length > 0 && (
-                    <ul className="ticket-types">
-                      {event.tickets.map((ticket, idx) => (
-                        <li key={idx}>
-                          {ticket.type} - ₦{ticket.price}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <Link to={`/event/${event.id}`}>
-                    <button className="view-button">View & Buy Ticket</button>
-                  </Link>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+  {loading && <div className="loading">Loading events...</div>}
+  {error && <div className="error">{error}</div>}
 
-          <noscript>
-            <div className="trending-fallback-grid">
-              {trendingEvents.map((event) => (
-                <div className="event-card" key={event.id}>
-                  <img
-                    src={event.image || "/default-event.jpg"}
-                    alt={event.title}
-                    className="event-image"
-                  />
-                  <h2>{event.title}</h2>
-                  <p>{event.date} @ {event.location}</p>
-                  <Link to={`/event/${event.id}`}>
-                    <button className="view-button">View & Buy Ticket</button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </noscript>
+  <div className="event-grid">
+    {trendingEvents.map((event) => (
+      <div className="event-card" key={event.id}>
+        <img
+          src={event.image || "/default-event.jpg"}
+          alt={event.title}
+          className="event-image"
+        />
+        <div className="event-info">
+          <h3>{event.title}</h3>
+          <p>
+            {event.date} @ {event.location}
+          </p>
 
-          {events.length > 3 && (
-            <div className="see-more-container">
-              <Link to="/eventlist">
-                <button className="btn outline">See More Events</button>
-              </Link>
-            </div>
+          {event.tickets?.length > 0 && (
+            <p className="ticket-price">
+              From ₦{Math.min(...event.tickets.map((t) => t.price))}
+            </p>
           )}
-        </section>
+
+          <Link to={`/event/${event.id}`}>
+            <button className="btn primary">Get Tickets</button>
+          </Link>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {events.length > 3 && (
+    <div className="see-more-container">
+      <Link to="/eventlist">
+        <button className="btn outline">See More Events</button>
+      </Link>
+    </div>
+  )}
+</section>
+
 
         <section className="pricing-section">
         <h2>Pricing</h2>
@@ -225,21 +202,71 @@ const Home = () => {
         </p>
       </section>
 
-        <section className="faq-section">
-          <h2>Frequently Asked Questions</h2>
-          <div className="faq-item">
-            <h3>What is Nova Eko Events?</h3>
-            <p>Your go-to platform for unforgettable live experiences. From concerts to meetups, we have it all!</p>
-          </div>
-          <div className="faq-item">
-            <h3>How do I book a ticket?</h3>
-            <p>Browse our events, select the one you like, and click "View & Buy Ticket".</p>
-          </div>
-          <div className="faq-item">
-            <h3>Can I create my own event?</h3>
-            <p>Yes! Click "Create Events" to add your own event to the platform.</p>
-          </div>
-        </section>
+        <section className="faq-page">
+        <h1>Frequently Asked Questions</h1>
+
+        <div className="faq-item">
+          <h3>How do I create an event?</h3>
+          <p>Click “Create Event” in the navigation bar, fill in your details, and publish.</p>
+        </div>
+
+        <div className="faq-item">
+          <h3>How do I buy tickets?</h3>
+          <p>Browse events, select an event, and click “Get Ticket”. Payments are handled via Paystack.</p>
+        </div>
+
+        <div className="faq-item">
+          <h3>Can I get a refund?</h3>
+          <p>Refunds depend on the event organizer’s policy. Contact them directly for support.</p>
+        </div>
+
+        <div className="faq-item">
+          <h3>How do I contact support?</h3>
+          <p>You can reach out via our contact page or email support@yourapp.com.</p>
+        </div>
+        <div className="faq-item">
+          <h3>What is your refund policy?</h3>
+          <p>Refunds depend on the event organizer's policy. Contact them directly for support.</p>
+        </div>        
+      </section>
+      </div>
+
+      <div className="details-image" style={{ height: "500px" }}>
+
+
+
+        <Swiper
+          spaceBetween={30}
+          centeredSlides={true}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Autoplay, Pagination]}
+          className="mySwiper"
+        >
+          <SwiperSlide>
+            <img src="/images/nova-1.jpg?1642213146" alt="Details" style={{ width: "100%", height: "400px", objectFit: "contain"  }} />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img src="/images/nova-3.jpg?1642213146" alt="Details" style={{ width: "100%", height: "400px", objectFit: "contain"  }} />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img src="/images/nova-4.jpg?1642213146" alt="Details" style={{ width: "100%", height: "400px", objectFit: "contain"  }} />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img src="/images/nova-5.jpg?1642213146" alt="Details" style={{ width: "100%", height: "400px", objectFit: "contain"  }} />
+          </SwiperSlide>
+          <SwiperSlide>
+            <img src="/images/nova-6.jpg?1642213146" alt="Details" style={{ width: "100%", height: "400px", objectFit: "contain"  }} />
+          </SwiperSlide>
+         
+        </Swiper>
+
+
       </div>
 
       <Footer />

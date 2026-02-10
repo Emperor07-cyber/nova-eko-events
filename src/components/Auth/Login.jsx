@@ -139,18 +139,20 @@ function Login() {
             <button type="submit">Login</button>
           </form>
 
-          <button onClick={handleForgotPassword} className="forgot-btn">
+          <button onClick={handleForgotPassword} className="forgot-btn" style={{ marginTop: "10px", color: "#20a553ff" }}>
             Forgot Password?
           </button>
 
           <p className="register-link">
-            Don't have an account? <a href="/register">Sign Up</a>
+            Don't have an account? <a href="/register" style={{ color: "#20a553ff" }}>Sign Up</a>
           </p>
 
           <hr style={{ margin: "1.5rem 0" }} />
 
           <button onClick={handleGoogleSignIn} className="google-btn">
-            <FaGoogle style={{ marginRight: "8px" }} />
+
+            <img src="/images/google2.png" alt="Google Logo" style={{ width: "24px", marginRight: "8px" }} />
+
             Sign in with Google
           </button>
         </div>

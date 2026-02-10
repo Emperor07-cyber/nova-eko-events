@@ -6,12 +6,14 @@ import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Layout/Header";
 import Footer from "../components/Layout/Footer";
+import HostSidebar from "../components/Layout/HostSidebar";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const HostDashboard = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [balance, setBalance] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +27,10 @@ const HostDashboard = () => {
         .filter((event) => event.createdBy === user.email);
       setEvents(userEvents);
     });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || events.length === 0) return;
 
     const ticketsRef = ref(database, "tickets");
     onValue(ticketsRef, (snapshot) => {
@@ -32,9 +38,19 @@ const HostDashboard = () => {
       const hostTickets = Object.entries(data)
         .map(([id, val]) => ({ id, ...val }))
         .filter((ticket) => events.some(e => e.id === ticket.eventId));
+
       setTickets(hostTickets);
+
+      let total = 0;
+      hostTickets.forEach(ticket => {
+        const gross = ticket.totalPaid || 0;
+        const fee = gross * 0.05 + 100;
+        total += gross - fee;
+      });
+
+      setBalance(total);
     });
-  }, [user]);
+  }, [user, events]);
 
   const handleDelete = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
@@ -57,98 +73,76 @@ const HostDashboard = () => {
 
   return (
     <>
-    <Header />
-    <div className="host-dashboard">
-      <h2>📋 My Events</h2>
-<div className="create-event-btn-wrapper">
-  <Link to="/event/new">
-    <button className="create-event-btn">+ Create New Event</button>
-  </Link>
-</div>
+      <Header />
 
-      {/* 1. Summary */}
-      <div className="summary-cards">
-        <div className="card">🎫 Total Tickets Sold: {tickets.length}</div>
-        <div className="card">💰 Total Revenue: ₦{totalRevenue.toLocaleString()}</div>
-        <div className="card">📅 Events Hosted: {events.length}</div>
-        <div className="card">👥 Attendees: {totalAttendees}</div>
+      {/* ✅ LAYOUT WRAPPER */}
+      <div className="host-layout">
+        <HostSidebar />
+
+        {/* ✅ MAIN CONTENT */}
+        <div className="host-dashboard">
+          <div className="wallet-card">
+            <h2>💳 Wallet Balance</h2>
+            <p>₦{balance.toLocaleString()}</p>
+          </div>
+
+          <Link to="/event/new">
+            <button className="create-event-btn">+ Create New Event</button>
+          </Link>
+
+          <div className="summary-cards">
+            <div className="card">🎫 Tickets Sold: {tickets.length}</div>
+            <div className="card">💰 Revenue: ₦{totalRevenue.toLocaleString()}</div>
+            <div className="card">📅 Events: {events.length}</div>
+            <div className="card">👥 Attendees: {totalAttendees}</div>
+          </div>
+
+          <h2>📋 My Events</h2>
+          <table className="events-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Tickets Sold</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map(event => (
+                <tr key={event.id}>
+                  <td>{event.title}</td>
+                  <td>{event.date}</td>
+                  <td>{event.location}</td>
+                  <td>{tickets.filter(t => t.eventId === event.id).length}</td>
+                  <td>
+                    <button onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
+                    <button onClick={() => handleDelete(event.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <h2>📈 Sales Chart</h2>
+          <div style={{ height: 250 }}>
+            <ResponsiveContainer>
+              <BarChart data={salesData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="total" fill="#00A3FF" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <CSVLink data={tickets} filename="host-tickets.csv">
+            Download CSV
+          </CSVLink>
+        </div>
       </div>
 
-      {/* 2. My Events */}
-      <h2>📋 My Events</h2>
-      <table className="events-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Location</th>
-            <th>Tickets Sold</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {events.map(event => (
-            <tr key={event.id}>
-              <td>{event.title}</td>
-              <td>{event.date}</td>
-              <td>{event.location}</td>
-              <td>{tickets.filter(t => t.eventId === event.id).length}</td>
-              <td>
-                <button onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
-                <button onClick={() => handleDelete(event.id)} style={{ marginLeft: '0.5rem' }}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* 3. Sales Chart */}
-      <h2>📈 Sales Chart</h2>
-      <div style={{ width: "100%", height: 250 }}>
-        <ResponsiveContainer>
-          <BarChart data={salesData}>
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="total" fill="#00A3FF" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 4. Export */}
-      <div className="export-section">
-        <h2>🧾 Export Tickets</h2>
-        <CSVLink data={tickets} filename="host-tickets.csv" className="export-btn">
-          Download CSV
-        </CSVLink>
-      </div>
-
-      {/* 5. Attendees Table */}
-      <h2>👥 Attendees</h2>
-      <table className="attendees-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Ticket Type</th>
-            <th>Quantity</th>
-            <th>Event</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets.map(ticket => (
-            <tr key={ticket.id}>
-              <td>{ticket.name}</td>
-              <td>{ticket.email}</td>
-              <td>{ticket.ticketType}</td>
-              <td>{ticket.quantity}</td>
-              <td>{events.find(e => e.id === ticket.eventId)?.title || "N/A"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

@@ -1,24 +1,59 @@
 import React from "react";
 import { FaTwitter, FaInstagram, FaSnapchat } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 
 const Footer = () => {
   return (
     <footer className="site-footer">
-      <div className="social-icons">
-        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-          <FaTwitter />
-        </a>
-        <a href="https://www.instagram.com/nova.eko_events?igsh=YWxwY2QxZDRlczV6" target="_blank" rel="noopener noreferrer">
-          <FaInstagram />
-        </a>
-        <a href="https://snapchat.com/t/OTD9j1YH" target="_blank" rel="noopener noreferrer">
-          <FaSnapchat />
-        </a>
+      <div className="footer-container">
+        {/* Left Section */}
+        <div className="footer-brand">
+
+          <img src="/images/Logo4.jpg" style={{ width: "90px", height: "80px" }} />
+          <p>Making events simple, fun, and accessible.</p>
+        </div>{
+        /* Links */}
+        <div className="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><Link to="/eventlist">Discover</Link></li>
+            <li><Link to="/pricing">Pricing</Link></li>
+            <li><Link to="/faq">FAQ</Link></li>
+          </ul>
+        </div>
+        {/* Social Media */}
+        <div className="footer-social">
+          <h4>Follow Us</h4>
+          <div className="footer-social-icons">
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            <FaTwitter size={24} />
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <FaInstagram size={24} />
+          </a>
+          <a href="https://snapchat.com" target="_blank" rel="noopener noreferrer">
+            <FaSnapchat size={24} />
+          </a>
+        </div>
+        </div>
+
+        
+
+        {/* Contact */}
+        <div className="footer-contact">
+          <h4>Contact</h4>
+          <p>Email: Ekotix234@gmail.com</p>
+          <p>Phone: +234 800 123 4567</p>
+        </div>
       </div>
-      <p>&copy; {new Date().getFullYear()} NovaEko Events. All rights reserved.</p>
+
+      <div className="footer-bottom">
+        <p>© {new Date().getFullYear()} Ekotixx. All rights reserved.</p>
+      </div>
     </footer>
   );
 };
+
 
 export default Footer;

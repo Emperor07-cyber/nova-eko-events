@@ -5,17 +5,17 @@ import { database } from "../../firebase/firebaseConfig";
 import { PaystackButton } from "react-paystack";
 import QRCode from "react-qr-code";
 import Modal from "react-modal";
+import html2canvas from "html2canvas";
 import "../../main.css";
 
 const EventDetails = () => {
   const { eventId } = useParams();
-const [event, setEvent] = useState(null);
-const [selectedTicket, setSelectedTicket] = useState("");
-const [userData, setUserData] = useState({ name: "", email: "" });
-const [ticketQuantity, setTicketQuantity] = useState(1);
-const [qrCodeData, setQrCodeData] = useState(null);
-const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
-
+  const [event, setEvent] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState("");
+  const [userData, setUserData] = useState({ name: "", email: "" });
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [qrCodeData, setQrCodeData] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const eventRef = ref(database, `events/${eventId}`);
@@ -25,18 +25,18 @@ const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
       }
     });
   }, [eventId]);
-  Modal.setAppElement("#root"); // To prevent screen readers from reading the background content
 
-
+  Modal.setAppElement("#root");
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  const selectedTicketDetails = event?.tickets?.find(t => t.type === selectedTicket);
+  const selectedTicketDetails = event?.tickets?.find(
+    (t) => t.type === selectedTicket
+  );
   const ticketPrice = selectedTicketDetails?.price || 0;
   const ticketLimit = selectedTicketDetails?.limit || 0;
-
   const totalAmount = ticketPrice * ticketQuantity;
 
   const handlePaymentSuccess = (response) => {
@@ -49,42 +49,55 @@ const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
       totalPaid: totalAmount,
       transactionId: response.reference,
     };
-    set(ticketRef, ticketData).then(() => {
-      setQrCodeData(ticketData);
-    setModalOpen(true);
-    });
+
+    set(ticketRef, ticketData)
+      .then(() => {
+        console.log("✅ Ticket saved:", ticketData);
+        setQrCodeData(ticketData);
+        setModalOpen(true);
+      })
+      .catch((err) => {
+        console.error("❌ Error saving ticket:", err);
+        alert("Something went wrong saving your ticket. But you can still download it below.");
+        // Still show the modal even if saving fails
+        setQrCodeData(ticketData);
+        setModalOpen(true);
+      });
   };
 
   const handlePrint = () => {
-  const printContent = document.getElementById("qr-code-print");
-  const win = window.open();
-  win.document.write(`
-    <html>
-      <head><title>Print QR Ticket</title></head>
-      <body>${printContent.innerHTML}</body>
-    </html>
-  `);
-  win.document.close();
-  win.print();
-};
+    const printContent = document.getElementById("qr-code-print");
+    const win = window.open();
+    win.document.write(`
+      <html>
+        <head><title>Print QR Ticket</title></head>
+        <body>${printContent.innerHTML}</body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
+  const handleDownloadImage = async () => {
+    const qrElement = document.getElementById("qr-code-print");
+    if (!qrElement) return;
+
+    const canvas = await html2canvas(qrElement);
+    const link = document.createElement("a");
+    link.download = "ticket.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
 
   const paystackConfig = {
     email: userData.email,
     amount: totalAmount * 100,
-    publicKey: "pk_live_92e934c9ee6f8cb2eed8f4a0c4d5be6ada8ff50a", // Replace with your key
+    publicKey: "pk_test_c90717b9a2b1061c182bd039719f9e23b354060e", // replace
     metadata: {
       name: userData.name,
       custom_fields: [
-        {
-          display_name: "Ticket Type",
-          variable_name: "ticket_type",
-          value: selectedTicket,
-        },
-        {
-          display_name: "Quantity",
-          variable_name: "quantity",
-          value: ticketQuantity,
-        },
+        { display_name: "Ticket Type", variable_name: "ticket_type", value: selectedTicket },
+        { display_name: "Quantity", variable_name: "quantity", value: ticketQuantity },
       ],
     },
     text: "Buy Ticket Now",
@@ -105,11 +118,14 @@ const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
       <p className="description">{event.description}</p>
 
       <h3>Select Ticket Type:</h3>
-      <select onChange={(e) => setSelectedTicket(e.target.value)} value={selectedTicket}>
+      <select
+        onChange={(e) => setSelectedTicket(e.target.value)}
+        value={selectedTicket}
+      >
         <option value="">-- Select --</option>
         {event.tickets?.map((ticket, idx) => (
           <option key={idx} value={ticket.type}>
-            {ticket.type} - ₦{ticket.price} 
+            {ticket.type} - ₦{ticket.price}
           </option>
         ))}
       </select>
@@ -140,7 +156,6 @@ const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
             />
           </div>
 
-          {/* Summary */}
           <div className="summary-box">
             <h4>Summary:</h4>
             <p><strong>Ticket:</strong> {selectedTicket}</p>
@@ -155,28 +170,65 @@ const [modalOpen, setModalOpen] = useState(false); // ✅ ADD THIS
       )}
 
       {qrCodeData && (
-        <div className="qr-code-container">
-          <h3>Your Ticket QR Code:</h3>
-          <QRCode value={qrCodeData} />
-        </div>
-      )}
-      {qrCodeData && (
-  <Modal isOpen={modalOpen} onRequestClose={() => setModalOpen(false)} className="qr-modal" overlayClassName="qr-overlay">
-    <div id="qr-code-print" className="qr-content">
-      <h2>🎫 Your Ticket</h2>
-      <QRCode value={JSON.stringify(qrCodeData)} size={180} />
-      <p><strong>Name:</strong> {qrCodeData.name}</p>
-      <p><strong>Email:</strong> {qrCodeData.email}</p>
-      <p><strong>Event:</strong> {event.title}</p>
-      <p><strong>Ticket Type:</strong> {qrCodeData.ticketType}</p>
-      <p><strong>Quantity:</strong> {qrCodeData.quantity}</p>
-      <p><strong>Transaction ID:</strong> {qrCodeData.transactionId}</p>
-    </div>
-    <button onClick={handlePrint}>🖨️ Print Ticket</button>
-    <button onClick={() => setModalOpen(false)}>Close</button>
-  </Modal>
-)}
+        <Modal
+  isOpen={modalOpen}
+  onRequestClose={() => setModalOpen(false)}
+  className="qr-modal"
+  overlayClassName="qr-overlay"
+>
+  <div id="qr-code-print" className="qr-ticket">
 
+    {/* Header */}
+    <h2 className="ticket-title">✅ Purchase Confirmed</h2>
+    <p className="ticket-subtitle">Your adventure awaits!</p>
+
+    {/* QR Code */}
+    <div className="qr-code">
+      <QRCode value={JSON.stringify(qrCodeData)} size={180} />
+      <p className="scan-text">Scan at entry</p>
+    </div>
+
+    {/* Ticket Info */}
+    <div className="ticket-details">
+      <p><strong>👤 Name:</strong> {qrCodeData.name}</p>
+      <p><strong>📧 Email:</strong> {qrCodeData.email}</p>
+      <p><strong>🎫 Event:</strong> {event.title}</p>
+      <p><strong>📌 Ticket Type:</strong> {qrCodeData.ticketType}</p>
+      <p><strong>🔢 Quantity:</strong> {qrCodeData.quantity}</p>
+      <p><strong>🆔 Transaction ID:</strong> {qrCodeData.transactionId}</p>
+
+      {/* Optional seat/section if you store them */}
+      {qrCodeData.seat && <p><strong>💺 Seat:</strong> {qrCodeData.seat}</p>}
+      {qrCodeData.section && <p><strong>📍 Section:</strong> {qrCodeData.section}</p>}
+
+      {/* Price Breakdown */}
+      <div className="ticket-breakdown">
+        <p>Price: ₦{qrCodeData.price}</p>
+        <p>Fees: ₦{qrCodeData.fees || 0}</p>
+        <p className="total">Total Paid: ₦{qrCodeData.total}</p>
+      </div>
+    </div>
+
+    {/* Footer */}
+    <p className="ticket-footer">
+      Tickets are non-refundable. Please present ID upon entry.
+    </p>
+
+    {/* Actions */}
+    <div className="modal-actions">
+      <button onClick={handlePrint}>🖨️ Print Ticket</button>
+      <button className="secondary" onClick={handleDownloadImage}>⬇️ Download Ticket</button>
+      <button className="close" onClick={() => setModalOpen(false)}>✖ Close</button>
+    </div>
+
+    {/* Branding */}
+    <div className="ticket-logo">
+      <img src="/logo.png" alt="Website Logo" />
+    </div>
+  </div>
+</Modal>
+
+      )}
     </div>
   );
 };

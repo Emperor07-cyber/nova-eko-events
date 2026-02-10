@@ -87,7 +87,8 @@ const EditEvent = () => {
           />
           This is a free event
         </label>
-
+        <label>
+          <h4>Event Title</h4>
         <input
           name="title"
           placeholder="Event Title"
@@ -95,6 +96,9 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+        <label>
+          <h4>Event Description</h4>
         <textarea
           name="description"
           placeholder="Description"
@@ -102,6 +106,9 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+        <label>
+          <h4>Event Date & Time</h4>
         <input
           name="date"
           type="date"
@@ -109,6 +116,10 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+
+        <label>
+          <h4>Event Time</h4>
         <input
           name="startTime"
           type="time"
@@ -116,6 +127,10 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+
+        <label>
+          <h4>End Time</h4>
         <input
           name="endTime"
           type="time"
@@ -123,6 +138,10 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+
+        <label>
+          <h4>Location</h4>
         <input
           name="location"
           placeholder="Location"
@@ -130,12 +149,20 @@ const EditEvent = () => {
           onChange={handleChange}
           required
         />
+        </label>
+
+        <label>
+          <h4>Event Category</h4>
         <input
           name="category"
           placeholder="Category"
           value={eventData.category || ""}
           onChange={handleChange}
         />
+        </label>
+
+        <label>
+          <h4>Max Tickets Per User</h4>
         <input
           name="maxPurchaseLimit"
           type="number"
@@ -143,9 +170,10 @@ const EditEvent = () => {
           value={eventData.maxPurchaseLimit || 1}
           onChange={handleChange}
         />
+        </label>
 
         <div className="ticket-types">
-          <label>Ticket Types:</label>
+          <label><h4>Ticket Types:</h4></label>
           {eventData.tickets?.map((ticket, index) => (
             <div key={index} className="ticket-row">
               <input

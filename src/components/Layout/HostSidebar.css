@@ -1,0 +1,48 @@
+/* DESKTOP */
+.host-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.host-sidebar {
+  width: 220px;
+  background: #0f172a;
+  color: white;
+  padding: 1rem;
+}
+
+/* MAIN */
+.host-dashboard {
+  flex: 1;
+  padding: 1rem;
+}
+
+/* MOBILE FIX */
+@media (max-width: 768px) {
+
+  /* 🔥 THIS IS THE KEY FIX */
+  .host-layout {
+    display: block;
+  }
+
+  .host-sidebar {
+    display: none;
+  }
+
+  .host-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #0f172a;
+    justify-content: space-around;
+    padding: 0.8rem 0;
+    z-index: 999;
+  }
+
+  .host-dashboard {
+    padding-bottom: 90px; /* space for bottom nav */
+  }
+}

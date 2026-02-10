@@ -40,6 +40,8 @@ function BuyTicket({ event }) {
           name,
           email,
           ticketId: response.reference,
+          totalPaid: event.prices[ticketType],  // ✅ save price for revenue reports
+    timestamp: Date.now(),                  // ✅ save date for revenue reports
         };
 
         await storeTicket(ticketData);
@@ -95,12 +97,12 @@ function BuyTicket({ event }) {
         Pay with Paystack
       </button>
 
-      {qrCodeData && (
+      {/* {qrCodeData && (
         <div className="qr-section">
           <h3>Your Ticket QR Code</h3>
           <QRCode value={qrCodeData} size={180} />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
