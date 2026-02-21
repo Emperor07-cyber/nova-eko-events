@@ -117,7 +117,7 @@ const Home = () => {
     </Swiper>
   </div>
 </section>
-<section className="featured-party-section">
+{/* <section className="featured-party-section">
   <h2>🎤 Featured Party of the Week</h2>
   {events.length > 0 && (
     <div className="featured-card">
@@ -131,7 +131,7 @@ const Home = () => {
       </div>
     </div>
   )}
-</section>
+</section> */}
 
 {/* {events.length > 0 && (
   <section className="countdown-section">
