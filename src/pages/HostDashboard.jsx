@@ -14,6 +14,10 @@ const HostDashboard = () => {
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [balance, setBalance] = useState(0);
+
+  // ✅ SIDEBAR STATE
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,12 +79,21 @@ const HostDashboard = () => {
     <>
       <Header />
 
-      {/* ✅ LAYOUT WRAPPER */}
       <div className="host-layout">
-        <HostSidebar />
+        
+        {/* ✅ SIDEBAR WITH STATE */}
+        <HostSidebar sidebarOpen={sidebarOpen} />
 
-        {/* ✅ MAIN CONTENT */}
         <div className="host-dashboard">
+
+          {/* ✅ TOGGLE BUTTON */}
+          <button 
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            ☰
+          </button>
+
           <div className="wallet-card">
             <h2>💳 Wallet Balance</h2>
             <p>₦{balance.toLocaleString()}</p>
@@ -139,10 +152,11 @@ const HostDashboard = () => {
           <CSVLink data={tickets} filename="host-tickets.csv">
             Download CSV
           </CSVLink>
+
         </div>
       </div>
 
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

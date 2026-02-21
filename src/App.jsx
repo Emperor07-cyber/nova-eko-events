@@ -17,6 +17,10 @@ import EditEvent from "./components/Events/EditEvent"; // or wherever you keep i
 import { ToastContainer } from 'react-toastify';
 import HostSetup from './components/Auth/HostSetup';
 import 'react-toastify/dist/ReactToastify.css';
+import HostEvents from "./pages/HostEvents";
+import HostWallet from "./pages/HostWallet";
+import HostSettings from "./pages/HostSettings";
+
 
 
 function App() {
@@ -56,6 +60,41 @@ function App() {
   element={
     <RequireHost>
       <HostDashboard />
+    </RequireHost>
+  }
+/>
+<Route
+  path="/host/dashboard"
+  element={
+    <RequireHost>
+      <HostDashboard />
+    </RequireHost>
+  }
+/>
+
+<Route
+  path="/host/events"
+  element={
+    <RequireHost>
+      <HostEvents />
+    </RequireHost>
+  }
+/>
+
+<Route
+  path="/host/wallet"
+  element={
+    <RequireHost>
+      <HostWallet />
+    </RequireHost>
+  }
+/>
+
+<Route
+  path="/host/settings"
+  element={
+    <RequireHost>
+      <HostSettings />
     </RequireHost>
   }
 />

@@ -1,45 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  FaTachometerAlt,
-  FaWallet,
-  FaCalendarAlt,
-  FaCog
-} from "react-icons/fa";
-import "../../main.css"; // ✅ correct path to global CSS
-
-
 
 const HostSidebar = () => {
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <aside className="host-sidebar">
-      <nav>
-        <ul>
-          <li>
-            <Link to="/host/dashboard">
-  <FaTachometerAlt className="icon" />
-  <span>Dashboard</span>
-</Link>
+    <div className={`host-sidebar ${expanded ? "expanded" : ""}`}>
+      
+      <button
+        className="sidebar-toggle-btn"
+        onClick={() => setExpanded(!expanded)}
+      >
+        ☰
+      </button>
 
-<Link to="/host/wallet">
-  <FaWallet className="icon" />
-  <span>Wallet</span>
-</Link>
-
-<Link to="/host/events">
-  <FaCalendarAlt className="icon" />
-  <span>Events</span>
-</Link>
-
-<Link to="/host/settings">
-  <FaCog className="icon" />
-  <span>Settings</span>
-</Link>
-
-          </li>
-        </ul>
-      </nav>
-    </aside>
+      <ul>
+        <li>
+          <Link to="/host/dashboard">
+            📊 <span>Dashboard</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/host/events">
+            🎫 <span>Events</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/host/wallet">
+            💳 <span>Wallet</span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/host/settings">
+            ⚙️ <span>Settings</span>
+          </Link>
+        </li>
+      </ul>
+    </div>
   );
 };
+
 export default HostSidebar;

@@ -1945,52 +1945,71 @@ button:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-/* DESKTOP */
+/* ================= LAYOUT ================= */
+
 .host-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
+
 .host-sidebar {
-  width: 220px;
+  width: 70px;
   background: #0f172a;
   color: white;
-  padding: 1rem;
+  padding: 1rem 0.5rem;
+  transition: width 0.3s ease;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
 }
 
-/* MAIN */
+.host-sidebar.expanded {
+  width: 220px;
+}
+
+.host-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0 0;
+}
+
+.host-sidebar li {
+  margin-bottom: 1.5rem;
+}
+
+.host-sidebar a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.host-sidebar a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.host-sidebar span {
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.host-sidebar.expanded span {
+  opacity: 1;
+}
+
+/* ================= MAIN ================= */
+
 .host-dashboard {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
+  background: #f8fafc;
 }
-
-/* MOBILE FIX */
-@media (max-width: 768px) {
-
-  /* 🔥 THIS IS THE KEY FIX */
-  .host-layout {
-    display: block;
-  }
-
-  .host-sidebar {
-    display: none;
-  }
-
-  .host-bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #0f172a;
-    justify-content: space-around;
-    padding: 0.8rem 0;
-    z-index: 999;
-  }
-
-  .host-dashboard {
-    padding-bottom: 90px; /* space for bottom nav */
-  }
-}
-
