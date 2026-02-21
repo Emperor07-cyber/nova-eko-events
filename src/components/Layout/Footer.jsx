@@ -26,15 +26,15 @@ const Footer = () => {
         <div className="footer-social">
           <h4>Follow Us</h4>
           <div className="footer-social-icons">
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+          {/* <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
             <FaTwitter size={24} />
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+          </a> */}
+          <a href="https://www.instagram.com/eko.tix?igsh=ZDg5YWFmanA1dDFo" target="_blank" rel="noopener noreferrer">
             <FaInstagram size={24} />
           </a>
-          <a href="https://snapchat.com" target="_blank" rel="noopener noreferrer">
+          {/* <a href="https://snapchat.com" target="_blank" rel="noopener noreferrer">
             <FaSnapchat size={24} />
-          </a>
+          </a> */}
         </div>
         </div>
 
@@ -44,7 +44,8 @@ const Footer = () => {
         <div className="footer-contact">
           <h4>Contact</h4>
           <p>Email: Ekotix234@gmail.com</p>
-          <p>Phone: +234 800 123 4567</p>
+          <p>Phone: +234 903 509 2518 </p>
+          <p>Phone: +234 901 328 6471 </p>
         </div>
       </div>
 
