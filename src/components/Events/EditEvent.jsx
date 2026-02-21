@@ -14,24 +14,23 @@ const EditEvent = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
+  const fetchData = async () => {
+    if (!user) return;
 
-      const userRef = ref(database, "users/" + user.uid);
-      const userSnap = await get(userRef);
+    try {
+      const userSnap = await get(ref(database, "users/" + user.uid));
       const userInfo = userSnap.val();
-      setUserRole(userInfo?.role || "user");
 
-      const eventRef = ref(database, "events/" + eventId);
-      const eventSnap = await get(eventRef);
+      const eventSnap = await get(ref(database, "events/" + eventId));
       const event = eventSnap.val();
 
       if (!event) {
         setUnauthorized(true);
+        setLoading(false);
         return;
       }
 
-      const isOwner = event.createdBy === user.email;
+      const isOwner = event.createdBy === user.uid; // ✅ FIXED
       const isAdmin = userInfo?.role === "admin";
 
       if (isOwner || isAdmin) {
@@ -41,10 +40,14 @@ const EditEvent = () => {
       }
 
       setLoading(false);
-    };
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [user, eventId]);
+  fetchData();
+}, [user, eventId]);
 
   if (!user || loading) return <div>Loading...</div>;
   if (unauthorized) return <Navigate to="/unauthorized" replace />;

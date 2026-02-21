@@ -6,7 +6,7 @@ exports.getBanks = functions.https.onRequest(async (req, res) => {
   try {
     const response = await axios.get("https://api.paystack.co/bank=nigeria", {
       headers: {
-        Authorization: `Bearer ${process.env.sk_test_d94bf251148687b4bcb9ae1cce461ca8ba9630cc}`,
+        Authorization: `Bearer ${process.env.sk_live_23d9a3fb9f7b6d863a7cdf6aaf9d2abdabcde34a}`,
       },
     });
     res.json(response.data);
@@ -22,7 +22,7 @@ exports.verifyAccount = functions.https.onRequest(async (req, res) => {
       `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.sk_test_d94bf251148687b4bcb9ae1cce461ca8ba9630cc}`,
+          Authorization: `Bearer ${process.env.sk_live_23d9a3fb9f7b6d863a7cdf6aaf9d2abdabcde34a}`,
         },
       }
     );
