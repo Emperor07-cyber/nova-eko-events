@@ -20,7 +20,7 @@ function BuyTicket({ event }) {
     const amount = event.prices[ticketType];
 
     const handler = window.PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      key:  "invalid_key_test",
       email,
       amount: amount * 100,
       currency: "NGN",
