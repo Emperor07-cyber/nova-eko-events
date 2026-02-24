@@ -725,3 +725,19 @@
   background: #ef4444;
   color: white;
 }
+/* ── Mobile table scroll ─────────────────── */
+@media (max-width: 768px) {
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .host-table {
+    min-width: 600px; /* forces table to be wider than screen = scroll appears */
+  }
+
+  .host-table th,
+  .host-table td {
+    white-space: nowrap; /* prevents text wrapping which squishes columns */
+  }
+}
