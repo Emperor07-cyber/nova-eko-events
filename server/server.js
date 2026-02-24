@@ -4,7 +4,15 @@ require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://ekotixx.com", // ← replace with your actual frontend URL
+  ],
+  methods: ["GET", "POST"],
+  credentials: true,
+}));
 
 app.get("/get-banks", async (req, res) => {
   try {
@@ -16,7 +24,6 @@ app.get("/get-banks", async (req, res) => {
         },
       }
     );
-
     res.json(response.data);
   } catch (error) {
     console.log(error.response?.data || error.message);
@@ -36,16 +43,16 @@ app.get("/verifyAccount", async (req, res) => {
         },
       }
     );
-
-    res.set("Cache-Control", "no-store"); // 🔥 VERY IMPORTANT
+    res.set("Cache-Control", "no-store");
     res.status(200).json(response.data);
-
   } catch (error) {
     console.error("Paystack error:", error.response?.data || error.message);
     res.status(400).json({ status: false, message: "Verification failed" });
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// ✅ Railway uses dynamic port — this is required
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

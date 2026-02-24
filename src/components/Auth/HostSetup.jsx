@@ -16,11 +16,12 @@
     const navigate = useNavigate();
     const location = useLocation();
     const [user] = useAuthState(auth);
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     useEffect(() => {
         const fetchBanks = async () => {
         try {
-            const res = await fetch("http://localhost:5000/get-banks"); // Your Firebase function URL
+            const res = await fetch(`${API_URL}/get-banks`);
             const data = await res.json();
             setBanks(data.data); // Paystack returns {status, message, data: []}
         } catch (error) {
@@ -47,7 +48,7 @@
 
   try {
     const res = await fetch(
-      `http://localhost:5000/verifyAccount?accountNumber=${accountNumber}&bankCode=${bankCode}`,
+      `${API_URL}/verifyAccount?accountNumber=${accountNumber}&bankCode=${bankCode}`,
       { method: "GET", cache: "no-store" }
     );
 
