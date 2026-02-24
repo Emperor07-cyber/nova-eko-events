@@ -4,56 +4,61 @@ import { database, auth } from "../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../components/Layout/Header";
-import Footer from "../components/Layout/Footer";
-import HostSidebar from "../components/Layout/HostSidebar";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import HostLayout from "../components/Layout/HostLayout";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
 
 const HostDashboard = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [balance, setBalance] = useState(0);
-
-  // ✅ SIDEBAR STATE
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
 
     const eventsRef = ref(database, "events");
-    onValue(eventsRef, (snapshot) => {
+    const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const userEvents = Object.entries(data)
         .map(([id, val]) => ({ id, ...val }))
         .filter((event) => event.createdBy === user.email);
       setEvents(userEvents);
     });
+
+    return () => unsubscribe();
   }, [user]);
 
   useEffect(() => {
     if (!user || events.length === 0) return;
 
     const ticketsRef = ref(database, "tickets");
-    onValue(ticketsRef, (snapshot) => {
+    const unsubscribe = onValue(ticketsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const hostTickets = Object.entries(data)
         .map(([id, val]) => ({ id, ...val }))
-        .filter((ticket) => events.some(e => e.id === ticket.eventId));
+        .filter((ticket) => events.some((e) => e.id === ticket.eventId));
 
       setTickets(hostTickets);
 
       let total = 0;
-      hostTickets.forEach(ticket => {
+      hostTickets.forEach((ticket) => {
         const gross = ticket.totalPaid || 0;
         const fee = gross * 0.05 + 100;
         total += gross - fee;
       });
-
       setBalance(total);
     });
+
+    return () => unsubscribe();
   }, [user, events]);
 
   const handleDelete = async (eventId) => {
@@ -64,11 +69,13 @@ const HostDashboard = () => {
   };
 
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
-  const totalAttendees = new Set(tickets.map(t => t.email)).size;
+  const totalAttendees = new Set(tickets.map((t) => t.email)).size;
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
-      const date = new Date(ticket.timestamp || Date.now()).toLocaleDateString();
+      const date = new Date(
+        ticket.timestamp || Date.now()
+      ).toLocaleDateString();
       acc[date] = acc[date] || { date, total: 0 };
       acc[date].total += ticket.totalPaid || 0;
       return acc;
@@ -76,88 +83,124 @@ const HostDashboard = () => {
   );
 
   return (
-    <>
-      <Header />
+    <HostLayout>
+      {/* Wallet Balance */}
+      <div className="wallet-card">
+        <div className="wallet-card-inner">
+          <span className="wallet-label">💳 Available Balance</span>
+          <span className="wallet-amount">₦{balance.toLocaleString()}</span>
+        </div>
+      </div>
 
-      <div className="host-layout">
-        
-        {/* ✅ SIDEBAR WITH STATE */}
-        <HostSidebar sidebarOpen={sidebarOpen} />
-
-        <div className="host-dashboard">
-
-          {/* ✅ TOGGLE BUTTON */}
-          <button 
-            className="sidebar-toggle-btn"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            ☰
-          </button>
-
-          <div className="wallet-card">
-            <h2>💳 Wallet Balance</h2>
-            <p>₦{balance.toLocaleString()}</p>
+      {/* Summary Cards */}
+      <div className="summary-cards">
+        <div className="summary-card">
+          <span className="summary-icon">🎫</span>
+          <div>
+            <p className="summary-value">{tickets.length}</p>
+            <p className="summary-label">Tickets Sold</p>
           </div>
-
-          <Link to="/event/new">
-            <button className="create-event-btn">+ Create New Event</button>
-          </Link>
-
-          <div className="summary-cards">
-            <div className="card">🎫 Tickets Sold: {tickets.length}</div>
-            <div className="card">💰 Revenue: ₦{totalRevenue.toLocaleString()}</div>
-            <div className="card">📅 Events: {events.length}</div>
-            <div className="card">👥 Attendees: {totalAttendees}</div>
+        </div>
+        <div className="summary-card">
+          <span className="summary-icon">💰</span>
+          <div>
+            <p className="summary-value">₦{totalRevenue.toLocaleString()}</p>
+            <p className="summary-label">Total Revenue</p>
           </div>
+        </div>
+        <div className="summary-card">
+          <span className="summary-icon">📅</span>
+          <div>
+            <p className="summary-value">{events.length}</p>
+            <p className="summary-label">Events</p>
+          </div>
+        </div>
+        <div className="summary-card">
+          <span className="summary-icon">👥</span>
+          <div>
+            <p className="summary-value">{totalAttendees}</p>
+            <p className="summary-label">Attendees</p>
+          </div>
+        </div>
+      </div>
 
-          <h2>📋 My Events</h2>
-          <table className="events-table">
-            <thead>
+      {/* Events Table */}
+      <div className="section-header">
+        <h2 className="section-title">📋 My Events</h2>
+        <Link to="/event/new">
+          <button className="btn-primary">+ Create New Event</button>
+        </Link>
+      </div>
+
+      <div className="table-wrapper">
+        <table className="host-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Tickets Sold</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.length === 0 ? (
               <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Location</th>
-                <th>Tickets Sold</th>
-                <th>Actions</th>
+                <td colSpan={5} className="table-empty">
+                  No events yet. Create your first one!
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {events.map(event => (
+            ) : (
+              events.map((event) => (
                 <tr key={event.id}>
                   <td>{event.title}</td>
                   <td>{event.date}</td>
                   <td>{event.location}</td>
-                  <td>{tickets.filter(t => t.eventId === event.id).length}</td>
-                  <td>
-                    <button onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
-                    <button onClick={() => handleDelete(event.id)}>Delete</button>
+                  <td>{tickets.filter((t) => t.eventId === event.id).length}</td>
+                  <td className="action-btns">
+                    <button
+                      className="btn-edit"
+                      onClick={() => navigate(`/event/edit/${event.id}`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(event.id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <h2>📈 Sales Chart</h2>
-          <div style={{ height: 250 }}>
-            <ResponsiveContainer>
-              <BarChart data={salesData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="total" fill="#00A3FF" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <CSVLink data={tickets} filename="host-tickets.csv">
-            Download CSV
-          </CSVLink>
-
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* <Footer /> */}
-    </>
+      {/* Sales Chart */}
+      <h2 className="section-title" style={{ marginTop: "2rem" }}>
+        📈 Sales Chart
+      </h2>
+      <div className="chart-wrapper">
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={salesData}>
+            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip />
+            <Bar dataKey="total" fill="#00A3FF" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <CSVLink
+        data={tickets}
+        filename="host-tickets.csv"
+        className="btn-csv"
+      >
+        ⬇ Download CSV
+      </CSVLink>
+    </HostLayout>
   );
 };
 

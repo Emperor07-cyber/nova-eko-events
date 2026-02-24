@@ -1,17 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
+import Header from "./Header";
 import HostSidebar from "./HostSidebar";
-import '../../main.css';
+import './hostPortal.css';
 
 const HostLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="host-container">
-      <HostSidebar />
-      <div className="host-content">
-        {children}
+    <>
+      <Header />
+      <div className="host-layout">
+        <HostSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+        <main className="host-main">
+          <button
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open sidebar"
+          >
+            ☰
+          </button>
+
+          <div className="host-content">
+            {children}
+          </div>
+        </main>
       </div>
-    </div>
+    </>
   );
 };
 
 export default HostLayout;
-

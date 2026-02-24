@@ -47,12 +47,9 @@
 
   try {
     const res = await fetch(
-  `http://localhost:5000/verifyAccount?accountNumber=${accountNumber}&bankCode=${bankCode}`,
-  {
-    method: "GET",
-    cache: "no-store", // 🔥 VERY IMPORTANT
-  }
-);
+      `http://localhost:5000/verifyAccount?accountNumber=${accountNumber}&bankCode=${bankCode}`,
+      { method: "GET", cache: "no-store" }
+    );
 
     const data = await res.json();
     console.log("Verification response:", data);
@@ -64,11 +61,15 @@
     }
 
     const verifiedName = data.data.account_name;
+    setAccountName(verifiedName);
+
+    // ✅ Replaces the old await update(...) block
+    const selectedBank = banks.find((b) => b.code === bankCode);
 
     await update(ref(database, "users/" + user.uid), {
       accountName: verifiedName,
       accountNumber,
-      bank: data.data.bank_name,
+      bank: selectedBank ? selectedBank.name : bankCode,
       bankCode,
       hostVerified: true,
     });
@@ -77,10 +78,11 @@
     navigate("/host/dashboard");
 
   } catch (error) {
+    console.error(error); // 👈 keep this so you can see future errors
     alert("Verification failed.");
+  } finally {
+    setLoading(false);
   }
-
-  setLoading(false);
 };
 
     return (
@@ -91,41 +93,35 @@
         <p>Please provide your payout details:</p>
 
         <form onSubmit={handleVerifyAndSave}>
-            <label htmlFor="accountName"><h4>Account Name</h4> 
-            <input
-            type="text"
-            placeholder="Account Name"
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-            required
-            />
-            </label>
-            <label htmlFor="accountNumber"><h4>Account Number</h4>
-            <input
-            type="text"
-            placeholder="Account Number"
-            value={accountNumber}
-            onChange={(e) => setAccountNumber(e.target.value)}
-            required
-            />
-            </label>
-            <h4 style={{ marginTop: "1rem" }}>Bank</h4>
-            <select
-  value={bankCode}
-  onChange={(e) => setBankCode(e.target.value)}
-  required
->
-  <option value="">Select Bank</option>
-  {banks.map((bank) => (
-    
-    <option value={bank.code}>{bank.name}</option>
-  ))}
-</select>
+  {/* ❌ Remove this — user shouldn't manually enter account name */}
+  {/* Paystack will resolve it automatically */}
 
-            <button type="submit" disabled={loading}>
-            {loading ? "Verifying..." : "Save Details"}
-            </button>
-        </form>
+  <label htmlFor="accountNumber">
+    <h4>Account Number</h4>
+    <input
+      type="text"
+      placeholder="Account Number"
+      value={accountNumber}
+      onChange={(e) => setAccountNumber(e.target.value)}
+      required
+    />
+  </label>
+
+  <h4 style={{ marginTop: "1rem" }}>Bank</h4>
+  <select value={bankCode} onChange={(e) => setBankCode(e.target.value)} required>
+    <option value="">Select Bank</option>
+    {banks.map((bank) => (
+      <option key={bank.code} value={bank.code}>{bank.name}</option> 
+    ))}
+  </select>
+
+  <button type="submit" disabled={loading}>
+    {loading ? "Verifying..." : "Save Details"}
+  </button>
+</form>
+
+{/* ✅ This now correctly shows after setAccountName() is called */}
+{accountName && <p>✅ Account Name: {accountName}</p>}
 
         {accountName && <p>✅ Account Name: {accountName}</p>}
         </div>

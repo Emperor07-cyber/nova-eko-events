@@ -1554,24 +1554,7 @@ button:hover {
   font-weight: bold;
   margin-top: 10px;
 }
-/* Host Dashboard Main Container */
-.host-dashboard {
-  padding: 2rem;
-  background-color: #f9fafb;
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
-  min-height: 100vh;
-}
 
-/* Dashboard Title */
-.host-dashboard h1 {
-  font-size: 2.25rem;
-  margin-bottom: 2rem;
-  font-weight: 700;
-  color: #222;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.5rem;
-}
 
 /* Cards Grid */
 .dashboard-cards {
@@ -1763,80 +1746,7 @@ button:hover {
   box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
-/* HostSetup.css */
-.host-setup {
-  max-width: 800px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
 
-.host-setup h2 {
-  text-align: center;
-  margin-bottom: 0.5rem;
-  font-size: 1.6rem;
-  color: #009f15;
-}
-
-.host-setup p {
-  text-align: center;
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.host-setup form {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-}
-
-.host-setup input,
-.host-setup select {
-  padding: 24px 28px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease-in-out;
-}
-
-.host-setup input:focus,
-.host-setup select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
-}
-
-.host-setup button {
-  padding: 12px;
-  background: #14c02b;
-  color: #fff;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.25s ease-in-out;
-}
-
-.host-setup button:disabled {
-  background: #999;
-  cursor: not-allowed;
-}
-
-.host-setup button:hover:not(:disabled) {
-  background: white;
-  color: #14c02b;
-  border: 2px solid #14c02b;
-}
-
-.host-setup p:last-of-type {
-  margin-top: 1rem;
-  text-align: center;
-  font-weight: bold;
-  color: green;
-}
 
 
 .carousel-title {
@@ -1973,72 +1883,4 @@ button:hover {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-/* ================= LAYOUT ================= */
-
-.host-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ================= SIDEBAR ================= */
-
-.host-sidebar {
-  width: 70px;
-  background: #0f172a;
-  color: white;
-  padding: 1rem 0.5rem;
-  transition: width 0.3s ease;
-  overflow: hidden;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.host-sidebar.expanded {
-  width: 220px;
-}
-
-.host-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0 0 0;
-}
-
-.host-sidebar li {
-  margin-bottom: 1.5rem;
-}
-
-.host-sidebar a {
-  color: white;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  padding: 0.5rem 0.8rem;
-  border-radius: 6px;
-  transition: background 0.2s ease;
-}
-
-.host-sidebar a:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.host-sidebar span {
-  opacity: 0;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.host-sidebar.expanded span {
-  opacity: 1;
-}
-
-/* ================= MAIN ================= */
-
-.host-dashboard {
-  flex: 1;
-  padding: 2rem;
-  background: #f8fafc;
 }
