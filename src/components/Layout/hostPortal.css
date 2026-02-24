@@ -741,3 +741,48 @@
     white-space: nowrap; /* prevents text wrapping which squishes columns */
   }
 }
+/* ── Withdraw Button ─────────────────────── */
+.btn-withdraw {
+  background: #009f15;
+  color: #fff;
+  border: 2px solid #009f15;
+  border-radius: 6px;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  font-family: var(--font-body);
+}
+
+.btn-withdraw:hover:not(:disabled) {
+  background: white;
+  color: #009f15;
+}
+
+.btn-withdraw:disabled {
+  background: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ── Modal ───────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
