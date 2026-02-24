@@ -8,10 +8,41 @@ import Countdown from "../components/Layout/countdown";
 import { FaCog, FaPercentage, FaLock } from "react-icons/fa";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
+<Swiper
+  modules={[Autoplay, EffectCoverflow]}
+  effect="coverflow"
+  centeredSlides={true}
+  grabCursor={true}
+  loop={true}
+  slidesPerView="auto"
+  autoplay={{
+    delay: 2000,
+    disableOnInteraction: false,
+  }}
+  coverflowEffect={{
+    rotate: 0,
+    stretch: -80,
+    depth: 400,
+    modifier: 1,
+    slideShadows: false,
+  }}
+  className="party-swiper"
+>
+  {[
+    "/images/nova1.jpg",
+    "/images/nova2.jpg",
+    "/images/nova3.jpg",
+    "/images/nova4.jpg",
+  ].map((src, idx) => (
+    <SwiperSlide key={idx} className="party-slide">
+      <img src={src} alt={`party ${idx}`} />
+    </SwiperSlide>
+  ))}
+</Swiper>
 
 const Home = () => {
   const [events, setEvents] = useState([]);
@@ -83,38 +114,35 @@ const Home = () => {
 </section>
 
 
-        <section className="party-carousel-section">
-  {/* <h2 className="carousel-title">🎉 Party Moments</h2> */}
-  <div className="carousel-wrapper">
+<section className="party-carousel-section">
+  <div className="curved-carousel-container">
     <Swiper
   modules={[Autoplay]}
-  spaceBetween={8}
-  slidesPerView={1}
+  centeredSlides={true}
+  slidesPerView={3}
+  spaceBetween={30}
   loop={true}
   autoplay={{
-    delay: 1000,
+    delay: 2000,
     disableOnInteraction: false,
   }}
   breakpoints={{
-    0: { slidesPerView: 1 }, // ✅ added for extra safety
-    460: { slidesPerView: 1 },
+    0: { slidesPerView: 1 },
     640: { slidesPerView: 2 },
     1024: { slidesPerView: 3 },
   }}
 >
-
-      {[
-        "/images/nova1.jpg",
-        "/images/nova2.jpg",
-        "/images/nova3.jpg",
-        "/images/nova4.jpg",
-
-      ].map((src, idx) => (
-        <SwiperSlide key={idx}>
-          <img src={src} alt={`party ${idx}`} className="carousel-image" />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+  {[
+    "/images/nova1.jpg",
+    "/images/nova2.jpg",
+    "/images/nova3.jpg",
+    "/images/nova4.jpg",
+  ].map((src, idx) => (
+    <SwiperSlide key={idx}>
+      <img src={src} alt={`party ${idx}`} className="carousel-image" />
+    </SwiperSlide>
+  ))}
+</Swiper>
   </div>
 </section>
 {/* <section className="featured-party-section">
