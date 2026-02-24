@@ -107,7 +107,7 @@ const AdminDashboard = () => {
         <li key={event.id} className="event-item">
           <strong>{event.title}</strong>
           <div className="event-actions">
-            <button title="Edit" onClick={() => navigate(`/edit-event/${event.id}`)}>
+            <button title="Edit" onClick={() => navigate(`/event/edit/${event.id}`)}  >
   <FaEdit />
 </button>
             <button title="Delete" onClick={() => handleDeleteEvent(event.id)}><FaTrash /></button>

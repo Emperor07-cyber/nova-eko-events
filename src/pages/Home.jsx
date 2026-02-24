@@ -117,32 +117,35 @@ const Home = () => {
 <section className="party-carousel-section">
   <div className="curved-carousel-container">
     <Swiper
-  modules={[Autoplay]}
-  centeredSlides={true}
-  slidesPerView={3}
-  spaceBetween={30}
-  loop={true}
-  autoplay={{
-    delay: 2000,
-    disableOnInteraction: false,
-  }}
-  breakpoints={{
-    0: { slidesPerView: 1 },
-    640: { slidesPerView: 2 },
-    1024: { slidesPerView: 3 },
-  }}
->
-  {[
-    "/images/nova1.jpg",
-    "/images/nova2.jpg",
-    "/images/nova3.jpg",
-    "/images/nova4.jpg",
-  ].map((src, idx) => (
-    <SwiperSlide key={idx}>
-      <img src={src} alt={`party ${idx}`} className="carousel-image" />
-    </SwiperSlide>
-  ))}
-</Swiper>
+      modules={[Autoplay]}
+      centeredSlides={true}
+      slidesPerView={3}
+      spaceBetween={-20}
+      loop={true}
+      autoplay={{
+        delay: 2500,
+        disableOnInteraction: false,
+      }}
+      breakpoints={{
+        0:    { slidesPerView: 1, spaceBetween: 0 },
+        640:  { slidesPerView: 2, spaceBetween: -10 },
+        1024: { slidesPerView: 3, spaceBetween: -20 },
+      }}
+      className="arc-swiper"
+    >
+      {[
+        "/images/nova1.jpg",
+        "/images/nova2.jpg",
+        "/images/nova3.jpg",
+        "/images/nova4.jpg",
+      ].map((src, idx) => (
+        <SwiperSlide key={idx} className="arc-slide">
+          <div className="arc-card">
+            <img src={src} alt={`party ${idx}`} className="arc-image" />
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
   </div>
 </section>
 {/* <section className="featured-party-section">

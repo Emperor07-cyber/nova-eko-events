@@ -693,7 +693,7 @@ button:hover {
   transition: background-color 0.3s ease;
 }
 .event-card a:hover {
-  background-color: #0056b3;
+  background-color: #0a9342;
 }
 
 .event-card h3 {
@@ -1712,40 +1712,75 @@ button:hover {
     margin-top: 2rem;
   }
 }
+/* ── Party Carousel ──────────────────────── */
 .party-carousel-section {
-  background: #f5f5f5; /* same as page */
-  padding: 80px 0;
+  padding: 4rem 0 5rem;
   overflow: hidden;
+  background: #fff;
 }
 
-.carousel-wrapper {
+.curved-carousel-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 0;
   perspective: 1200px;
 }
 
-.swiper-slide {
-  transition: transform 0.5s ease;
+.arc-swiper {
+  overflow: visible !important;
+  padding: 40px 0 60px !important;
+}
+
+/* Default (side) slide */
+.arc-slide {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  transform: rotate(8deg) translateY(30px) scale(0.85);
+  opacity: 0.6;
+  transform-origin: bottom center;
+}
+
+/* Previous slide mirrors the tilt */
+.arc-slide:first-child,
+.swiper-slide-prev {
+  transform: rotate(-8deg) translateY(30px) scale(0.85);
+  opacity: 0.6;
+}
+
+/* Active (center) slide */
+.swiper-slide-active .arc-card {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
 }
 
 .swiper-slide-active {
-  transform: scale(1.05);
-  z-index: 2;
+  transform: rotate(0deg) translateY(0px) scale(1) !important;
+  opacity: 1 !important;
+  z-index: 10;
 }
 
 .swiper-slide-prev {
-  transform: rotateY(15deg) translateY(20px) scale(0.95);
+  transform: rotate(-8deg) translateY(30px) scale(0.85) !important;
+  opacity: 0.7 !important;
 }
 
 .swiper-slide-next {
-  transform: rotateY(-15deg) translateY(20px) scale(0.95);
-}
-.carousel-image {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  transform: rotate(8deg) translateY(30px) scale(0.85) !important;
+  opacity: 0.7 !important;
 }
 
+.arc-card {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  aspect-ratio: 3 / 4;
+  transition: box-shadow 0.4s ease;
+}
+
+.arc-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
 
 

@@ -6,6 +6,7 @@ import { PaystackButton } from "react-paystack";
 import emailjs from "@emailjs/browser";
 import "../../main.css";
 
+
 // ✅ Replace these with your actual EmailJS credentials
 const EMAILJS_SERVICE_ID  = "service_vu5rgjd";
 const EMAILJS_TEMPLATE_ID = "template_xdiunfr";
@@ -63,28 +64,34 @@ const EventDetails = () => {
     // Send email via EmailJS
     try {
       await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-  user_name: user.name,
-  event_name: event.title,
-  event_date: event.date,
-  event_location: event.location,
-  ticket_type: selectedTicket.name,
-  order_id: paymentReference,
-  qr_code_url: qrCodeImageUrl,
-  support_email: "Ekotix234@gmail.com",
-  company_name: "Ekotix Inc",
-  current_year: new Date().getFullYear()
-},
-        EMAILJS_PUBLIC_KEY
-      );
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
+  {
+    to_email:       userData.email,
+    user_name:      userData.name,
+    event_name:     event.title,
+    event_date:     event.date,
+    event_location: event.location,
+    ticket_type:    selectedTicket,
+    quantity:       String(ticketQuantity),
+    unit_price:     ticketPrice.toLocaleString(),
+    total_paid:     totalAmount.toLocaleString(),
+    order_id:       response.reference,
+    qr_code_url:    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(response.reference)}`,
+    support_email:  "Ekotix234@gmail.com",
+    company_name:   "Ekotix Inc",
+    current_year:   String(new Date().getFullYear()),
+  },
+  EMAILJS_PUBLIC_KEY
+);
 
       setSuccessMessage(
         `🎉 Ticket confirmed! A confirmation email has been sent to ${ticketData.email}`
       );
     } catch (err) {
       console.error("Email send failed:", err);
+      console.error("EmailJS error:", err);  // ← check what this says
+  console.error("Status:", err.status, "Text:", err.text);
       setSuccessMessage(
         `✅ Payment successful! Transaction ID: ${ticketData.transactionId}. 
          (Email delivery failed — please save your Transaction ID)`
