@@ -5,26 +5,18 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
 import HostLayout from "../components/Layout/HostLayout";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const HostDashboard = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [balance, setBalance] = useState(0);
+  const [copiedId, setCopiedId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-
     const eventsRef = ref(database, "events");
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val() || {};
@@ -33,22 +25,18 @@ const HostDashboard = () => {
         .filter((event) => event.createdBy === user.email);
       setEvents(userEvents);
     });
-
     return () => unsubscribe();
   }, [user]);
 
   useEffect(() => {
     if (!user || events.length === 0) return;
-
     const ticketsRef = ref(database, "tickets");
     const unsubscribe = onValue(ticketsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const hostTickets = Object.entries(data)
         .map(([id, val]) => ({ id, ...val }))
         .filter((ticket) => events.some((e) => e.id === ticket.eventId));
-
       setTickets(hostTickets);
-
       let total = 0;
       hostTickets.forEach((ticket) => {
         const gross = ticket.totalPaid || 0;
@@ -57,7 +45,6 @@ const HostDashboard = () => {
       });
       setBalance(total);
     });
-
     return () => unsubscribe();
   }, [user, events]);
 
@@ -68,14 +55,19 @@ const HostDashboard = () => {
     }
   };
 
+  const handleCopyLink = (eventId) => {
+    const link = `${window.location.origin}/event/${eventId}`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(eventId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
-      const date = new Date(
-        ticket.timestamp || Date.now()
-      ).toLocaleDateString();
+      const date = new Date(ticket.timestamp || Date.now()).toLocaleDateString();
       acc[date] = acc[date] || { date, total: 0 };
       acc[date].total += ticket.totalPaid || 0;
       return acc;
@@ -84,7 +76,6 @@ const HostDashboard = () => {
 
   return (
     <HostLayout>
-      {/* Wallet Balance */}
       <div className="wallet-card">
         <div className="wallet-card-inner">
           <span className="wallet-label">💳 Available Balance</span>
@@ -92,7 +83,6 @@ const HostDashboard = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
       <div className="summary-cards">
         <div className="summary-card">
           <span className="summary-icon">🎫</span>
@@ -124,7 +114,6 @@ const HostDashboard = () => {
         </div>
       </div>
 
-      {/* Events Table */}
       <div className="section-header">
         <h2 className="section-title">📋 My Events</h2>
         <Link to="/event/new">
@@ -140,15 +129,14 @@ const HostDashboard = () => {
               <th>Date</th>
               <th>Location</th>
               <th>Tickets Sold</th>
+              <th>Event Link</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {events.length === 0 ? (
               <tr>
-                <td colSpan={5} className="table-empty">
-                  No events yet. Create your first one!
-                </td>
+                <td colSpan={6} className="table-empty">No events yet. Create your first one!</td>
               </tr>
             ) : (
               events.map((event) => (
@@ -157,19 +145,17 @@ const HostDashboard = () => {
                   <td>{event.date}</td>
                   <td>{event.location}</td>
                   <td>{tickets.filter((t) => t.eventId === event.id).length}</td>
+                  <td>
+                    <button
+                      className="btn-copy-link"
+                      onClick={() => handleCopyLink(event.id)}
+                    >
+                      {copiedId === event.id ? "✅ Copied!" : "🔗 Copy Link"}
+                    </button>
+                  </td>
                   <td className="action-btns">
-                    <button
-                      className="btn-edit"
-                      onClick={() => navigate(`/event/edit/${event.id}`)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDelete(event.id)}
-                    >
-                      Delete
-                    </button>
+                    <button className="btn-edit" onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
+                    <button className="btn-delete" onClick={() => handleDelete(event.id)}>Delete</button>
                   </td>
                 </tr>
               ))
@@ -178,26 +164,19 @@ const HostDashboard = () => {
         </table>
       </div>
 
-      {/* Sales Chart */}
-      <h2 className="section-title" style={{ marginTop: "2rem" }}>
-        📈 Sales Chart
-      </h2>
+      <h2 className="section-title" style={{ marginTop: "2rem" }}>📈 Sales Chart</h2>
       <div className="chart-wrapper">
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={salesData}>
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
-            <Bar dataKey="total" fill="#00A3FF" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="total" fill="#14c02b" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      <CSVLink
-        data={tickets}
-        filename="host-tickets.csv"
-        className="btn-csv"
-      >
+      <CSVLink data={tickets} filename="host-tickets.csv" className="btn-csv">
         ⬇ Download CSV
       </CSVLink>
     </HostLayout>
@@ -205,3 +184,4 @@ const HostDashboard = () => {
 };
 
 export default HostDashboard;
+  

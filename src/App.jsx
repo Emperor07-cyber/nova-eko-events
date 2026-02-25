@@ -20,6 +20,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import HostEvents from "./pages/HostEvents";
 import HostWallet from "./pages/HostWallet";
 import HostSettings from "./pages/HostSettings";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
 
 
 
@@ -30,6 +32,8 @@ function App() {
   <Route path="/" element={<Home />} />
   <Route path="/eventlist" element={<EventList />} />
   <Route path="/host-setup" element={<HostSetup />} />
+  <Route path="/privacy" element={<PrivacyPolicy />} />
+  <Route path="/terms"   element={<Terms />} />
   <Route
   path="/admin/dashboard"
   element={<RequireAdmin Component={Dashboard} />}

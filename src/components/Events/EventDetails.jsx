@@ -46,6 +46,7 @@ const EventDetails = () => {
       ...userData,
       eventId,
       eventTitle:    event.title,
+      hostEmail:     eventInfo?.createdBy || "",
       ticketType:    selectedTicket,
       quantity:      ticketQuantity,
       totalPaid:     totalAmount,
@@ -125,7 +126,17 @@ const EventDetails = () => {
       <p><strong>Date:</strong> {event.date}</p>
       <p><strong>Time:</strong> {event.time || "To be announced"}</p>
       <p><strong>Location:</strong> {event.location}</p>
-      <img src={event.image || "/default-event.jpg"} alt={event.title} width="100%" />
+      <img
+  src={event.image || "/default-event.jpg"}
+  alt={event.title}
+  style={{
+    width: "100%",
+    maxHeight: "500px",
+    objectFit: "contain",
+    borderRadius: "12px",
+    background: "#f8fafc",
+  }}
+/>
       <p className="description">{event.description}</p>
 
       {/* ✅ Success message instead of modal */}

@@ -10,7 +10,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState("user"); // Default role
+  const [role, setRole] = useState("user");
   const [emailInUse, setEmailInUse] = useState(false);
   const navigate = useNavigate();
 
@@ -18,11 +18,20 @@ function Register() {
     e.preventDefault();
     setEmailInUse(false);
 
+    // If host, go to setup page FIRST — pass form data via state
+    // Account will only be created AFTER bank details are verified
+    if (role === "host") {
+      navigate("/host-setup", {
+        state: { email, password, name, role },
+      });
+      return;
+    }
+
+    // For regular users, create account immediately as before
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const user = result.user;
 
-      // Save basic details first
       await set(ref(database, "users/" + user.uid), {
         uid: user.uid,
         name,
@@ -30,13 +39,8 @@ function Register() {
         role,
       });
 
-      if (role === "host") {
-        // Redirect host to account setup page
-        navigate("/host-setup", { state: { uid: user.uid } });
-      } else {
-        alert("Registration successful!");
-        navigate("/");
-      }
+      alert("Registration successful!");
+      navigate("/");
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         setEmailInUse(true);
@@ -67,7 +71,6 @@ function Register() {
               onChange={(e) => setName(e.target.value)}
               required
             />
-
             <input
               type="email"
               placeholder="Email Address"
@@ -75,21 +78,28 @@ function Register() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Password (min. 6 characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
               required
             />
-
             <select value={role} onChange={(e) => setRole(e.target.value)} required>
               <option value="user">User (Buy Tickets)</option>
               <option value="host">Host (Create Events)</option>
             </select>
 
-            <button type="submit">Register</button>
+            {role === "host" && (
+              <p className="host-info-note">
+                ℹ️ As a host, you'll be asked to add your bank details on the next step before your account is created.
+              </p>
+            )}
+
+            <button type="submit">
+              {role === "host" ? "Continue to Bank Setup →" : "Register"}
+            </button>
           </form>
 
           {emailInUse && (
