@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 const EventForm = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -322,7 +323,43 @@ const EventForm = () => {
           )}
 
           <p style={{ color: "red" }}>{error}</p>
-          <button type="submit">Create Event</button>
+          {/* Policy */}
+<div style={{
+  background: "#f8fafc",
+  border: "1px solid #e5e7eb",
+  borderRadius: "8px",
+  padding: "1rem",
+  marginTop: "1rem",
+}}>
+  <h4 style={{ marginBottom: "0.5rem", color: "#1e293b" }}>📋 Ticketing Policy</h4>
+  <p style={{ fontSize: "0.85rem", color: "#555", lineHeight: "1.6", marginBottom: "0.75rem" }}>
+    By creating an event on Ekotix, you agree that:
+  </p>
+  <ul style={{ fontSize: "0.85rem", color: "#555", lineHeight: "1.8", paddingLeft: "1.25rem", marginBottom: "0.75rem" }}>
+    <li>All tickets must be sold exclusively through this platform.</li>
+    <li><strong>Physical ticket sales are strictly prohibited.</strong> Selling paper or physical tickets outside this platform is a violation of our terms and may result in account suspension.</li>
+    <li>All ticket proceeds will be processed through our payment system.</li>
+    <li>You are responsible for the accuracy of event details provided.</li>
+  </ul>
+  <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", cursor: "pointer" }}>
+    <input
+      type="checkbox"
+      checked={acceptedPolicy}
+      onChange={(e) => setAcceptedPolicy(e.target.checked)}
+      style={{ marginTop: "3px", width: "16px", height: "16px", cursor: "pointer" }}
+    />
+    <span style={{ fontSize: "0.85rem", color: "#333" }}>
+      I have read and agree to the ticketing policy. I understand that physical ticket sales are not allowed.
+    </span>
+  </label>
+</div>
+
+<button type="submit" disabled={!acceptedPolicy} style={{
+  opacity: acceptedPolicy ? 1 : 0.5,
+  cursor: acceptedPolicy ? "pointer" : "not-allowed",
+}}>
+  Create Event
+</button> 
         </form>
       </div>
       <Footer />

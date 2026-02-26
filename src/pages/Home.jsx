@@ -59,7 +59,7 @@ const Home = () => {
     return () => unsubscribe();
   }, []);
 
-  const trendingEvents = [...events].sort(() => 0.5 - Math.random()).slice(0, 3);
+  const trendingEvents = [...events].sort(() => 0.5 - Math.random()).slice(0, 4);
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -105,7 +105,7 @@ const Home = () => {
         <section className="trending-section">
           <div className="trending-header">
             <h2>🔥 Trending Events</h2>
-            {events.length > 3 && (
+            {events.length > 4 && (
               <Link to="/eventlist" className="view-more-link">View More »</Link>
             )}
           </div>

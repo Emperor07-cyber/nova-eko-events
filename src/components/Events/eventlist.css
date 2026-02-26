@@ -1,0 +1,181 @@
+/* ── Event List Page ─────────────────────── */
+.eventlist-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.eventlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eventlist-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.eventlist-search {
+  padding: 0.55rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  width: 220px;
+  transition: border-color 0.2s;
+}
+
+.eventlist-search:focus {
+  border-color: #009f15;
+}
+
+.eventlist-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 3rem 0;
+  font-size: 1rem;
+}
+
+/* ── Grid ────────────────────────────────── */
+.eventlist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .eventlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .eventlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+
+  .eventlist-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .eventlist-search {
+    width: 100%;
+  }
+}
+
+/* ── Card ────────────────────────────────── */
+.el-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.el-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Image ───────────────────────────────── */
+.el-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.el-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.el-card:hover .el-card-image img {
+  transform: scale(1.04);
+}
+
+.el-price-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Info ────────────────────────────────── */
+.el-card-info {
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.el-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.el-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.el-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+}
+
+.el-meta span {
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+@media (max-width: 600px) {
+  .el-title {
+    font-size: 0.78rem;
+  }
+
+  .el-desc {
+    display: none;
+  }
+
+  .el-meta span {
+    font-size: 0.68rem;
+  }
+
+  .el-card-info {
+    padding: 0.5rem 0.6rem 0.6rem;
+  }
+}
