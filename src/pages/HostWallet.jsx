@@ -13,7 +13,22 @@ const HostWallet = () => {
   const [withdrawNote, setWithdrawNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [hostEventIds, setHostEventIds] = useState([]);
 
+
+  // add this useEffect:
+useEffect(() => {
+  if (!user) return;
+  const eventsRef = ref(database, "events");
+  const unsubscribe = onValue(eventsRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    const ids = Object.entries(data)
+      .filter(([, val]) => val.createdBy === user.email)
+      .map(([id]) => id);
+    setHostEventIds(ids);
+  });
+  return () => unsubscribe();
+}, [user]);
   useEffect(() => {
     if (!user) return;
     const ticketsRef = ref(database, "tickets");
@@ -21,7 +36,10 @@ const HostWallet = () => {
       const data = snapshot.val() || {};
       const hostTickets = Object.entries(data)
         .map(([id, value]) => ({ id, ...value }))
-        .filter((ticket) => ticket.hostEmail === user.email);
+        .filter((ticket) => 
+  ticket.hostEmail === user.email || 
+  hostEventIds.includes(ticket.eventId)
+)
       setTickets(hostTickets);
       let net = 0;
       hostTickets.forEach((ticket) => {
