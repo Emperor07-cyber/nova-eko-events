@@ -17,36 +17,40 @@ const HostDashboard = () => {
 
   useEffect(() => {
     if (!user) return;
+
     const eventsRef = ref(database, "events");
-    const unsubscribe = onValue(eventsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const userEvents = Object.entries(data)
+    const ticketsRef = ref(database, "tickets");
+
+    const unsubscribeEvents = onValue(eventsRef, (eventsSnapshot) => {
+      const eventsData = eventsSnapshot.val() || {};
+      const userEvents = Object.entries(eventsData)
         .map(([id, val]) => ({ id, ...val }))
         .filter((event) => event.createdBy === user.email);
-      setEvents(userEvents);
-    });
-    return () => unsubscribe();
-  }, [user]);
 
-  useEffect(() => {
-    if (!user || events.length === 0) return;
-    const ticketsRef = ref(database, "tickets");
-    const unsubscribe = onValue(ticketsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const hostTickets = Object.entries(data)
-        .map(([id, val]) => ({ id, ...val }))
-        .filter((ticket) => events.some((e) => e.id === ticket.eventId));
-      setTickets(hostTickets);
-      let total = 0;
-      hostTickets.forEach((ticket) => {
-        const gross = ticket.totalPaid || 0;
-        const fee = gross * 0.05 + 100;
-        total += gross - fee;
+      setEvents(userEvents);
+
+      const unsubscribeTickets = onValue(ticketsRef, (ticketsSnapshot) => {
+        const ticketsData = ticketsSnapshot.val() || {};
+        const hostTickets = Object.entries(ticketsData)
+          .map(([id, val]) => ({ id, ...val }))
+          .filter((ticket) => userEvents.some((e) => e.id === ticket.eventId));
+
+        setTickets(hostTickets);
+
+        let total = 0;
+        hostTickets.forEach((ticket) => {
+          const gross = ticket.totalPaid || 0;
+          const fee = gross * 0.05 + 100;
+          total += gross - fee;
+        });
+        setBalance(total);
       });
-      setBalance(total);
+
+      return () => unsubscribeTickets();
     });
-    return () => unsubscribe();
-  }, [user, events]);
+
+    return () => unsubscribeEvents();
+  }, [user]);
 
   const handleDelete = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
@@ -139,26 +143,33 @@ const HostDashboard = () => {
                 <td colSpan={6} className="table-empty">No events yet. Create your first one!</td>
               </tr>
             ) : (
-              events.map((event) => (
-                <tr key={event.id}>
-                  <td>{event.title}</td>
-                  <td>{event.date}</td>
-                  <td>{event.location}</td>
-                  <td>{tickets.filter((t) => t.eventId === event.id).length}</td>
-                  <td>
-                    <button
-                      className="btn-copy-link"
-                      onClick={() => handleCopyLink(event.id)}
-                    >
-                      {copiedId === event.id ? "✅ Copied!" : "🔗 Copy Link"}
-                    </button>
-                  </td>
-                  <td className="action-btns">
-                    <button className="btn-edit" onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
-                    <button className="btn-delete" onClick={() => handleDelete(event.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))
+              events.map((event) => {
+                const eventTickets = tickets.filter((t) => t.eventId === event.id);
+                return (
+                  <tr key={event.id}>
+                    <td>{event.title}</td>
+                    <td>{event.date}</td>
+                    <td>{event.location}</td>
+                    <td>
+                      <span style={{
+                        fontWeight: 700,
+                        color: eventTickets.length > 0 ? "#009f15" : "#94a3b8"
+                      }}>
+                        {eventTickets.length}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn-copy-link" onClick={() => handleCopyLink(event.id)}>
+                        {copiedId === event.id ? "✅ Copied!" : "🔗 Copy Link"}
+                      </button>
+                    </td>
+                    <td className="action-btns">
+                      <button className="btn-edit" onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
+                      <button className="btn-delete" onClick={() => handleDelete(event.id)}>Delete</button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -184,4 +195,3 @@ const HostDashboard = () => {
 };
 
 export default HostDashboard;
-  

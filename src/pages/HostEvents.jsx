@@ -14,29 +14,31 @@ const HostEvents = () => {
 
   useEffect(() => {
     if (!user) return;
-    const eventsRef = ref(database, "events");
-    const unsubscribe = onValue(eventsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const filtered = Object.entries(data)
-        .map(([id, value]) => ({ id, ...value }))
-        .filter((event) => event.createdBy === user.email);
-      setEvents(filtered);
-    });
-    return () => unsubscribe();
-  }, [user]);
 
-  useEffect(() => {
-    if (!user || events.length === 0) return;
+    const eventsRef = ref(database, "events");
     const ticketsRef = ref(database, "tickets");
-    const unsubscribe = onValue(ticketsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const hostTickets = Object.entries(data)
+
+    const unsubscribeEvents = onValue(eventsRef, (eventsSnapshot) => {
+      const eventsData = eventsSnapshot.val() || {};
+      const userEvents = Object.entries(eventsData)
         .map(([id, val]) => ({ id, ...val }))
-        .filter((ticket) => events.some((e) => e.id === ticket.eventId));
-      setTickets(hostTickets);
+        .filter((event) => event.createdBy === user.email);
+
+      setEvents(userEvents);
+
+      const unsubscribeTickets = onValue(ticketsRef, (ticketsSnapshot) => {
+        const ticketsData = ticketsSnapshot.val() || {};
+        const hostTickets = Object.entries(ticketsData)
+          .map(([id, val]) => ({ id, ...val }))
+          .filter((ticket) => userEvents.some((e) => e.id === ticket.eventId));
+        setTickets(hostTickets);
+      });
+
+      return () => unsubscribeTickets();
     });
-    return () => unsubscribe();
-  }, [user, events]);
+
+    return () => unsubscribeEvents();
+  }, [user]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete this event?")) {
@@ -105,10 +107,7 @@ const HostEvents = () => {
                     ₦{getRevenue(event.id).toLocaleString()}
                   </td>
                   <td>
-                    <button
-                      className="btn-copy-link"
-                      onClick={() => handleCopyLink(event.id)}
-                    >
+                    <button className="btn-copy-link" onClick={() => handleCopyLink(event.id)}>
                       {copiedId === event.id ? "✅ Copied!" : "🔗 Copy Link"}
                     </button>
                   </td>
