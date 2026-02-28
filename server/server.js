@@ -1,5 +1,6 @@
 const express = require("express");
 const axios = require("axios");
+const crypto = require("crypto");
 require("dotenv").config();
 const cors = require("cors");
 
@@ -8,11 +9,73 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://ekotixx.com", // ← replace with your actual frontend URL
+    "https://ekotixx.com",
   ],
   methods: ["GET", "POST"],
   credentials: true,
 }));
+
+// ✅ Webhook must use raw body — add BEFORE express.json()
+app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (req, res) => {
+  const secret = process.env.PAYSTACK_SECRET_KEY;
+  const hash = crypto
+    .createHmac("sha512", secret)
+    .update(req.body)
+    .digest("hex");
+
+  // Verify the request is from Paystack
+  if (hash !== req.headers["x-paystack-signature"]) {
+    console.log("❌ Invalid webhook signature");
+    return res.status(401).send("Unauthorized");
+  }
+
+  const event = JSON.parse(req.body);
+  console.log("📦 Webhook received:", event.event);
+
+  if (event.event === "charge.success") {
+    const data = event.data;
+    const email = data.customer.email;
+    const reference = data.reference;
+    const amount = data.amount / 100; // convert from kobo to naira
+    const metadata = data.metadata || {};
+
+    // Extract custom fields from Paystack metadata
+    const name = metadata.name || email;
+    const ticketType = metadata.custom_fields?.find(f => f.variable_name === "ticket_type")?.value || "";
+    const quantity = Number(metadata.custom_fields?.find(f => f.variable_name === "quantity")?.value) || 1;
+    const eventId = metadata.custom_fields?.find(f => f.variable_name === "event_id")?.value || "";
+    const eventTitle = metadata.custom_fields?.find(f => f.variable_name === "event_title")?.value || "";
+    const hostEmail = metadata.custom_fields?.find(f => f.variable_name === "host_email")?.value || "";
+
+    try {
+      // Save ticket to Firebase using REST API
+      const firebaseUrl = `${process.env.FIREBASE_DATABASE_URL}/tickets.json`;
+      const ticketData = {
+        name,
+        email,
+        eventId,
+        eventTitle,
+        hostEmail,
+        ticketType,
+        quantity,
+        totalPaid: amount,
+        transactionId: reference,
+        timestamp: Date.now(),
+        savedBy: "webhook", // mark as webhook-saved
+      };
+
+      await axios.post(firebaseUrl, ticketData);
+      console.log("✅ Ticket saved to Firebase via webhook:", reference);
+    } catch (err) {
+      console.error("❌ Failed to save ticket to Firebase:", err.message);
+    }
+  }
+
+  res.sendStatus(200);
+});
+
+// ✅ Regular JSON middleware for other routes
+app.use(express.json());
 
 app.get("/get-banks", async (req, res) => {
   try {
@@ -51,7 +114,6 @@ app.get("/verifyAccount", async (req, res) => {
   }
 });
 
-// ✅ Railway uses dynamic port — this is required
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
