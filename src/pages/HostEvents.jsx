@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 const HostEvents = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
+  const [tickets, setTickets] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
   const navigate = useNavigate();
 
@@ -24,6 +25,19 @@ const HostEvents = () => {
     return () => unsubscribe();
   }, [user]);
 
+  useEffect(() => {
+    if (!user || events.length === 0) return;
+    const ticketsRef = ref(database, "tickets");
+    const unsubscribe = onValue(ticketsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const hostTickets = Object.entries(data)
+        .map(([id, val]) => ({ id, ...val }))
+        .filter((ticket) => events.some((e) => e.id === ticket.eventId));
+      setTickets(hostTickets);
+    });
+    return () => unsubscribe();
+  }, [user, events]);
+
   const handleDelete = async (id) => {
     if (window.confirm("Delete this event?")) {
       await remove(ref(database, `events/${id}`));
@@ -37,6 +51,14 @@ const HostEvents = () => {
     setCopiedId(eventId);
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  const getTicketCount = (eventId) =>
+    tickets.filter((t) => t.eventId === eventId).length;
+
+  const getRevenue = (eventId) =>
+    tickets
+      .filter((t) => t.eventId === eventId)
+      .reduce((sum, t) => sum + (t.totalPaid || 0), 0);
 
   return (
     <HostLayout>
@@ -54,6 +76,8 @@ const HostEvents = () => {
               <th>Title</th>
               <th>Date</th>
               <th>Location</th>
+              <th>Tickets Sold</th>
+              <th>Revenue</th>
               <th>Event Link</th>
               <th>Actions</th>
             </tr>
@@ -61,7 +85,7 @@ const HostEvents = () => {
           <tbody>
             {events.length === 0 ? (
               <tr>
-                <td colSpan={5} className="table-empty">No events found. Create your first event!</td>
+                <td colSpan={7} className="table-empty">No events found. Create your first event!</td>
               </tr>
             ) : (
               events.map((event) => (
@@ -69,6 +93,17 @@ const HostEvents = () => {
                   <td>{event.title}</td>
                   <td>{event.date}</td>
                   <td>{event.location}</td>
+                  <td>
+                    <span style={{
+                      fontWeight: 700,
+                      color: getTicketCount(event.id) > 0 ? "#009f15" : "#94a3b8"
+                    }}>
+                      {getTicketCount(event.id)}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: 600 }}>
+                    ₦{getRevenue(event.id).toLocaleString()}
+                  </td>
                   <td>
                     <button
                       className="btn-copy-link"
