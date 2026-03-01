@@ -103,7 +103,7 @@ const EventDetails = () => {
   const paystackConfig = {
     email:     userData.email,
     amount:    totalAmount * 100,
-    publicKey: "pk_live_92e934c9ee6f8cb2eed8f4a0c4d5be6ada8ff50a",
+    publicKey: "pk_test_c90717b9a2b1061c182bd039719f9e23b354060e",
     metadata: {
       name: userData.name,
       custom_fields: [
