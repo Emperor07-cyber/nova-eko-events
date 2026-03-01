@@ -23,7 +23,6 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     .update(req.body)
     .digest("hex");
 
-  // Verify the request is from Paystack
   if (hash !== req.headers["x-paystack-signature"]) {
     console.log("❌ Invalid webhook signature");
     return res.status(401).send("Unauthorized");
@@ -36,10 +35,9 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     const data = event.data;
     const email = data.customer.email;
     const reference = data.reference;
-    const amount = data.amount / 100; // convert from kobo to naira
+    const amount = data.amount / 100;
     const metadata = data.metadata || {};
 
-    // Extract custom fields from Paystack metadata
     const name = metadata.name || email;
     const ticketType = metadata.custom_fields?.find(f => f.variable_name === "ticket_type")?.value || "";
     const quantity = Number(metadata.custom_fields?.find(f => f.variable_name === "quantity")?.value) || 1;
@@ -48,7 +46,6 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     const hostEmail = metadata.custom_fields?.find(f => f.variable_name === "host_email")?.value || "";
 
     try {
-      // Save ticket to Firebase using REST API
       const firebaseUrl = `${process.env.FIREBASE_DATABASE_URL}/tickets.json`;
       const ticketData = {
         name,
@@ -61,7 +58,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         totalPaid: amount,
         transactionId: reference,
         timestamp: Date.now(),
-        savedBy: "webhook", // mark as webhook-saved
+        savedBy: "webhook",
       };
 
       await axios.post(firebaseUrl, ticketData);
@@ -118,3 +115,14 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// ✅ Keep Render from sleeping — pings itself every 14 minutes
+const RENDER_URL = "https://nova-eko-events.onrender.com";
+setInterval(async () => {
+  try {
+    await axios.get(`${RENDER_URL}/get-banks`);
+    console.log("✅ Keep-alive ping sent");
+  } catch (err) {
+    console.log("⚠️ Keep-alive ping failed:", err.message);
+  }
+}, 14 * 60 * 1000);
