@@ -41,27 +41,31 @@ const EventDetails = () => {
   const totalAmount  = ticketPrice * ticketQuantity;
 
   const handlePaymentSuccess = async (response) => {
-    setSending(true);
+  setSending(true);
+  console.log("✅ Payment success triggered", response);
 
-    const ticketData = {
-      ...userData,
-      eventId,
-      eventTitle:    event.title,
-      hostEmail:     event.createdBy || "",
-      ticketType:    selectedTicket,
-      quantity:      ticketQuantity,
-      totalPaid:     totalAmount,
-      transactionId: response.reference,
-      timestamp:     Date.now(),
-    };
+  const ticketData = {
+    ...userData,
+    eventId,
+    eventTitle:    event.title,
+    hostEmail:     event.createdBy || "",
+    ticketType:    selectedTicket,
+    quantity:      ticketQuantity,
+    totalPaid:     totalAmount,
+    transactionId: response.reference,
+    timestamp:     Date.now(),
+  };
 
-    // Save to Firebase
-    try {
-      const ticketRef = push(ref(database, "tickets"));
-      await set(ticketRef, ticketData);
-    } catch (err) {
-      console.error("Error saving ticket:", err);
-    }
+  console.log("📦 Ticket data to save:", ticketData);
+
+  // Save to Firebase
+  try {
+    const ticketRef = push(ref(database, "tickets"));
+    await set(ticketRef, ticketData);
+    console.log("✅ Ticket saved to Firebase successfully");
+  } catch (err) {
+    console.error("❌ Firebase save error:", err.code, err.message);
+  }  
 
     // Send email via EmailJS
     try {

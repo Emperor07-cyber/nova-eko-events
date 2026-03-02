@@ -9,6 +9,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 
 const HostDashboard = () => {
   const [user] = useAuthState(auth);
+  console.log("🔁 HostDashboard rendered, user:", user?.email);
+
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [balance, setBalance] = useState(0);
@@ -16,24 +18,44 @@ const HostDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) return;
+    console.log("⚡ useEffect fired, user:", user?.email);
+    if (!user) {
+      console.log("❌ No user, returning early");
+      return;
+    }
 
     const eventsRef = ref(database, "events");
     const ticketsRef = ref(database, "tickets");
 
+    console.log("📡 Setting up Firebase listeners...");
+
     const unsubscribeEvents = onValue(eventsRef, (eventsSnapshot) => {
+      console.log("✅ Events snapshot received");
       const eventsData = eventsSnapshot.val() || {};
+
       const userEvents = Object.entries(eventsData)
         .map(([id, val]) => ({ id, ...val }))
-        .filter((event) => event.createdBy === user.email);
+        .filter((event) => event.createdBy?.toLowerCase() === user.email?.toLowerCase());
 
+      console.log("🎯 userEvents found:", userEvents.length);
       setEvents(userEvents);
 
       const unsubscribeTickets = onValue(ticketsRef, (ticketsSnapshot) => {
+        console.log("✅ Tickets snapshot received");
         const ticketsData = ticketsSnapshot.val() || {};
-        const hostTickets = Object.entries(ticketsData)
-          .map(([id, val]) => ({ id, ...val }))
-          .filter((ticket) => userEvents.some((e) => e.id === ticket.eventId));
+        const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
+
+        console.log("=== TICKET DEBUG ===");
+        console.log("Total tickets in DB:", allTickets.length);
+        console.log("UserEvents IDs:", userEvents.map(e => e.id));
+        console.log("All ticket eventIds:", allTickets.map(t => t.eventId));
+        console.log("====================");
+
+        const hostTickets = allTickets.filter((ticket) =>
+          userEvents.some((e) => e.id === ticket.eventId)
+        );
+
+        console.log("Matched hostTickets:", hostTickets.length);
 
         setTickets(hostTickets);
 

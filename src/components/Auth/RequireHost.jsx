@@ -10,21 +10,31 @@ const RequireHost = ({ children }) => {
   const [isAuthorized, setIsAuthorized] = React.useState(null);
 
   React.useEffect(() => {
+    if (loading) return;
+    
+    if (!user) {
+      setIsAuthorized(false);
+      return;
+    }
+
     const checkRole = async () => {
-      if (user) {
+      try {
         const userRef = ref(database, "users/" + user.uid);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
-        if (userData?.role === "host") {
+        if (userData?.role === "host" || userData?.role === "admin") {
           setIsAuthorized(true);
         } else {
           setIsAuthorized(false);
         }
+      } catch (err) {
+        console.error("RequireHost role check failed:", err);
+        setIsAuthorized(false);
       }
     };
 
     checkRole();
-  }, [user]);
+  }, [user, loading]);
 
   if (loading || isAuthorized === null) return <div>Loading...</div>;
 

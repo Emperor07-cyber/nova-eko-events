@@ -22,7 +22,7 @@ const HostEvents = () => {
       const eventsData = eventsSnapshot.val() || {};
       const userEvents = Object.entries(eventsData)
         .map(([id, val]) => ({ id, ...val }))
-        .filter((event) => event.createdBy === user.email);
+        .filter((event) => event.createdBy?.toLowerCase() === user.email?.toLowerCase());
 
       setEvents(userEvents);
 
