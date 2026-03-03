@@ -26,7 +26,6 @@ const EventDetails = () => {
     });
   }, [eventId]);
 
-  // ✅ Guard BEFORE anything that uses event
   if (!event) return <div>Loading...</div>;
 
   const handleChange = (e) => {
@@ -36,38 +35,43 @@ const EventDetails = () => {
   const selectedTicketDetails = event.tickets?.find(
     (t) => t.type === selectedTicket
   );
-  const ticketPrice  = selectedTicketDetails?.price || 0;
-  const ticketLimit  = selectedTicketDetails?.limit || 0;
-  const totalAmount  = ticketPrice * ticketQuantity;
+  const ticketPrice   = Number(selectedTicketDetails?.price) || 0;
+  const ticketLimit   = selectedTicketDetails?.limit || 0;
+  const baseAmount    = ticketPrice * ticketQuantity;
+  const buyerFee      = baseAmount > 0 ? 100 : 0;           // ₦100 added to buyer total
+  const hostFee       = Math.round(baseAmount * 0.05);       // 5% deducted from host earnings
+  const totalAmount   = baseAmount + buyerFee;               // what buyer pays to Paystack
+  const hostEarnings  = baseAmount - hostFee;                // what host actually receives
 
   const handlePaymentSuccess = async (response) => {
-  setSending(true);
-  console.log("✅ Payment success triggered", response);
+    setSending(true);
+    console.log("✅ Payment success triggered", response);
 
-  const ticketData = {
-    ...userData,
-    eventId,
-    eventTitle:    event.title,
-    hostEmail:     event.createdBy || "",
-    ticketType:    selectedTicket,
-    quantity:      ticketQuantity,
-    totalPaid:     totalAmount,
-    transactionId: response.reference,
-    timestamp:     Date.now(),
-  };
+    const ticketData = {
+      ...userData,
+      eventId,
+      eventTitle:    event.title,
+      hostEmail:     event.createdBy || "",
+      ticketType:    selectedTicket,
+      quantity:      ticketQuantity,
+      totalPaid:     hostEarnings,   // host receives base minus 5%
+      serviceFee:    buyerFee,       // ₦100 buyer paid
+      hostFee:       hostFee,        // 5% deducted from host
+      totalCharged:  totalAmount,    // what buyer actually paid
+      transactionId: response.reference,
+      timestamp:     Date.now(),
+    };
 
-  console.log("📦 Ticket data to save:", ticketData);
+    console.log("📦 Ticket data to save:", ticketData);
 
-  // Save to Firebase
-  try {
-    const ticketRef = push(ref(database, "tickets"));
-    await set(ticketRef, ticketData);
-    console.log("✅ Ticket saved to Firebase successfully");
-  } catch (err) {
-    console.error("❌ Firebase save error:", err.code, err.message);
-  }  
+    try {
+      const ticketRef = push(ref(database, "tickets"));
+      await set(ticketRef, ticketData);
+      console.log("✅ Ticket saved to Firebase successfully");
+    } catch (err) {
+      console.error("❌ Firebase save error:", err.code, err.message);
+    }
 
-    // Send email via EmailJS
     try {
       await emailjs.send(
         EMAILJS_SERVICE_ID,
@@ -95,7 +99,6 @@ const EventDetails = () => {
       );
     } catch (err) {
       console.error("EmailJS error:", err);
-      console.error("Status:", err.status, "Text:", err.text);
       setSuccessMessage(
         `✅ Payment successful! Transaction ID: ${ticketData.transactionId}. (Email delivery failed — please save your Transaction ID)`
       );
@@ -106,7 +109,7 @@ const EventDetails = () => {
 
   const paystackConfig = {
     email:     userData.email,
-    amount:    totalAmount * 100,
+    amount:    totalAmount * 100,  // in kobo
     publicKey: "pk_live_92e934c9ee6f8cb2eed8f4a0c4d5be6ada8ff50a",
     metadata: {
       name: userData.name,
@@ -155,7 +158,7 @@ const EventDetails = () => {
             <option value="">-- Select --</option>
             {event.tickets?.map((ticket, idx) => (
               <option key={idx} value={ticket.type}>
-                {ticket.type} - ₦{ticket.price}
+                {ticket.type} - ₦{Number(ticket.price).toLocaleString()}
               </option>
             ))}
           </select>
@@ -189,6 +192,9 @@ const EventDetails = () => {
                 <h4>Summary:</h4>
                 <p><strong>Ticket:</strong> {selectedTicket}</p>
                 <p><strong>Quantity:</strong> {ticketQuantity}</p>
+                <p><strong>Ticket Price:</strong> ₦{baseAmount.toLocaleString()}</p>
+                <p><strong>Service Fee:</strong> ₦{buyerFee.toLocaleString()}</p>
+                <hr style={{ margin: "0.5rem 0", border: "none", borderTop: "1px solid #eee" }} />
                 <p><strong>Total:</strong> ₦{totalAmount.toLocaleString()}</p>
               </div>
             </>
@@ -203,4 +209,4 @@ const EventDetails = () => {
   );
 };
 
-export default EventDetails;  
+export default EventDetails;

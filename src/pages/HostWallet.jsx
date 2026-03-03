@@ -45,7 +45,7 @@ useEffect(() => {
       hostTickets.forEach((ticket) => {
         const gross = ticket.totalPaid || 0;
         const fee = gross * 0.05 + 100;
-        net += gross - fee;
+        net += gross;
       });
       setBalance(net);
     });

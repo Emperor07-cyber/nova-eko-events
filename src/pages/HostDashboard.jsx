@@ -63,7 +63,7 @@ const HostDashboard = () => {
         hostTickets.forEach((ticket) => {
           const gross = ticket.totalPaid || 0;
           const fee = gross * 0.05 + 100;
-          total += gross - fee;
+          total += gross;
         });
         setBalance(total);
       });
