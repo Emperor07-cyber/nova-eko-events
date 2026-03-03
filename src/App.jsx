@@ -5,6 +5,7 @@ import Login from './components/Auth/Login';
 import EventList from './components/Events/EventList';
 import EventForm from './components/Events/EventForm';
 import EventDetails from './components/Events/EventDetails';
+import EventDetailsBySlug from './components/Events/EventDetailsBySlug';
 import MyTickets from "./components/Tickets/MyTickets";
 import Dashboard from "./pages/AdminDashboard"; // 👈 Import it
 import Home from './pages/Home'; // 👈 Import your Home page
@@ -34,6 +35,7 @@ function App() {
   <Route path="/eventlist" element={<EventList />} />
   <Route path="/host-setup" element={<HostSetup />} />
   <Route path="/privacy" element={<PrivacyPolicy />} />
+  <Route path="/:slug" element={<EventDetailsBySlug />} />
   <Route path="/terms"   element={<Terms />} />
   <Route
   path="/admin/dashboard"

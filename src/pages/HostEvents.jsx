@@ -47,12 +47,14 @@ const HostEvents = () => {
     }
   };
 
-  const handleCopyLink = (eventId) => {
-    const link = `${window.location.origin}/event/${eventId}`;
-    navigator.clipboard.writeText(link);
-    setCopiedId(eventId);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  const handleCopyLink = (event) => {
+  const link = event.eventUrl
+    ? event.eventUrl
+    : `https://ekotixx.com/event/${event.id}`;
+  navigator.clipboard.writeText(link);
+  setCopiedId(event.id);
+  setTimeout(() => setCopiedId(null), 2000);
+};
 
   const getTicketCount = (eventId) =>
     tickets.filter((t) => t.eventId === eventId).length;
@@ -107,7 +109,7 @@ const HostEvents = () => {
                     ₦{getRevenue(event.id).toLocaleString()}
                   </td>
                   <td>
-                    <button className="btn-copy-link" onClick={() => handleCopyLink(event.id)}>
+                    <button className="btn-copy-link" onClick={() => handleCopyLink(event)}>
                       {copiedId === event.id ? "✅ Copied!" : "🔗 Copy Link"}
                     </button>
                   </td>
