@@ -82,13 +82,14 @@ const HostDashboard = () => {
   };
 
   const handleCopyLink = (event) => {
+  console.log("event.eventUrl:", event.eventUrl);
   const link = event.eventUrl
     ? event.eventUrl
     : `https://ekotixx.com/event/${event.id}`;
   navigator.clipboard.writeText(link);
   setCopiedId(event.id);
   setTimeout(() => setCopiedId(null), 2000);
-};  
+};
 
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
