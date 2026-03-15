@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ],
-  "framework": "vite"
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
