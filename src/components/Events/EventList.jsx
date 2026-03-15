@@ -59,8 +59,7 @@ const EventList = () => {
               <Link 
                 to={event.eventUrl ? new URL(event.eventUrl).pathname : `/event/${event.id}`} 
                   className="el-card" 
-                  key={event.id}
-              >
+                  key={event.id}>
                 <div className="el-card-image">
                   <img src={event.image || "/default-event.jpg"} alt={event.title} />
                   {/* {event.tickets?.length > 0 && (
