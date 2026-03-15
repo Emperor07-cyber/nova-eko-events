@@ -56,7 +56,11 @@ const EventList = () => {
         ) : (
           <div className="eventlist-grid">
             {filtered.map((event) => (
-              <Link to={`/event/${event.id}`} className="el-card" key={event.id}>
+              <Link 
+                to={event.eventUrl ? new URL(event.eventUrl).pathname : `/event/${event.id}`} 
+                  className="el-card" 
+                  key={event.id}
+              >
                 <div className="el-card-image">
                   <img src={event.image || "/default-event.jpg"} alt={event.title} />
                   {/* {event.tickets?.length > 0 && (
