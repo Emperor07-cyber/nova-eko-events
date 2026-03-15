@@ -115,7 +115,11 @@ const Home = () => {
 
           <div className="event-grid">
             {trendingEvents.map((event) => (
-              <Link to={`/event/${event.id}`} className="event-card" key={event.id}>
+              <Link 
+  to={event.eventUrl ? new URL(event.eventUrl).pathname : `/event/${event.id}`} 
+  className="el-card" 
+  key={event.id}
+>
                 <div className="event-card-image-wrapper">
                   <img
                     src={event.image || "/default-event.jpg"}
