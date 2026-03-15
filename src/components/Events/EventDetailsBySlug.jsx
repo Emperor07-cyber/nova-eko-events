@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ref, get, push, set, query, orderByChild, equalTo } from "firebase/database";
+import { ref, get, push, set } from "firebase/database";
 import { database } from "../../firebase/firebaseConfig";
 import { PaystackButton } from "react-paystack";
 import emailjs from "@emailjs/browser";
@@ -22,19 +22,27 @@ const EventDetailsBySlug = () => {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    const fullUrl = `https://www.ekotixx.com/${slug}`;
-    const eventsRef = query(
-      ref(database, "events"),
-      orderByChild("eventUrl"),
-      equalTo(fullUrl)
-    );
+    const withWww = `https://www.ekotixx.com/${slug}`;
+    const withoutWww = `https://ekotixx.com/${slug}`;
+
+    const eventsRef = ref(database, "events");
 
     get(eventsRef).then((snapshot) => {
       if (snapshot.exists()) {
         const entries = Object.entries(snapshot.val());
-        const [id, data] = entries[0];
-        setEventId(id);
-        setEvent(data);
+        const match = entries.find(([id, data]) =>
+          data.eventUrl === withWww ||
+          data.eventUrl === withoutWww ||
+          data.eventUrl === slug
+        );
+
+        if (match) {
+          const [id, data] = match;
+          setEventId(id);
+          setEvent(data);
+        } else {
+          setNotFound(true);
+        }
       } else {
         setNotFound(true);
       }
