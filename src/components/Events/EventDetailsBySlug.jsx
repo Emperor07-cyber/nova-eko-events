@@ -22,32 +22,34 @@ const EventDetailsBySlug = () => {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    const withWww = `https://www.ekotixx.com/${slug}`;
-    const withoutWww = `https://ekotixx.com/${slug}`;
+  const withWww = `https://www.ekotixx.com/${slug}`;
+  const withoutWww = `https://ekotixx.com/${slug}`;
 
-    const eventsRef = ref(database, "events");
+  const eventsRef = ref(database, "events");
 
-    get(eventsRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const entries = Object.entries(snapshot.val());
-        const match = entries.find(([id, data]) =>
-          data.eventUrl === withWww ||
-          data.eventUrl === withoutWww ||
-          data.eventUrl === slug
-        );
+  get(eventsRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      const entries = Object.entries(snapshot.val());
+      console.log("Looking for:", withWww, "or", withoutWww);
+      console.log("All eventUrls:", entries.map(([id, d]) => d.eventUrl));
+      const match = entries.find(([id, data]) =>
+        data.eventUrl === withWww ||
+        data.eventUrl === withoutWww ||
+        data.eventUrl === slug
+      );
 
-        if (match) {
-          const [id, data] = match;
-          setEventId(id);
-          setEvent(data);
-        } else {
-          setNotFound(true);
-        }
+      if (match) {
+        const [id, data] = match;
+        setEventId(id);
+        setEvent(data);
       } else {
         setNotFound(true);
       }
-    });
-  }, [slug]);
+    } else {
+      setNotFound(true);
+    }
+  });
+}, [slug]);
 
   if (notFound) return <div style={{ padding: "2rem", textAlign: "center" }}>Event not found.</div>;
   if (!event) return <div>Loading...</div>;

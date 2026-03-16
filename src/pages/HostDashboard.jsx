@@ -160,6 +160,7 @@ const HostDashboard = () => {
               </tr>
             ) : (
               events.map((event) => {
+                 console.log("Event:", event.title, "| eventUrl:", event.eventUrl);
                 const eventTickets = tickets.filter((t) => t.eventId === event.id);
                 return (
                   <tr key={event.id}>

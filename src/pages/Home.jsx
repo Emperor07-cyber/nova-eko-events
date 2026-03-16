@@ -115,6 +115,7 @@ const Home = () => {
 
           <div className="event-grid">
             {trendingEvents.map((event) => (
+              
               <Link 
   to={event.eventUrl ? new URL(event.eventUrl).pathname : `/event/${event.id}`} 
   className="el-card" 
