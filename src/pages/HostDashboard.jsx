@@ -61,14 +61,26 @@ const HostDashboard = () => {
   };
 
   const handleCopyLink = (event) => {
-    console.log("eventUrl value:", event.eventUrl);
-    const link = event.eventUrl
-      ? event.eventUrl
-      : `https://ekotixx.com/event/${event.id}`;
+  const link = event.eventUrl
+    ? event.eventUrl
+    : `https://ekotixx.com/event/${event.id}`;
+  
+  // Fallback for clipboard issues
+  try {
     navigator.clipboard.writeText(link);
-    setCopiedId(event.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  } catch {
+    const el = document.createElement("textarea");
+    el.value = link;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+  }
+  
+  alert(`Link copied: ${link}`); // temp alert so we can see the value
+  setCopiedId(event.id);
+  setTimeout(() => setCopiedId(null), 2000);
+};
 
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
