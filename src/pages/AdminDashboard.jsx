@@ -49,8 +49,20 @@ const AdminDashboard = () => {
     });
   }, []);
 
-  const totalRevenue = tickets.reduce((acc, t) => acc + (t.totalPaid || 0), 0);
+  // ── Revenue calculations ──
+  const totalRevenue = tickets.reduce((acc, t) => acc + (t.totalCharged || t.totalPaid || 0), 0);
+  const platformRevenue = tickets.reduce((acc, t) => acc + ((t.hostFee || 0) + (t.serviceFee || 0)), 0);
+  const hostPayouts = tickets.reduce((acc, t) => acc + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
+
+  // Per-host breakdown
+  const hostBreakdown = tickets.reduce((acc, t) => {
+    const host = t.hostEmail || "Unknown";
+    if (!acc[host]) acc[host] = { hostEmail: host, totalPaid: 0, tickets: 0 };
+    acc[host].totalPaid += t.totalPaid || 0;
+    acc[host].tickets += t.quantity || 1;
+    return acc;
+  }, {});
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
@@ -160,7 +172,7 @@ const AdminDashboard = () => {
         {/* Summary Cards */}
         <div className="dashboard-summary">
           <div className="dashboard-card">
-            <h2>💳 Tickets Sold</h2>
+            <h2>🎫 Tickets Sold</h2>
             <p>{tickets.length}</p>
           </div>
           <div className="dashboard-card">
@@ -185,6 +197,46 @@ const AdminDashboard = () => {
               )}
             </p>
           </div>
+        </div>
+
+        {/* ── Revenue Breakdown ── */}
+        <h2 style={{ marginTop: "2rem" }}>💵 Revenue Breakdown</h2>
+        <div className="dashboard-summary">
+          <div className="dashboard-card" style={{ borderLeft: "4px solid #14c02b" }}>
+            <h2>🏦 Platform Earnings</h2>
+            <p style={{ color: "#14c02b" }}>₦{platformRevenue.toLocaleString()}</p>
+            <small style={{ color: "#888", fontSize: "0.8rem" }}>5% host fee + ₦100 service fee per ticket</small>
+          </div>
+          <div className="dashboard-card" style={{ borderLeft: "4px solid #3b82f6" }}>
+            <h2>📤 Total Host Payouts</h2>
+            <p style={{ color: "#3b82f6" }}>₦{hostPayouts.toLocaleString()}</p>
+            <small style={{ color: "#888", fontSize: "0.8rem" }}>Amount owed to all hosts combined</small>
+          </div>
+        </div>
+
+        {/* ── Per Host Breakdown ── */}
+        <h2 style={{ marginTop: "2rem" }}>👤 Per Host Breakdown</h2>
+        <div className="dashboard-table-container">
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>Host Email</th>
+                <th>Tickets Sold</th>
+                <th>Amount to Pay Out</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.values(hostBreakdown).map((host, i) => (
+                <tr key={i}>
+                  <td>{host.hostEmail}</td>
+                  <td>{host.tickets}</td>
+                  <td style={{ fontWeight: 600, color: "#3b82f6" }}>
+                    ₦{host.totalPaid.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Create Event Button */}
@@ -230,8 +282,10 @@ const AdminDashboard = () => {
                 <th>Email</th>
                 <th>Event</th>
                 <th>Ticket Type</th>
-                <th>Quantity</th>
-                <th>Amount</th>
+                <th>Qty</th>
+                <th>Host Earns</th>
+                <th>Platform Earns</th>
+                <th>Buyer Paid</th>
                 <th>Transaction ID</th>
               </tr>
             </thead>
@@ -244,7 +298,9 @@ const AdminDashboard = () => {
                   <td>{events.find((e) => e.id === ticket.eventId)?.title || "N/A"}</td>
                   <td>{ticket.ticketType}</td>
                   <td>{ticket.quantity}</td>
-                  <td>₦{ticket.totalPaid?.toLocaleString()}</td>
+                  <td style={{ color: "#3b82f6", fontWeight: 600 }}>₦{(ticket.totalPaid || 0).toLocaleString()}</td>
+                  <td style={{ color: "#14c02b", fontWeight: 600 }}>₦{((ticket.hostFee || 0) + (ticket.serviceFee || 0)).toLocaleString()}</td>
+                  <td style={{ fontWeight: 600 }}>₦{(ticket.totalCharged || ticket.totalPaid || 0).toLocaleString()}</td>
                   <td>{ticket.transactionId}</td>
                 </tr>
               ))}

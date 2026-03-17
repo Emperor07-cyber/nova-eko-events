@@ -53,7 +53,32 @@ const EventDetailsBySlug = () => {
   }, [slug]);
 
   if (notFound) return <div style={{ padding: "2rem", textAlign: "center" }}>Event not found.</div>;
-  if (!event) return <div>Loading...</div>;
+  if (!event) return (
+  <div style={{ maxWidth: "700px", margin: "0 auto", padding: "2rem" }}>
+    {/* Skeleton shimmer style */}
+    <style>{`
+      @keyframes shimmer {
+        0% { background-position: -700px 0 }
+        100% { background-position: 700px 0 }
+      }
+      .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 700px 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+      }
+    `}</style>
+    <div className="skeleton" style={{ height: "40px", width: "60%", marginBottom: "1rem" }} />
+    <div className="skeleton" style={{ height: "20px", width: "40%", marginBottom: "0.5rem" }} />
+    <div className="skeleton" style={{ height: "20px", width: "50%", marginBottom: "0.5rem" }} />
+    <div className="skeleton" style={{ height: "20px", width: "35%", marginBottom: "1.5rem" }} />
+    <div className="skeleton" style={{ height: "350px", width: "100%", marginBottom: "1.5rem" }} />
+    <div className="skeleton" style={{ height: "16px", width: "100%", marginBottom: "0.5rem" }} />
+    <div className="skeleton" style={{ height: "16px", width: "90%", marginBottom: "0.5rem" }} />
+    <div className="skeleton" style={{ height: "16px", width: "80%", marginBottom: "2rem" }} />
+    <div className="skeleton" style={{ height: "48px", width: "200px" }} />
+  </div>
+);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
