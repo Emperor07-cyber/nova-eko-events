@@ -3,12 +3,17 @@ import { ref, onValue, remove, update } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
+import emailjs from "@emailjs/browser";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import Header1 from "../components/Layout/Header1";
 import Footer from "../components/Layout/Footer";
+
+const EMAILJS_SERVICE_ID  = "service_vu5rgjd";
+const EMAILJS_TEMPLATE_ID = "template_xdiunfr";
+const EMAILJS_PUBLIC_KEY  = "H4Z5LHti97uiudwEY";
 
 const AdminDashboard = () => {
   const [events, setEvents] = useState([]);
@@ -18,6 +23,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [resendingId, setResendingId] = useState(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -106,6 +112,49 @@ const AdminDashboard = () => {
     } catch (err) {
       alert("Failed to update status: " + err.message);
     }
+  };
+
+  const handleResendEmail = async (ticket) => {
+    if (!ticket.email) {
+      alert("No email address found for this ticket.");
+      return;
+    }
+
+    setResendingId(ticket.id);
+
+    const event = events.find((e) => e.id === ticket.eventId);
+    const ticketPrice = ticket.totalPaid || 0;
+    const totalPaid = ticket.totalCharged || ticket.totalPaid || 0;
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_email:       ticket.email,
+          user_name:      ticket.name || ticket.email,
+          event_name:     ticket.eventTitle || event?.title || "Your Event",
+          event_date:     event?.date || "",
+          event_location: event?.location || "",
+          ticket_type:    ticket.ticketType || "",
+          quantity:       String(ticket.quantity || 1),
+          unit_price:     ticketPrice.toLocaleString(),
+          total_paid:     totalPaid.toLocaleString(),
+          order_id:       ticket.transactionId || ticket.id,
+          qr_code_url:    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.transactionId || ticket.id)}`,
+          support_email:  "Ekotix234@gmail.com",
+          company_name:   "Ekotix Inc",
+          current_year:   String(new Date().getFullYear()),
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      alert(`✅ Email resent successfully to ${ticket.email}`);
+    } catch (err) {
+      console.error("EmailJS error:", err);
+      alert(`❌ Failed to resend email: ${err.text || err.message}`);
+    }
+
+    setResendingId(null);
   };
 
   const getStatusBadge = (status) => {
@@ -287,6 +336,7 @@ const AdminDashboard = () => {
                 <th>Platform Earns</th>
                 <th>Buyer Paid</th>
                 <th>Transaction ID</th>
+                <th>Resend Email</th>
               </tr>
             </thead>
             <tbody>
@@ -302,6 +352,24 @@ const AdminDashboard = () => {
                   <td style={{ color: "#14c02b", fontWeight: 600 }}>₦{((ticket.hostFee || 0) + (ticket.serviceFee || 0)).toLocaleString()}</td>
                   <td style={{ fontWeight: 600 }}>₦{(ticket.totalCharged || ticket.totalPaid || 0).toLocaleString()}</td>
                   <td>{ticket.transactionId}</td>
+                  <td>
+                    <button
+                      onClick={() => handleResendEmail(ticket)}
+                      disabled={resendingId === ticket.id}
+                      style={{
+                        padding: "4px 10px",
+                        background: resendingId === ticket.id ? "#94a3b8" : "#f59e0b",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: resendingId === ticket.id ? "not-allowed" : "pointer",
+                        fontSize: "0.8rem",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {resendingId === ticket.id ? "Sending..." : "📧 Resend"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
