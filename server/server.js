@@ -10,6 +10,7 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "https://ekotixx.com",
+    "https://www.ekotixx.com",
   ],
   methods: ["GET", "POST"],
   credentials: true,
