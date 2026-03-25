@@ -12,17 +12,18 @@ function HostSetup() {
   const [bankCode, setBankCode] = useState("");
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [banksLoading, setBanksLoading] = useState(true);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
+  const [bankError, setBankError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Registration data passed from Register.jsx — no account exists yet
   const { email, password, name, role } = location.state || {};
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  // Redirect back if someone navigates here directly without coming from Register
   useEffect(() => {
     if (!email || !password || !name) {
       alert("Please complete the registration form first.");
@@ -31,18 +32,29 @@ function HostSetup() {
   }, [email, password, name, navigate]);
 
   useEffect(() => {
-    const fetchBanks = async () => {
+    const fetchBanks = async (retriesLeft = 3) => {
+      setBanksLoading(true);
+      setBankError("");
       try {
         const res = await fetch(`${API_URL}/get-banks`);
+        if (!res.ok) throw new Error("Server error");
         const data = await res.json();
+        if (!data.data || data.data.length === 0) throw new Error("Empty bank list");
         setBanks(data.data);
+        setBanksLoading(false);
       } catch (err) {
         console.error("Error fetching banks:", err);
-        setError("Could not load bank list. Please refresh.");
+        if (retriesLeft > 0) {
+          setBankError(`Server is waking up... retrying in 5 seconds (${retriesLeft} attempt${retriesLeft > 1 ? "s" : ""} left)`);
+          setTimeout(() => fetchBanks(retriesLeft - 1), 5000);
+        } else {
+          setBanksLoading(false);
+          setBankError("Could not load bank list. Please click Retry.");
+        }
       }
     };
     fetchBanks();
-  }, [API_URL]);
+  }, [API_URL, retryCount]);
 
   const handleVerifyAndSave = async (e) => {
     e.preventDefault();
@@ -56,7 +68,6 @@ function HostSetup() {
     setLoading(true);
 
     try {
-      // Step 1: Verify bank account with Paystack
       const res = await fetch(
         `${API_URL}/verifyAccount?accountNumber=${accountNumber}&bankCode=${bankCode}`,
         { method: "GET", cache: "no-store" }
@@ -73,11 +84,9 @@ function HostSetup() {
       setAccountName(verifiedName);
       setVerified(true);
 
-      // Step 2: Bank verified — NOW create the Firebase Auth account
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const user = result.user;
 
-      // Step 3: Save ALL user + bank details together in one write
       const selectedBank = banks.find((b) => b.code === bankCode);
       await set(ref(database, "users/" + user.uid), {
         uid: user.uid,
@@ -97,8 +106,6 @@ function HostSetup() {
 
     } catch (err) {
       console.error(err);
-
-      // Handle the case where email is already registered
       if (err.code === "auth/email-already-in-use") {
         setError("❌ This email is already registered. Please log in instead.");
       } else if (err.code === "auth/weak-password") {
@@ -120,7 +127,6 @@ function HostSetup() {
           <p>Enter your payout bank details. Your account will be created once verified.</p>
         </div>
 
-        {/* Progress indicator */}
         <div className="setup-steps">
           <span className="step step--done">① Basic Info ✓</span>
           <span className="step-divider">──</span>
@@ -147,35 +153,52 @@ function HostSetup() {
 
           <div style={{ marginTop: "1rem" }}>
             <h4>Bank</h4>
-            <select
-              value={bankCode}
-              onChange={(e) => {
-                setBankCode(e.target.value);
-                setVerified(false);
-                setAccountName("");
-              }}
-              required
-            >
-              <option value="">Select Bank</option>
-              {banks.map((bank) => (
-                <option key={bank.code} value={bank.code}>
-                  {bank.name}
-                </option>
-              ))}
-            </select>
+            {banksLoading ? (
+              <div style={{ padding: "0.75rem", background: "#f8fafc", borderRadius: "8px", color: "#555", fontSize: "0.9rem" }}>
+                ⏳ {bankError || "Loading banks..."}
+              </div>
+            ) : bankError ? (
+              <div>
+                <p style={{ color: "#ef4444", fontSize: "0.9rem" }}>{bankError}</p>
+                <button
+                  type="button"
+                  onClick={() => setRetryCount(c => c + 1)}
+                  style={{ marginTop: "0.5rem", padding: "6px 16px", background: "#14c02b", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer" }}
+                >
+                  🔄 Retry
+                </button>
+              </div>
+            ) : (
+              <select
+                value={bankCode}
+                onChange={(e) => {
+                  setBankCode(e.target.value);
+                  setVerified(false);
+                  setAccountName("");
+                }}
+                required
+              >
+                <option value="">Select Bank</option>
+                {banks.map((bank) => (
+                  <option key={bank.code} value={bank.code}>
+                    {bank.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
-          {/* Error message */}
-          {error && (
-            <p className="setup-error">{error}</p>
-          )}
+          {error && <p className="setup-error">{error}</p>}
 
-          {/* Verified account name preview */}
           {verified && accountName && (
             <p className="setup-success">✅ Account Name: <strong>{accountName}</strong></p>
           )}
 
-          <button type="submit" disabled={loading} className="btn purple">
+          <button
+            type="submit"
+            disabled={loading || banksLoading || !!bankError}
+            className="btn purple"
+          >
             {loading ? "Verifying & Creating Account..." : "Verify & Create Account"}
           </button>
 
