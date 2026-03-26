@@ -33,6 +33,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
   console.log("📦 Webhook received:", event.event);
 
   if (event.event === "charge.success") {
+    console.log("Firebase URL:", process.env.FIREBASE_DATABASE_URL);
     const data = event.data;
     const email = data.customer.email;
     const reference = data.reference;
