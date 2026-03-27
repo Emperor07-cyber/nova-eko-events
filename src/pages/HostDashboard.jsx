@@ -22,6 +22,7 @@ const HostDashboard = () => {
     const ticketsRef = ref(database, "tickets");
 
     const unsubscribeEvents = onValue(eventsRef, (eventsSnapshot) => {
+      
       const eventsData = eventsSnapshot.val() || {};
 
       const userEvents = Object.entries(eventsData)
@@ -31,21 +32,30 @@ const HostDashboard = () => {
       setEvents(userEvents);
 
       const unsubscribeTickets = onValue(ticketsRef, (ticketsSnapshot) => {
-        const ticketsData = ticketsSnapshot.val() || {};
-        const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
+  const ticketsData = ticketsSnapshot.val() || {};
+  const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
 
-        const hostTickets = allTickets.filter((ticket) =>
-          userEvents.some((e) => e.id === ticket.eventId)
-        );
+  const hostTickets = allTickets.filter((ticket) =>
+    userEvents.some((e) => e.id === ticket.eventId)
+  );
 
-        setTickets(hostTickets);
+  // TEMP DEBUG
+  console.log("Total tickets in DB:", allTickets.length);
+  console.log("Host event IDs:", userEvents.map(e => e.id));
+  console.log("Matched:", hostTickets.length);
+  console.log("Unmatched ticket eventIds:", allTickets
+    .filter(t => !userEvents.some(e => e.id === t.eventId))
+    .map(t => t.eventId)
+  );
 
-        let total = 0;
-        hostTickets.forEach((ticket) => {
-          total += ticket.totalPaid || 0;
-        });
-        setBalance(total);
-      });
+  setTickets(hostTickets);
+
+  let total = 0;
+  hostTickets.forEach((ticket) => {
+    total += ticket.totalPaid || 0;
+  });
+  setBalance(total);
+});
 
       return () => unsubscribeTickets();
     });
@@ -107,7 +117,7 @@ const HostDashboard = () => {
         <div className="summary-card">
           <span className="summary-icon">🎫</span>
           <div>
-            <p className="summary-value">{tickets.length}</p>
+            <p className="summary-value">{tickets.reduce((sum, t) => sum + (t.quantity || 1), 0)}</p>
             <p className="summary-label">Tickets Sold</p>
           </div>
         </div>
@@ -172,7 +182,7 @@ const HostDashboard = () => {
                         fontWeight: 700,
                         color: eventTickets.length > 0 ? "#009f15" : "#94a3b8"
                       }}>
-                        {eventTickets.length}
+                        {eventTickets.reduce((sum, t) => sum + (t.quantity || 1), 0)}
                       </span>
                     </td>
                     <td>
