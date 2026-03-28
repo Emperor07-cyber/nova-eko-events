@@ -27,6 +27,7 @@ import Terms from "./pages/Terms";
 
 
 
+
 function App() {
   return (
     <>

@@ -58,17 +58,34 @@ const AdminDashboard = () => {
   // ── Revenue calculations ──
   const totalRevenue = tickets.reduce((acc, t) => acc + (t.totalCharged || t.totalPaid || 0), 0);
   const platformRevenue = tickets.reduce((acc, t) => acc + ((t.hostFee || 0) + (t.serviceFee || 0)), 0);
-  const hostPayouts = tickets.reduce((acc, t) => acc + (t.totalPaid || 0), 0);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
 
-  // Per-host breakdown
+  // Total paid out to hosts (completed withdrawals only)
+  const totalPaidOut = withdrawals
+    .filter((w) => w.status === "completed")
+    .reduce((acc, w) => acc + (w.amount || 0), 0);
+
+  // Per-host breakdown with withdrawal deduction
   const hostBreakdown = tickets.reduce((acc, t) => {
     const host = t.hostEmail || "Unknown";
-    if (!acc[host]) acc[host] = { hostEmail: host, totalPaid: 0, tickets: 0 };
-    acc[host].totalPaid += t.totalPaid || 0;
+    if (!acc[host]) acc[host] = { hostEmail: host, totalEarned: 0, tickets: 0, withdrawn: 0 };
+    acc[host].totalEarned += t.totalPaid || 0;
     acc[host].tickets += t.quantity || 1;
     return acc;
   }, {});
+
+  // Add completed withdrawals per host
+  withdrawals
+    .filter((w) => w.status === "completed")
+    .forEach((w) => {
+      const host = w.hostEmail;
+      if (hostBreakdown[host]) {
+        hostBreakdown[host].withdrawn += w.amount || 0;
+      }
+    });
+
+  const totalOwedToHosts = Object.values(hostBreakdown)
+    .reduce((acc, h) => acc + Math.max(0, h.totalEarned - h.withdrawn), 0);
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
@@ -119,13 +136,10 @@ const AdminDashboard = () => {
       alert("No email address found for this ticket.");
       return;
     }
-
     setResendingId(ticket.id);
-
     const event = events.find((e) => e.id === ticket.eventId);
     const ticketPrice = ticket.totalPaid || 0;
     const totalPaid = ticket.totalCharged || ticket.totalPaid || 0;
-
     try {
       await emailjs.send(
         EMAILJS_SERVICE_ID,
@@ -153,7 +167,6 @@ const AdminDashboard = () => {
       console.error("EmailJS error:", err);
       alert(`❌ Failed to resend email: ${err.text || err.message}`);
     }
-
     setResendingId(null);
   };
 
@@ -222,7 +235,7 @@ const AdminDashboard = () => {
         <div className="dashboard-summary">
           <div className="dashboard-card">
             <h2>🎫 Tickets Sold</h2>
-            <p>{tickets.length}</p>
+            <p>{tickets.reduce((sum, t) => sum + (t.quantity || 1), 0)}</p>
           </div>
           <div className="dashboard-card">
             <h2>💰 Total Revenue</h2>
@@ -256,10 +269,15 @@ const AdminDashboard = () => {
             <p style={{ color: "#14c02b" }}>₦{platformRevenue.toLocaleString()}</p>
             <small style={{ color: "#888", fontSize: "0.8rem" }}>5% host fee + ₦100 service fee per ticket</small>
           </div>
+          <div className="dashboard-card" style={{ borderLeft: "4px solid #f59e0b" }}>
+            <h2>✅ Total Paid Out</h2>
+            <p style={{ color: "#f59e0b" }}>₦{totalPaidOut.toLocaleString()}</p>
+            <small style={{ color: "#888", fontSize: "0.8rem" }}>Completed withdrawals to hosts</small>
+          </div>
           <div className="dashboard-card" style={{ borderLeft: "4px solid #3b82f6" }}>
-            <h2>📤 Total Host Payouts</h2>
-            <p style={{ color: "#3b82f6" }}>₦{hostPayouts.toLocaleString()}</p>
-            <small style={{ color: "#888", fontSize: "0.8rem" }}>Amount owed to all hosts combined</small>
+            <h2>📤 Still Owed to Hosts</h2>
+            <p style={{ color: "#3b82f6" }}>₦{totalOwedToHosts.toLocaleString()}</p>
+            <small style={{ color: "#888", fontSize: "0.8rem" }}>Total earned minus withdrawals paid</small>
           </div>
         </div>
 
@@ -271,19 +289,26 @@ const AdminDashboard = () => {
               <tr>
                 <th>Host Email</th>
                 <th>Tickets Sold</th>
-                <th>Amount to Pay Out</th>
+                <th>Total Earned</th>
+                <th>Total Withdrawn</th>
+                <th>Still Owed</th>
               </tr>
             </thead>
             <tbody>
-              {Object.values(hostBreakdown).map((host, i) => (
-                <tr key={i}>
-                  <td>{host.hostEmail}</td>
-                  <td>{host.tickets}</td>
-                  <td style={{ fontWeight: 600, color: "#3b82f6" }}>
-                    ₦{host.totalPaid.toLocaleString()}
-                  </td>
-                </tr>
-              ))}
+              {Object.values(hostBreakdown).map((host, i) => {
+                const stillOwed = Math.max(0, host.totalEarned - host.withdrawn);
+                return (
+                  <tr key={i}>
+                    <td>{host.hostEmail}</td>
+                    <td>{host.tickets}</td>
+                    <td style={{ color: "#14c02b", fontWeight: 600 }}>₦{host.totalEarned.toLocaleString()}</td>
+                    <td style={{ color: "#f59e0b", fontWeight: 600 }}>₦{host.withdrawn.toLocaleString()}</td>
+                    <td style={{ color: stillOwed > 0 ? "#3b82f6" : "#94a3b8", fontWeight: 600 }}>
+                      ₦{stillOwed.toLocaleString()}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -375,7 +400,6 @@ const AdminDashboard = () => {
             </tbody>
           </table>
 
-          {/* Pagination */}
           <div style={{ marginTop: "1rem", textAlign: "center" }}>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
@@ -433,9 +457,7 @@ const AdminDashboard = () => {
                     <td>{w.accountName}</td>
                     <td><strong>{w.accountNumber}</strong></td>
                     <td>{w.bank}</td>
-                    <td style={{ fontWeight: 600, color: "#009f15" }}>
-                      ₦{w.amount?.toLocaleString()}
-                    </td>
+                    <td style={{ fontWeight: 600, color: "#009f15" }}>₦{w.amount?.toLocaleString()}</td>
                     <td style={{ fontSize: "0.82rem", color: "#666" }}>{w.note || "—"}</td>
                     <td>{getStatusBadge(w.status)}</td>
                     <td>
@@ -443,19 +465,13 @@ const AdminDashboard = () => {
                         <div style={{ display: "flex", gap: "6px" }}>
                           <button
                             onClick={() => handleWithdrawalStatus(w.id, "completed")}
-                            style={{
-                              padding: "4px 10px", background: "#14c02b", color: "#fff",
-                              border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.8rem",
-                            }}
+                            style={{ padding: "4px 10px", background: "#14c02b", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.8rem" }}
                           >
                             ✅ Approve
                           </button>
                           <button
                             onClick={() => handleWithdrawalStatus(w.id, "rejected")}
-                            style={{
-                              padding: "4px 10px", background: "#ef4444", color: "#fff",
-                              border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.8rem",
-                            }}
+                            style={{ padding: "4px 10px", background: "#ef4444", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.8rem" }}
                           >
                             ❌ Reject
                           </button>

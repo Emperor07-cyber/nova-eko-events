@@ -11,10 +11,29 @@ const HostDashboard = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
-  const [balance, setBalance] = useState(0);
+  const [withdrawals, setWithdrawals] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
   const navigate = useNavigate();
 
+  // ── Withdrawals listener — separate useEffect ──
+  useEffect(() => {
+    if (!user) return;
+    console.log("Setting up withdrawals listener for:", user.email);
+    const withdrawalsRef = ref(database, "withdrawalRequests");
+    const unsubscribe = onValue(withdrawalsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      console.log("Raw withdrawals data:", data);
+      const all = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+      const hostWithdrawals = all.filter(
+        (w) => w.hostEmail?.toLowerCase() === user.email?.toLowerCase() && w.status === "completed"
+      );
+      console.log("Completed withdrawals for host:", hostWithdrawals);
+      setWithdrawals(hostWithdrawals);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  // ── Events + Tickets listener ──
   useEffect(() => {
     if (!user) return;
 
@@ -22,7 +41,6 @@ const HostDashboard = () => {
     const ticketsRef = ref(database, "tickets");
 
     const unsubscribeEvents = onValue(eventsRef, (eventsSnapshot) => {
-      
       const eventsData = eventsSnapshot.val() || {};
 
       const userEvents = Object.entries(eventsData)
@@ -32,30 +50,15 @@ const HostDashboard = () => {
       setEvents(userEvents);
 
       const unsubscribeTickets = onValue(ticketsRef, (ticketsSnapshot) => {
-  const ticketsData = ticketsSnapshot.val() || {};
-  const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
+        const ticketsData = ticketsSnapshot.val() || {};
+        const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
 
-  const hostTickets = allTickets.filter((ticket) =>
-    userEvents.some((e) => e.id === ticket.eventId)
-  );
+        const hostTickets = allTickets.filter((ticket) =>
+          userEvents.some((e) => e.id === ticket.eventId)
+        );
 
-  // TEMP DEBUG
-  console.log("Total tickets in DB:", allTickets.length);
-  console.log("Host event IDs:", userEvents.map(e => e.id));
-  console.log("Matched:", hostTickets.length);
-  console.log("Unmatched ticket eventIds:", allTickets
-    .filter(t => !userEvents.some(e => e.id === t.eventId))
-    .map(t => t.eventId)
-  );
-
-  setTickets(hostTickets);
-
-  let total = 0;
-  hostTickets.forEach((ticket) => {
-    total += ticket.totalPaid || 0;
-  });
-  setBalance(total);
-});
+        setTickets(hostTickets);
+      });
 
       return () => unsubscribeTickets();
     });
@@ -63,36 +66,10 @@ const HostDashboard = () => {
     return () => unsubscribeEvents();
   }, [user]);
 
-  const handleDelete = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      await remove(ref(database, `events/${eventId}`));
-      alert("Event deleted successfully.");
-    }
-  };
-
-  const handleCopyLink = (event) => {
-  const link = event.eventUrl
-    ? event.eventUrl
-    : `https://ekotixx.com/event/${event.id}`;
-  
-  // Fallback for clipboard issues
-  try {
-    navigator.clipboard.writeText(link);
-  } catch {
-    const el = document.createElement("textarea");
-    el.value = link;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
-  }
-  
-  alert(`Link copied: ${link}`); // temp alert so we can see the value
-  setCopiedId(event.id);
-  setTimeout(() => setCopiedId(null), 2000);
-};
-
+  // ── Computed values ──
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
+  const totalWithdrawn = withdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
+  const balance = totalRevenue - totalWithdrawn;
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
 
   const salesData = Object.values(
@@ -103,6 +80,31 @@ const HostDashboard = () => {
       return acc;
     }, {})
   );
+
+  const handleDelete = async (eventId) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      await remove(ref(database, `events/${eventId}`));
+      alert("Event deleted successfully.");
+    }
+  };
+
+  const handleCopyLink = (event) => {
+    let link = event.eventUrl
+      ? event.eventUrl.replace("https://www.ekotixx.com/", "https://ekotixx.com/")
+      : `https://ekotixx.com/event/${event.id}`;
+    try {
+      navigator.clipboard.writeText(link);
+    } catch {
+      const el = document.createElement("textarea");
+      el.value = link;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
+    setCopiedId(event.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <HostLayout>
@@ -129,10 +131,10 @@ const HostDashboard = () => {
           </div>
         </div>
         <div className="summary-card">
-          <span className="summary-icon">📅</span>
+          <span className="summary-icon">💸</span>
           <div>
-            <p className="summary-value">{events.length}</p>
-            <p className="summary-label">Events</p>
+            <p className="summary-value">₦{totalWithdrawn.toLocaleString()}</p>
+            <p className="summary-label">Total Withdrawn</p>
           </div>
         </div>
         <div className="summary-card">
@@ -170,7 +172,6 @@ const HostDashboard = () => {
               </tr>
             ) : (
               events.map((event) => {
-                 console.log("Event:", event.title, "| eventUrl:", event.eventUrl);
                 const eventTickets = tickets.filter((t) => t.eventId === event.id);
                 return (
                   <tr key={event.id}>

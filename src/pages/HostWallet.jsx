@@ -15,42 +15,34 @@ const HostWallet = () => {
   const [requests, setRequests] = useState([]);
   const [hostEventIds, setHostEventIds] = useState([]);
 
-
-  // add this useEffect:
-useEffect(() => {
-  if (!user) return;
-  const eventsRef = ref(database, "events");
-  const unsubscribe = onValue(eventsRef, (snapshot) => {
-    const data = snapshot.val() || {};
-    const ids = Object.entries(data)
-      .filter(([, val]) => val.createdBy === user.email)
-      .map(([id]) => id);
-    setHostEventIds(ids);
-  });
-  return () => unsubscribe();
-}, [user]);
   useEffect(() => {
     if (!user) return;
+    const eventsRef = ref(database, "events");
+    const unsubscribe = onValue(eventsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const ids = Object.entries(data)
+        .filter(([, val]) => val.createdBy?.toLowerCase() === user.email?.toLowerCase())
+        .map(([id]) => id);
+      setHostEventIds(ids);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || hostEventIds.length === 0) return;
     const ticketsRef = ref(database, "tickets");
     const unsubscribe = onValue(ticketsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const hostTickets = Object.entries(data)
         .map(([id, value]) => ({ id, ...value }))
-        .filter((ticket) => 
-  ticket.hostEmail === user.email || 
-  hostEventIds.includes(ticket.eventId)
-)
+        .filter((ticket) =>
+          ticket.hostEmail?.toLowerCase() === user.email?.toLowerCase() ||
+          hostEventIds.includes(ticket.eventId)
+        );
       setTickets(hostTickets);
-      let net = 0;
-      hostTickets.forEach((ticket) => {
-        const gross = ticket.totalPaid || 0;
-        const fee = gross * 0.05 + 100;
-        net += gross;
-      });
-      setBalance(net);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, hostEventIds]);
 
   useEffect(() => {
     if (!user) return;
@@ -66,8 +58,19 @@ useEffect(() => {
     return () => unsubscribe();
   }, [user]);
 
+  // Recalculate balance whenever tickets or requests change
+  useEffect(() => {
+    const totalEarned = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
+    const totalWithdrawn = requests
+      .filter((r) => r.status === "completed")
+      .reduce((sum, r) => sum + (r.amount || 0), 0);
+    setBalance(totalEarned - totalWithdrawn);
+  }, [tickets, requests]);
+
   const totalGross = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
-  const totalFees = totalGross - balance;
+  const totalWithdrawn = requests
+    .filter((r) => r.status === "completed")
+    .reduce((sum, r) => sum + (r.amount || 0), 0);
 
   const handleWithdrawRequest = async (e) => {
     e.preventDefault();
@@ -127,8 +130,8 @@ useEffect(() => {
           <span className="wallet-stat-value">₦{totalGross.toLocaleString()}</span>
         </div>
         <div className="wallet-stat-card">
-          <span className="wallet-stat-label">Platform Fees</span>
-          <span className="wallet-stat-value fees">₦{totalFees.toLocaleString()}</span>
+          <span className="wallet-stat-label">Total Withdrawn</span>
+          <span className="wallet-stat-value fees">₦{totalWithdrawn.toLocaleString()}</span>
         </div>
       </div>
 
@@ -168,25 +171,19 @@ useEffect(() => {
       <div className="table-wrapper">
         <table className="host-table">
           <thead>
-            <tr><th>Buyer</th><th>Event</th><th>Gross</th><th>Fee (5% + ₦100)</th><th>Net Payout</th></tr>
+            <tr><th>Buyer</th><th>Event</th><th>Amount</th></tr>
           </thead>
           <tbody>
             {tickets.length === 0 ? (
-              <tr><td colSpan={5} className="table-empty">No transactions yet.</td></tr>
+              <tr><td colSpan={3} className="table-empty">No transactions yet.</td></tr>
             ) : (
-              tickets.map((ticket) => {
-                const gross = ticket.totalPaid || 0;
-                const fee = gross * 0.05 + 100;
-                const net = gross - fee;
-                return (
-                  <tr key={ticket.id}>
-                    <td>{ticket.email}</td><td>{ticket.eventTitle}</td>
-                    <td>₦{gross.toLocaleString()}</td>
-                    <td className="fee-cell">₦{fee.toLocaleString()}</td>
-                    <td className="net-cell">₦{net.toLocaleString()}</td>
-                  </tr>
-                );
-              })
+              tickets.map((ticket) => (
+                <tr key={ticket.id}>
+                  <td>{ticket.email}</td>
+                  <td>{ticket.eventTitle}</td>
+                  <td>₦{(ticket.totalPaid || 0).toLocaleString()}</td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
