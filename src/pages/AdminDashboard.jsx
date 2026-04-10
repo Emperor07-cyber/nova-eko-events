@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue, remove, update } from "firebase/database";
+import { ref, onValue, remove, update , get } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
@@ -96,13 +96,17 @@ const AdminDashboard = () => {
     }, {})
   );
 
-  const filteredTickets = tickets.filter(
-    (t) =>
+  const filteredTickets = tickets
+  .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+  .filter((t) => {
+    const eventExists = events.some((e) => e.id === t.eventId);
+    const matchesSearch =
       t.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (events.find((e) => e.id === t.eventId)?.title || "")
         .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+        .includes(searchTerm.toLowerCase());
+    return eventExists && matchesSearch;
+  });
 
   const paginatedTickets = filteredTickets.slice(
     (currentPage - 1) * itemsPerPage,
@@ -112,15 +116,26 @@ const AdminDashboard = () => {
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
 
   const handleDeleteEvent = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        await remove(ref(database, "events/" + eventId));
-        alert("Event deleted successfully.");
-      } catch (error) {
-        alert("Error deleting event: " + error.message);
+  if (window.confirm("Are you sure you want to delete this event and all its tickets?")) {
+    try {
+      // Delete all tickets for this event
+      const ticketsRef = ref(database, "tickets");
+      const snapshot = await get(ticketsRef);
+      if (snapshot.exists()) {
+        const ticketsData = snapshot.val();
+        const deletePromises = Object.entries(ticketsData)
+          .filter(([, ticket]) => ticket.eventId === eventId)
+          .map(([ticketId]) => remove(ref(database, `tickets/${ticketId}`)));
+        await Promise.all(deletePromises);
       }
+      // Delete the event
+      await remove(ref(database, "events/" + eventId));
+      alert("Event and all its tickets deleted successfully.");
+    } catch (error) {
+      alert("Error deleting event: " + error.message);
     }
-  };
+  }
+};
 
   const handleWithdrawalStatus = async (id, status) => {
     try {

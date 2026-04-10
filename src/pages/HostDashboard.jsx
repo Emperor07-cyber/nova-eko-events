@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue, remove } from "firebase/database";
+import { ref, onValue, remove, get } from "firebase/database";
 import { database, auth } from "../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { CSVLink } from "react-csv";
@@ -81,12 +81,25 @@ const HostDashboard = () => {
     }, {})
   );
 
-  const handleDelete = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
+const handleDelete = async (eventId) => {
+  if (window.confirm("Are you sure you want to delete this event and all its tickets?")) {
+    try {
+      const ticketsRef = ref(database, "tickets");
+      const snapshot = await get(ticketsRef);
+      if (snapshot.exists()) {
+        const ticketsData = snapshot.val();
+        const deletePromises = Object.entries(ticketsData)
+          .filter(([, ticket]) => ticket.eventId === eventId)
+          .map(([ticketId]) => remove(ref(database, `tickets/${ticketId}`)));
+        await Promise.all(deletePromises);
+      }
       await remove(ref(database, `events/${eventId}`));
-      alert("Event deleted successfully.");
+      alert("Event and all its tickets deleted successfully.");
+    } catch (error) {
+      alert("Error deleting event: " + error.message);
     }
-  };
+  }
+};
 
   const handleCopyLink = (event) => {
     let link = event.eventUrl
