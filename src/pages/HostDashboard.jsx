@@ -24,9 +24,10 @@ const HostDashboard = () => {
       const data = snapshot.val() || {};
       console.log("Raw withdrawals data:", data);
       const all = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+      
       const hostWithdrawals = all.filter(
-        (w) => w.hostEmail?.toLowerCase() === user.email?.toLowerCase() && w.status === "completed"
-      );
+  (w) => w.hostEmail?.toLowerCase().trim() === user.email?.toLowerCase().trim() && w.status?.trim() === "completed"
+);
       console.log("Completed withdrawals for host:", hostWithdrawals);
       setWithdrawals(hostWithdrawals);
     });
@@ -69,8 +70,13 @@ const HostDashboard = () => {
   // ── Computed values ──
   const totalRevenue = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
   const totalWithdrawn = withdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
-  const balance = totalRevenue - totalWithdrawn;
+  const balance = Math.max(0, totalRevenue - totalWithdrawn);
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
+
+console.log("totalRevenue:", totalRevenue);
+console.log("totalWithdrawn:", totalWithdrawn);
+console.log("tickets totalPaid values:", tickets.map(t => t.totalPaid));
+console.log("withdrawals amounts:", withdrawals.map(w => w.amount));
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
