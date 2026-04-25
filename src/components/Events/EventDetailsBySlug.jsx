@@ -87,11 +87,10 @@
     const selectedTicketDetails = event.tickets?.find((t) => t.type === selectedTicket);
     const ticketPrice   = Number(selectedTicketDetails?.price) || 0;
     const ticketLimit   = selectedTicketDetails?.limit || 0;
-    const baseAmount    = ticketPrice * ticketQuantity;
-    const buyerFee      = baseAmount > 0 ? 100 : 0;
-    const hostFee       = Math.round(baseAmount * 0.05);
-    const totalAmount   = baseAmount + buyerFee;
-    const hostEarnings  = baseAmount - hostFee;
+    const baseAmount = ticketPrice * Number(ticketQuantity);
+    const platformFee = baseAmount > 0 ? Math.round(baseAmount * 0.05) + 100 : 0;
+    const totalAmount = baseAmount + platformFee;
+    const hostEarnings = baseAmount; // host gets full ticket price
 
     const handlePaymentSuccess = async (response) => {
       setSending(true);
@@ -103,10 +102,9 @@
         hostEmail:     event.createdBy || "",
         ticketType:    selectedTicket,
         quantity:      ticketQuantity,
-        totalPaid:     hostEarnings,
-        serviceFee:    buyerFee,
-        hostFee:       hostFee,
-        totalCharged:  totalAmount,
+        totalPaid: baseAmount,      // host receives full ticket price
+        platformFee: platformFee,     // 5% + ₦100 platform cut
+        totalCharged: totalAmount,     // what buyer actually paid
         transactionId: response.reference,
         timestamp:     Date.now(),
       };
@@ -213,10 +211,11 @@
                 </div>
                 <div className="summary-box">
                   <h4>Summary:</h4>
+                  {console.log("RENDER - ticketPrice:", ticketPrice, "baseAmount:", baseAmount, "platformFee:", platformFee)}
                   <p><strong>Ticket:</strong> {selectedTicket}</p>
                   <p><strong>Quantity:</strong> {ticketQuantity}</p>
                   <p><strong>Ticket Price:</strong> ₦{baseAmount.toLocaleString()}</p>
-                  <p><strong>Service Fee:</strong> ₦{buyerFee.toLocaleString()}</p>
+                  <p><strong>Service Fee:</strong> ₦{platformFee.toLocaleString()}</p>
                   <hr style={{ margin: "0.5rem 0", border: "none", borderTop: "1px solid #eee" }} />
                   <p><strong>Total:</strong> ₦{totalAmount.toLocaleString()}</p>
                 </div>
