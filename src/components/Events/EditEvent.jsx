@@ -163,15 +163,30 @@ const EditEvent = () => {
           </label>
 
           <label>
-            <h4>Event Date</h4>
-            <input
-              name="date"
-              type="date"
-              value={eventData.date || ""}
-              onChange={handleChange}
-              required
-            />
-          </label>
+  <h4>Event Date</h4>
+  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+    <input
+      name="date"
+      type="date"
+      value={eventData.date === "TBA" ? "" : eventData.date || ""}
+      onChange={handleChange}
+      disabled={eventData.date === "TBA"}
+      required={eventData.date !== "TBA"}
+      style={{ opacity: eventData.date === "TBA" ? 0.5 : 1 }}
+    />
+    <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+      <input
+        type="checkbox"
+        checked={eventData.date === "TBA"}
+        onChange={(e) => setEventData({
+          ...eventData,
+          date: e.target.checked ? "TBA" : ""
+        })}
+      />
+      Date TBA
+    </label>
+  </div>
+</label>
 
           <label>
             <h4>Start Time</h4>
