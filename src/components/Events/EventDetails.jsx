@@ -156,7 +156,7 @@ console.log("platformFee:", platformFee);
   return (
     <div className="event-details">
       <h1>{event.title}</h1>
-      <p><strong>Date:</strong> {event.date}</p>
+      <p><strong>Date:</strong> {event.date === "TBA" ? "To be announced" : event.date}</p>
       <p><strong>Time:</strong> {event.startTime || "To be announced"}</p>
       <p><strong>Location:</strong> {event.location}</p>
       <img

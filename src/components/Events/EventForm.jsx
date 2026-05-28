@@ -134,9 +134,31 @@ const EventForm = () => {
           </label>
 
           <label>
-            Event Date
-            <input name="date" type="date" value={formData.date} onChange={handleChange} required />
-          </label>
+  Event Date
+  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+    <input
+      name="date"
+      type="date"
+      value={formData.dateUnknown ? "" : formData.date}
+      onChange={handleChange}
+      disabled={formData.dateUnknown}
+      required={!formData.dateUnknown}
+      style={{ opacity: formData.dateUnknown ? 0.5 : 1 }}
+    />
+    <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+      <input
+        type="checkbox"
+        checked={formData.dateUnknown || false}
+        onChange={(e) => setFormData({
+          ...formData,
+          dateUnknown: e.target.checked,
+          date: e.target.checked ? "TBA" : ""
+        })}
+      />
+      Date TBA
+    </label>
+  </div>
+</label>
 
           <label>
             Start Time
