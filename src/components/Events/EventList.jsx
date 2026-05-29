@@ -17,10 +17,14 @@ const EventList = () => {
       if (data) {
         const now = new Date();
         const loadedEvents = Object.keys(data)
-          .map((key) => ({ id: key, ...data[key] }))
-          .filter((e) => new Date(e.date) >= now)
-          .sort((a, b) => new Date(a.date) - new Date(b.date));
-        setEvents(loadedEvents);
+  .map((key) => ({ id: key, ...data[key] }))
+  .filter((e) => e.date === "TBA" || new Date(e.date) >= now)
+  .sort((a, b) => {
+    if (a.date === "TBA") return 1;
+    if (b.date === "TBA") return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+setEvents(loadedEvents);
       }
     });
   }, []);
@@ -31,10 +35,11 @@ const EventList = () => {
   );
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-  };
+  if (!dateStr || dateStr === "TBA") return "To be announced";
+  const d = new Date(dateStr);
+  if (isNaN(d)) return "To be announced";
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+};
 
   return (
     <>

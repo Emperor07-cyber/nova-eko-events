@@ -41,10 +41,15 @@ const Home = () => {
         const data = snapshot.val();
         if (data) {
           const now = new Date();
-          const eventList = Object.keys(data)
-            .map((key) => ({ id: key, ...data[key] }))
-            .filter((event) => new Date(event.date) >= now);
-          setEvents(eventList);
+         const eventList = Object.keys(data)
+  .map((key) => ({ id: key, ...data[key] }))
+  .filter((event) => event.date === "TBA" || new Date(event.date) >= now)
+  .sort((a, b) => {
+    if (a.date === "TBA") return 1;
+    if (b.date === "TBA") return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+setEvents(eventList);
         } else {
           setEvents([]);
         }
@@ -132,8 +137,8 @@ const Home = () => {
                   <h3 className="event-title">{event.title}</h3>
                   <p className="event-description">{event.description}</p>
                   <div className="event-meta">
-                    <span>📅 {event.date}</span>
-                    <span>🕐 {event.startTime || "TBA"}</span>
+                    <span>📅 {event.date === "TBA" ? "To be announced" : event.date}</span>
+                    <span>🕐 {formatTime(event.startTime)}</span>
                     <span>📍 {event.location}</span>
                   </div>
                 </div>
