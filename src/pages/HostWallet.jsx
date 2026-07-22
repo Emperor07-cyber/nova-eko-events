@@ -100,23 +100,19 @@ const HostWallet = () => {
   };
 
   const getStatusBadge = (status) => {
-    const styles = {
-      pending:   { background: "#fff8e1", color: "#f59e0b", border: "1px solid #fcd34d" },
-      approved:  { background: "#f0fdf4", color: "#009f15", border: "1px solid #86efac" },
-      rejected:  { background: "#fef2f2", color: "#ef4444", border: "1px solid #fca5a5" },
-      completed: { background: "#eff6ff", color: "#3b82f6", border: "1px solid #93c5fd" },
-    };
-    const style = styles[status] || styles.pending;
-    return (
-      <span style={{ ...style, padding: "3px 10px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: "600", textTransform: "capitalize" }}>
-        {status}
-      </span>
-    );
+    const statusClass = {
+      pending: "is-pending",
+      approved: "is-approved",
+      rejected: "is-rejected",
+      completed: "is-completed",
+    }[status] || "is-pending";
+
+    return <span className={`wallet-status-badge ${statusClass}`}>{status}</span>;
   };
 
   return (
     <HostLayout>
-      <h2 className="section-title">💳 Wallet</h2>
+      <h2 className="section-title">Wallet</h2>
 
       <div className="wallet-stats">
         <div className="wallet-card">
@@ -135,30 +131,30 @@ const HostWallet = () => {
         </div>
       </div>
 
-      <div style={{ marginBottom: "2rem" }}>
+      <div className="wallet-withdraw-row">
         <button className="btn-withdraw" onClick={() => setShowModal(true)} disabled={balance <= 0}>
-          💸 Request Withdrawal
+          Request Withdrawal
         </button>
         {balance <= 0 && (
-          <p style={{ fontSize: "0.82rem", color: "#94a3b8", marginTop: "6px" }}>No balance available to withdraw.</p>
+          <p className="wallet-muted-message">No balance available to withdraw.</p>
         )}
       </div>
 
       {requests.length > 0 && (
         <>
-          <h3 className="section-title" style={{ marginTop: "0" }}>📋 Withdrawal Requests</h3>
-          <div className="table-wrapper" style={{ marginBottom: "2rem" }}>
-            <table className="host-table">
+          <h3 className="section-title wallet-section-tight">Withdrawal Requests</h3>
+          <div className="table-wrapper wallet-table-gap">
+            <table className="host-table host-table-stacked">
               <thead>
                 <tr><th>Date</th><th>Amount</th><th>Status</th><th>Note</th></tr>
               </thead>
               <tbody>
                 {requests.map((r) => (
                   <tr key={r.id}>
-                    <td>{new Date(r.timestamp).toLocaleDateString()}</td>
-                    <td style={{ fontWeight: 600 }}>₦{r.amount.toLocaleString()}</td>
-                    <td>{getStatusBadge(r.status)}</td>
-                    <td style={{ color: "#64748b", fontSize: "0.85rem" }}>{r.note || "—"}</td>
+                    <td data-label="Date">{new Date(r.timestamp).toLocaleDateString()}</td>
+                    <td className="wallet-amount-cell" data-label="Amount">₦{r.amount.toLocaleString()}</td>
+                    <td data-label="Status">{getStatusBadge(r.status)}</td>
+                    <td className="wallet-note-cell" data-label="Note">{r.note || "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -169,7 +165,7 @@ const HostWallet = () => {
 
       <h3 className="section-title">Transaction History</h3>
       <div className="table-wrapper">
-        <table className="host-table">
+        <table className="host-table host-table-stacked">
           <thead>
             <tr><th>Buyer</th><th>Event</th><th>Amount</th></tr>
           </thead>
@@ -179,9 +175,9 @@ const HostWallet = () => {
             ) : (
               tickets.map((ticket) => (
                 <tr key={ticket.id}>
-                  <td>{ticket.email}</td>
-                  <td>{ticket.eventTitle}</td>
-                  <td>₦{(ticket.totalPaid || 0).toLocaleString()}</td>
+                  <td data-label="Buyer">{ticket.email}</td>
+                  <td data-label="Event">{ticket.eventTitle}</td>
+                  <td data-label="Amount">₦{(ticket.totalPaid || 0).toLocaleString()}</td>
                 </tr>
               ))
             )}
@@ -192,29 +188,36 @@ const HostWallet = () => {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginBottom: "0.25rem", color: "#1e293b" }}>💸 Request Withdrawal</h3>
-            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "1.5rem" }}>
-              Available: <strong style={{ color: "#009f15" }}>₦{balance.toLocaleString()}</strong>
+            <h3 className="wallet-modal-title">Request Withdrawal</h3>
+            <p className="wallet-modal-sub">
+              Available: <strong className="wallet-modal-balance">₦{balance.toLocaleString()}</strong>
             </p>
-            <form onSubmit={handleWithdrawRequest} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#1e293b" }}>
+            <form onSubmit={handleWithdrawRequest} className="wallet-modal-form">
+              <label className="wallet-modal-label">
                 Amount (₦)
-                <input type="number" min="1" max={balance} value={withdrawAmount}
+                <input
+                  className="wallet-modal-input"
+                  type="number"
+                  min="1"
+                  max={balance}
+                  value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder={`Max ₦${balance.toLocaleString()}`} required
-                  style={{ display: "block", width: "100%", marginTop: "6px", padding: "0.65rem 1rem", border: "1px solid #e5e7eb", borderRadius: "6px", fontSize: "0.95rem", outline: "none", fontFamily: "inherit" }}
+                  placeholder={`Max ₦${balance.toLocaleString()}`}
+                  required
                 />
               </label>
-              <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#1e293b" }}>
+              <label className="wallet-modal-label">
                 Note to admin (optional)
-                <textarea value={withdrawNote} onChange={(e) => setWithdrawNote(e.target.value)}
-                  placeholder="Any message for the admin..." rows={3}
-                  style={{ display: "block", width: "100%", marginTop: "6px", padding: "0.65rem 1rem", border: "1px solid #e5e7eb", borderRadius: "6px", fontSize: "0.9rem", resize: "vertical", outline: "none", fontFamily: "inherit" }}
+                <textarea
+                  className="wallet-modal-textarea"
+                  value={withdrawNote}
+                  onChange={(e) => setWithdrawNote(e.target.value)}
+                  placeholder="Any message for the admin..."
+                  rows={3}
                 />
               </label>
-              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
-                <button type="button" onClick={() => setShowModal(false)}
-                  style={{ padding: "0.6rem 1.25rem", border: "1px solid #e5e7eb", borderRadius: "6px", background: "#fff", color: "#64748b", cursor: "pointer", fontSize: "0.9rem", fontFamily: "inherit" }}>
+              <div className="wallet-modal-actions">
+                <button type="button" onClick={() => setShowModal(false)} className="wallet-modal-cancel">
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary" disabled={submitting}>

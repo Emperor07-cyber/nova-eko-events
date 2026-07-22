@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Header from "./Header";
 import HostSidebar from "./HostSidebar";
 import './hostPortal.css';
 
@@ -8,7 +7,6 @@ const HostLayout = ({ children }) => {
 
   return (
     <>
-      <Header />
       <div className="host-layout">
         <HostSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 

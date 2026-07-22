@@ -3,8 +3,9 @@ import { ref, get } from "firebase/database";
 import { auth, database } from "../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
+import LoadingSpinner from "../common/LoadingSpinner";
 
-const RequireAdmin = ({ Component }) => {
+const RequireAdmin = ({ Component, children }) => {
   const [user, loading] = useAuthState(auth);
   const [isAdmin, setIsAdmin] = useState(null);
   const location = useLocation();
@@ -19,10 +20,16 @@ const RequireAdmin = ({ Component }) => {
     }
   }, [user]);
 
-  if (loading || isAdmin === null) return <div>Loading...</div>;
+  if (loading || isAdmin === null) {
+    return <LoadingSpinner message="Checking admin access..." />;
+  }
 
   if (!user || !isAdmin) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (children) {
+    return children;
   }
 
   return <Component />;

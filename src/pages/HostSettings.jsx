@@ -22,7 +22,7 @@ const HostSettings = () => {
   const [bankError, setBankError] = useState("");
   const [bankSuccess, setBankSuccess] = useState("");
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "/api" : "https://nova-eko-events.onrender.com");
 
   // Load existing bank details from Firebase
   useEffect(() => {
@@ -45,7 +45,10 @@ const HostSettings = () => {
       try {
         const res = await fetch(`${API_URL}/get-banks`);
         const data = await res.json();
-        setBanks(data.data);
+        const uniqueBanks = Array.from(
+          new Map((data.data || []).map((bank) => [bank.code, bank])).values()
+        );
+        setBanks(uniqueBanks);
       } catch (err) {
         console.error("Error fetching banks:", err);
       }
@@ -138,7 +141,7 @@ const HostSettings = () => {
   return (
     <HostLayout>
       <div className="host-settings">
-        <h2>⚙ Host Settings</h2>
+        <h2>Host Settings</h2>
 
         {/* Update Name */}
         <form onSubmit={handleUpdateName} className="settings-card">
@@ -173,7 +176,7 @@ const HostSettings = () => {
         {/* Email (read-only) */}
         <div className="settings-card">
           <h3>Email</h3>
-          <p>{user?.email}</p>
+          <p className="settings-email">{user?.email}</p>
         </div>
 
         {/* Update Bank / Payout Details */}
@@ -183,6 +186,8 @@ const HostSettings = () => {
           {/* Show current saved details */}
           {currentBank && currentAccountNumber && (
             <div className="current-account-info">
+              <div className="settings-status settings-status-success">Verified payout account</div>
+              <div className="settings-account-name">{accountName || "Account name unavailable"}</div>
               <p>
                 <span className="info-label">Current Bank:</span> {currentBank}
               </p>
@@ -191,11 +196,6 @@ const HostSettings = () => {
                 {"*".repeat(currentAccountNumber.length - 4) +
                   currentAccountNumber.slice(-4)}
               </p>
-              {accountName && (
-                <p>
-                  <span className="info-label">Account Name:</span> {accountName}
-                </p>
-              )}
             </div>
           )}
 

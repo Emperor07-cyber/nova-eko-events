@@ -1,14 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Header from "../components/Layout/Header";
-import Footer from "../components/Layout/Footer";
 
 const PrivacyPolicy = () => {
   return (
-    <>
-      <Header />
-      <div className="legal-page">
-        <div className="legal-container">
+    <div className="legal-page">
+      <div className="legal-container">
           <div className="legal-header">
             <h1>Privacy Policy</h1>
             <p className="legal-date">Last updated: June 2025</p>
@@ -103,14 +99,12 @@ const PrivacyPolicy = () => {
             </ul>
           </div>
 
-          <div className="legal-footer-nav">
-            <Link to="/">← Back to Home</Link>
-            <Link to="/terms">Terms &amp; Conditions →</Link>
-          </div>
+        <div className="legal-footer-nav">
+          <Link to="/">← Back to Home</Link>
+          <Link to="/terms">Terms &amp; Conditions →</Link>
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   );
 };
 

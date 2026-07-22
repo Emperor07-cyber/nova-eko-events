@@ -1,30 +1,29 @@
 /* ============================================
-   NOVA EKO HOST PORTAL — hostPortal.css
-   Green theme: #14c02b / #009f15
-   Sidebar: #0f172a | Background: #f8fafc
+   EKOTIX HOST PORTAL — hostPortal.css
+   Light theme aligned with global UI
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
 
 /* ── Variables ───────────────────────────── */
 :root {
-  --green:         #14c02b;
-  --green-dark:    #009f15;
-  --green-light:   rgba(20, 192, 43, 0.1);
-  --green-border:  rgba(20, 192, 43, 0.25);
+  --green:         #009f15;
+  --green-dark:    #14c02b;
+  --green-light:   rgba(20, 192, 43, 0.12);
+  --green-border:  rgba(20, 192, 43, 0.3);
 
-  --sidebar-bg:    #0f172a;
+  --sidebar-bg:    #ffffff;
   --sidebar-hover: rgba(255, 255, 255, 0.08);
-  --sidebar-active:rgba(20, 192, 43, 0.15);
+  --sidebar-active:rgba(20, 192, 43, 0.12);
   --sidebar-width: 230px;
 
-  --bg:            #f8fafc;
+  --bg:            #f7f8fb;
   --surface:       #ffffff;
-  --surface-2:     #f1f5f9;
+  --surface-2:     #f6f7fb;
   --border:        #e5e7eb;
   --border-dark:   #d1d5db;
 
-  --text-primary:   #1e293b;
+  --text-primary:   #111827;
   --text-secondary: #64748b;
   --text-muted:     #94a3b8;
 
@@ -62,6 +61,8 @@
   max-width: 1100px;
   font-family: var(--font-body);
   color: var(--text-primary);
+  display: grid;
+  gap: 16px;
 }
 
 /* ── Sidebar Overlay (mobile) ────────────── */
@@ -86,7 +87,7 @@
   height: 100vh;
   width: var(--sidebar-width);
   background: var(--sidebar-bg);
-  color: white;
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -105,7 +106,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.4rem 1.25rem 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
 }
 
 .sidebar-logo {
@@ -120,7 +121,7 @@
 .sidebar-close-btn {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.4);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 1rem;
   padding: 4px 8px;
@@ -130,8 +131,8 @@
 }
 
 .sidebar-close-btn:hover {
-  color: white;
-  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  background: #f3f4f6;
 }
 
 .sidebar-nav {
@@ -148,7 +149,7 @@
   gap: 0.75rem;
   padding: 0.7rem 1rem;
   border-radius: var(--radius);
-  color: rgba(8, 228, 11, 0.65);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
@@ -158,8 +159,8 @@
 }
 
 .sidebar-link:hover {
-  background: var(--sidebar-hover);
-  color: rgb(60, 218, 12);
+  background: #f8fafc;
+  color: var(--text-primary);
 }
 
 .sidebar-link.active {
@@ -189,9 +190,9 @@
 
 .sidebar-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid var(--border);
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.2);
+  color: var(--text-muted);
   font-family: var(--font-display);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -230,10 +231,11 @@
 
 .section-title {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-weight: 800;
+  font-size: 1.35rem;
   color: var(--text-primary);
   margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
 }
 
 .section-header .section-title {
@@ -242,7 +244,7 @@
 
 /* ── Wallet Card ─────────────────────────── */
 .wallet-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1a2744 100%);
+  background: linear-gradient(135deg, #5b46d8 0%, #7c5cff 100%);
   border-radius: var(--radius-lg);
   padding: 1.75rem 2rem;
   margin-bottom: 1.75rem;
@@ -258,7 +260,7 @@
   right: -30px;
   width: 140px;
   height: 140px;
-  background: radial-gradient(circle, rgba(20, 192, 43, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -270,10 +272,11 @@
 
 .wallet-label {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.78);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .wallet-amount {
@@ -353,8 +356,8 @@
 
 .summary-value {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.25rem;
+  font-weight: 800;
+  font-size: 1.3rem;
   color: var(--text-primary);
   line-height: 1.2;
 }
@@ -378,7 +381,7 @@
 .host-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-family: var(--font-body);
 }
 
@@ -388,7 +391,7 @@
 }
 
 .host-table th {
-  padding: 0.85rem 1.25rem;
+  padding: 0.95rem 1.2rem;
   text-align: left;
   font-size: 0.75rem;
   font-weight: 600;
@@ -399,7 +402,7 @@
 }
 
 .host-table td {
-  padding: 0.9rem 1.25rem;
+  padding: 1rem 1.2rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
@@ -474,22 +477,23 @@
 
 /* ── Primary Button ──────────────────────── */
 .btn-primary {
-  background: var(--green);
+  background: linear-gradient(135deg, #7c5cff, #9b87ff);
   color: #fff;
-  border: 2px solid var(--green);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: 0.6rem 1.4rem;
+  padding: 0.65rem 1.4rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-body);
   cursor: pointer;
-  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: white;
-  color: var(--green);
-  box-shadow: 0 2px 10px rgba(20, 192, 43, 0.25);
+  background: linear-gradient(135deg, #6e53ea, #8f79ff);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(124, 92, 255, 0.26);
+  transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
@@ -503,7 +507,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--surface);
+  background: #fff;
   border: 1px solid var(--border);
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
@@ -555,10 +559,11 @@
 
 .settings-card h3 {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: 1rem;
   color: var(--text-primary);
   margin-bottom: 1.1rem;
+  letter-spacing: -0.01em;
 }
 
 .settings-email {
@@ -602,6 +607,77 @@
 .settings-form input:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(20, 192, 43, 0.12);
+}
+
+.settings-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-status-success {
+  color: #0f8a22;
+  background: rgba(20, 192, 43, 0.12);
+  border: 1px solid rgba(20, 192, 43, 0.18);
+}
+
+.settings-account-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.15rem;
+}
+
+.current-account-info {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(20, 192, 43, 0.16);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(20, 192, 43, 0.07), rgba(255, 255, 255, 0.96));
+  margin-bottom: 1rem;
+}
+
+.host-settings,
+.wallet-stats,
+.summary-cards,
+.dashboard-table-container,
+.chart-wrapper {
+  margin-bottom: 8px;
+}
+
+.host-settings h2,
+.host-content > h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.host-settings h3,
+.host-content > h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.settings-error {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.settings-success {
+  color: #0f8a22;
+  font-weight: 700;
 }
 
 /* ── Host Dashboard wrapper ──────────────── */
@@ -770,7 +846,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.5);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -804,6 +880,19 @@
   background: var(--green);
   color: white;
   border-color: var(--green);
+}
+
+.btn-primary,
+.btn-copy-link,
+.btn-csv,
+.btn-withdraw,
+.btn-edit,
+.btn-delete,
+a.btn-primary,
+a.btn-copy-link,
+a.btn-csv,
+a.btn-withdraw {
+  text-decoration: none !important;
 }
 /* ── Payout Account Info Box ── */
 .current-account-info {
@@ -847,4 +936,1076 @@
   border-radius: 8px;
   font-size: 0.875rem;
   margin: 0.4rem 0;
+}
+
+.sidebar-logo-img {
+  height: 42px;
+  width: 42px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e4e8f3;
+  background: #fff;
+}
+
+/* ── Premium light overrides ───────────────── */
+.host-main {
+  background:
+    radial-gradient(900px 260px at 20% 0%, rgba(124, 92, 255, 0.08), transparent 55%),
+    linear-gradient(180deg, #f7f8fb 0%, #f3f5fa 100%);
+}
+
+.host-content {
+  max-width: 1180px;
+}
+
+.host-layout {
+  background:
+    radial-gradient(760px 240px at 100% 0%, rgba(16, 185, 129, 0.05), transparent 55%),
+    #f7f8fb;
+}
+
+.section-header,
+.wallet-card,
+.summary-card,
+.table-wrapper,
+.chart-wrapper,
+.settings-card,
+.modal-box,
+.wallet-stat-card {
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.sidebar-toggle-btn {
+  margin: 1.25rem 0 0 1.5rem;
+  border-radius: 12px;
+  height: 42px;
+  padding: 0 14px;
+  background: #fff;
+  border-color: #e3e8f4;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #fafbff;
+}
+
+.section-header {
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border: 1px solid #e4e8f3;
+}
+
+.section-title {
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0;
+}
+
+.wallet-card {
+  border: 1px solid #d5ccff;
+  background:
+    radial-gradient(360px 120px at 90% 20%, rgba(124, 92, 255, 0.22), transparent 60%),
+    linear-gradient(135deg, #ffffff 0%, #f5f2ff 100%);
+}
+
+.wallet-amount {
+  color: #1f154f;
+}
+
+.wallet-stat-card,
+.summary-card,
+.dashboard-card,
+.settings-card,
+.chart-wrapper,
+.table-wrapper,
+.event-modal,
+.sales-chart-container,
+.modal-box {
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border-color: #e4e8f3;
+}
+
+.summary-card:hover {
+  transform: translateY(-1px);
+}
+
+.host-table thead {
+  background: #f8faff;
+}
+
+.host-table tbody tr:hover {
+  background: #fbfcff;
+}
+
+.host-table td,
+.host-table th {
+  border-color: #e7ebf4;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-copy-link,
+.btn-primary,
+.btn-csv,
+.btn-withdraw,
+.sidebar-logout-btn {
+  border-radius: 12px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7c5cff, #9b87ff);
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(124, 92, 255, 0.28);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6e53ea, #8f79ff);
+}
+
+.btn-csv,
+.btn-copy-link,
+.btn-edit,
+.btn-delete {
+  background: #fff;
+}
+
+.btn-copy-link,
+.btn-edit {
+  color: #5b46d8;
+  border-color: #d9d2ff;
+}
+
+.btn-delete {
+  color: #dc2626;
+  border-color: #ffd1d1;
+  background: #fff5f5;
+}
+
+.btn-withdraw {
+  background: linear-gradient(135deg, #5b46d8, #7c5cff);
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(124, 92, 255, 0.24);
+}
+
+.btn-withdraw:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f3bc7, #6f59f2);
+  color: #fff;
+}
+
+.settings-card h3,
+.wallet-stat-label,
+.summary-label {
+  color: #475569;
+}
+
+.settings-sub {
+  color: #64748b;
+}
+
+.current-account-info {
+  background: #f8faff;
+  border-color: #e3e8f4;
+}
+
+.sidebar-logo {
+  color: #5b46d8;
+}
+
+.sidebar-link,
+.sidebar-link:hover,
+.sidebar-link.active {
+  color: #5b46d8 !important;
+}
+
+.sidebar-link.active {
+  background: rgba(124, 92, 255, 0.12);
+}
+
+.sidebar-link.active::before {
+  background: #7c5cff;
+}
+
+.sidebar-footer,
+.settings-error,
+.settings-success {
+  border-color: #e3e8f4;
+}
+
+.modal-overlay {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.modal-box input,
+.modal-box textarea {
+  border-color: #dbe2ee;
+  border-radius: 10px;
+}
+
+/* ── Luma + Troop inspired host dashboard pass ───────────────── */
+.host-dash-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+  border: 1px solid #d8ecd4;
+  border-radius: 18px;
+  padding: 20px;
+  background:
+    radial-gradient(460px 120px at 90% -20%, rgba(20, 192, 43, 0.18), transparent 60%),
+    linear-gradient(180deg, #ffffff, #f8fff8);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+}
+
+.host-dash-kicker {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #009f15;
+}
+
+.host-dash-hero-copy h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.host-dash-hero-copy p {
+  margin: 8px 0 0;
+  color: #475569;
+  max-width: 54ch;
+}
+
+.host-dash-hero-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.host-dash-hero-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+.host-dash-balance-card {
+  border: 1px solid #d8ecd4;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.host-dash-balance-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.host-dash-balance-card .wallet-amount {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  font-size: clamp(1.28rem, 4.5vw, 1.9rem);
+  font-weight: 800;
+}
+
+.host-kpis .summary-card {
+  border: 1px solid #dfeee0;
+  background: linear-gradient(180deg, #ffffff, #f9fff9);
+}
+
+.host-kpis .summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #d4ecd7;
+  background: #fff;
+  color: #0b8f1f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.host-kpis .summary-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.host-kpis .summary-icon.summary-icon-tickets {
+  background: linear-gradient(145deg, #ecfdf3, #d1fae5);
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+.host-kpis .summary-icon.summary-icon-revenue {
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.host-kpis .summary-icon.summary-icon-withdrawn {
+  background: linear-gradient(145deg, #fff7ed, #ffedd5);
+  border-color: #fdba74;
+  color: #c2410c;
+}
+
+.host-kpis .summary-icon.summary-icon-attendees {
+  background: linear-gradient(145deg, #faf5ff, #f3e8ff);
+  border-color: #d8b4fe;
+  color: #7e22ce;
+}
+
+.host-kpis .summary-value {
+  color: #0f172a;
+  font-family: var(--font-body);
+  letter-spacing: 0;
+}
+
+.host-dash-main-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.host-dash-panel {
+  border: 1px solid #e0ece0;
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(180deg, #ffffff, #fbfffb);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.host-dash-panel .section-header {
+  margin-bottom: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.host-dash-panel .section-title {
+  margin: 0;
+  font-size: 1.18rem;
+}
+
+.host-dash-panel .table-wrapper,
+.host-dash-panel .chart-wrapper {
+  margin-bottom: 10px;
+}
+
+.host-dash-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.host-dash-insight {
+  border: 1px solid #dceddf;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.host-dash-insight span {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.host-dash-insight strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-family: var(--font-body);
+}
+
+.host-dash-panel .host-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #5d687a;
+}
+
+.host-dash-panel .host-table td {
+  font-size: 0.86rem;
+  color: #1f2937;
+}
+
+.host-dash-panel .action-btns {
+  gap: 0.35rem;
+}
+
+.host-dash-panel .btn-copy-link,
+.host-dash-panel .btn-edit,
+.host-dash-panel .btn-delete {
+  border-radius: 10px;
+  padding: 0.34rem 0.72rem;
+  font-size: 0.76rem;
+}
+
+.host-dash-panel .table-wrapper {
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #009f15, #14c02b);
+  box-shadow: 0 10px 22px rgba(20, 192, 43, 0.26);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #058c17, #12ac27);
+}
+
+.sidebar-link,
+.sidebar-link:hover,
+.sidebar-link.active {
+  color: #009f15 !important;
+}
+
+.sidebar-link.active {
+  background: rgba(20, 192, 43, 0.1);
+}
+
+.sidebar-link.active::before {
+  background: #14c02b;
+}
+
+.wallet-card {
+  border: 1px solid #cde9cf;
+  background:
+    radial-gradient(360px 120px at 90% 20%, rgba(20, 192, 43, 0.18), transparent 60%),
+    linear-gradient(135deg, #ffffff 0%, #f2fff2 100%);
+}
+
+@media (max-width: 1024px) {
+  .host-dash-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .host-dash-hero {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .host-dash-hero-actions {
+    flex-direction: column;
+  }
+
+  .host-dash-hero-actions .btn-primary,
+  .host-dash-hero-actions .btn-copy-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .host-dash-hero-actions .btn-copy-link {
+    background: #f4fbf5;
+    border: 1px solid #d8ebda;
+    color: #146f23;
+    box-shadow: none;
+  }
+
+  .host-dash-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .host-kpis.summary-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .host-dash-balance-card .wallet-amount {
+    font-size: 1.7rem;
+  }
+
+  .host-dash-panel {
+    padding: 10px;
+  }
+
+  .host-dash-panel .section-header .btn-primary {
+    width: 100%;
+  }
+
+  .host-dash-panel .section-title {
+    font-size: 1.02rem;
+  }
+
+  .host-dash-panel .chart-wrapper {
+    padding: 0.85rem 0.65rem 0.65rem;
+  }
+}
+
+.host-dash-hero-actions .btn-copy-link:hover {
+  background: #e9f8eb;
+  border-color: #c9e4cd;
+  color: #0f5d1c;
+}
+
+/* ── Host events + wallet consistency pass ───────────────── */
+.host-events-count {
+  font-weight: 700;
+}
+
+.host-events-count.is-active {
+  color: #009f15;
+}
+
+.host-events-count.is-empty {
+  color: #94a3b8;
+}
+
+.host-events-revenue,
+.wallet-amount-cell {
+  font-weight: 600;
+}
+
+.host-scanner-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.host-scanner-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #f0fdf4;
+  color: #009f15;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #86efac;
+}
+
+.host-scanner-copy-btn {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  min-width: 56px;
+}
+
+.host-muted-note,
+.wallet-muted-message {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.wallet-withdraw-row {
+  margin-bottom: 2rem;
+}
+
+.wallet-section-tight {
+  margin-top: 0;
+}
+
+.wallet-table-gap {
+  margin-bottom: 2rem;
+}
+
+.wallet-note-cell {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.wallet-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.wallet-status-badge.is-pending {
+  background: #fff8e1;
+  color: #f59e0b;
+  border: 1px solid #fcd34d;
+}
+
+.wallet-status-badge.is-approved {
+  background: #f0fdf4;
+  color: #009f15;
+  border: 1px solid #86efac;
+}
+
+.wallet-status-badge.is-rejected {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+}
+
+.wallet-status-badge.is-completed {
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #93c5fd;
+}
+
+.wallet-modal-title {
+  margin: 0 0 0.25rem;
+  color: #1e293b;
+}
+
+.wallet-modal-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 1.5rem;
+}
+
+.wallet-modal-balance {
+  color: #009f15;
+}
+
+.wallet-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wallet-modal-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.wallet-modal-input,
+.wallet-modal-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0.65rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.wallet-modal-textarea {
+  resize: vertical;
+}
+
+.wallet-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.wallet-modal-cancel {
+  padding: 0.6rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.wallet-modal-cancel:hover {
+  border-color: #d4dae6;
+  color: #334155;
+}
+
+/* ── Sidebar redesign (final) ───────────────── */
+.host-sidebar {
+  width: 252px;
+  background:
+    radial-gradient(420px 160px at -10% -20%, rgba(20, 192, 43, 0.18), transparent 60%),
+    linear-gradient(180deg, #ffffff, #f7fcf8 78%);
+  border-right: 1px solid #dce8de;
+}
+
+.sidebar-header {
+  padding: 1rem 0.95rem 0.85rem;
+  border-bottom: 1px solid #dfe8e1;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.sidebar-logo-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #dce8de;
+  object-fit: cover;
+  background: #fff;
+}
+
+.sidebar-brand-copy {
+  display: grid;
+  gap: 0;
+}
+
+.sidebar-brand-copy strong {
+  font-size: 0.87rem;
+  letter-spacing: 0.02em;
+  color: #0f172a;
+}
+
+.sidebar-brand-copy span {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #71828f;
+}
+
+.sidebar-close-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce7df;
+  border-radius: 10px;
+  background: #fff;
+  color: #1f7a2c;
+  transition: all 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+  border-color: #b7e0bf;
+  background: #f1fbf3;
+}
+
+.sidebar-nav {
+  padding: 0.8rem 0.7rem 0.45rem;
+  gap: 0.35rem;
+}
+
+.sidebar-nav-title {
+  margin: 0.2rem 0.35rem 0.45rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b99a8;
+}
+
+.host-sidebar .sidebar-link {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #1f2937 !important;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.host-sidebar .sidebar-link .sidebar-icon,
+.host-sidebar .sidebar-logout-btn .sidebar-icon {
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-size: 0.92rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.host-sidebar .sidebar-link .sidebar-icon svg,
+.host-sidebar .sidebar-logout-btn .sidebar-icon svg,
+.sidebar-close-btn svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.host-sidebar .sidebar-link:hover {
+  border-color: #d6e8d8;
+  background: #f4fbf5;
+  color: #14532d !important;
+}
+
+.host-sidebar .sidebar-link:hover .sidebar-icon {
+  transform: translateY(-1px);
+  border-color: #86efac;
+  background: linear-gradient(145deg, #ecfdf3, #d1fae5);
+}
+
+.host-sidebar .sidebar-link.active,
+.host-sidebar .sidebar-link:visited.active {
+  border-color: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff !important;
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.24);
+}
+
+.host-sidebar .sidebar-link.active::before {
+  left: 7px;
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.host-sidebar .sidebar-link.active .sidebar-icon {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.host-sidebar .sidebar-link .sidebar-label,
+.host-sidebar .sidebar-link:visited .sidebar-label {
+  color: inherit;
+}
+
+.host-sidebar .sidebar-link:visited {
+  color: #1f2937 !important;
+}
+
+.sidebar-logout {
+  padding: 0.65rem 0.7rem 0;
+  border-top: 1px solid #e0e8e1;
+}
+
+.sidebar-logout-btn {
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid #ffd3d3;
+  background: #fff5f5;
+  color: #d43a3a;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sidebar-logout-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.sidebar-logout-btn:hover .sidebar-icon {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+.sidebar-footer {
+  padding: 0.7rem 1rem 0.9rem;
+  border-top: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  color: #8b99a8;
+}
+
+@media (max-width: 768px) {
+  .wallet-stats {
+    gap: 0.75rem;
+  }
+
+  .wallet-card {
+    padding: 1.25rem 1.15rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .wallet-stat-card {
+    padding: 1rem 1.15rem;
+  }
+
+  .wallet-withdraw-row {
+    margin-bottom: 1.2rem;
+  }
+
+  .wallet-withdraw-row .btn-withdraw {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .host-scanner-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .host-scanner-code {
+    font-size: 0.78rem;
+  }
+
+  .host-scanner-copy-btn {
+    min-width: 64px;
+    justify-content: center;
+  }
+
+  .action-btns {
+    gap: 0.4rem;
+  }
+
+  .action-btns .btn-edit,
+  .action-btns .btn-delete {
+    min-height: 34px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .wallet-modal-actions {
+    flex-direction: column-reverse;
+    margin-top: 0.25rem;
+  }
+
+  .wallet-modal-actions .btn-primary,
+  .wallet-modal-cancel {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .wallet-modal-input,
+  .wallet-modal-textarea {
+    font-size: 0.9rem;
+  }
+
+  .section-header .btn-primary {
+    width: 100%;
+  }
+
+  .host-table-stacked {
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .host-table-stacked thead {
+    display: none;
+  }
+
+  .host-table-stacked tbody {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .host-table-stacked tbody tr {
+    display: grid;
+    gap: 7px;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .host-table-stacked tbody tr:hover {
+    background: #fff;
+  }
+
+  .host-table-stacked tbody tr td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0;
+    border-bottom: none;
+    font-size: 0.84rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .host-table-stacked tbody tr td::before {
+    content: attr(data-label);
+    min-width: 92px;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .host-table-stacked .table-empty {
+    display: block;
+    text-align: left !important;
+    padding: 0.55rem 0 !important;
+    color: #94a3b8 !important;
+    font-style: italic;
+  }
+
+  .host-table-stacked .table-empty::before {
+    content: none;
+  }
+
+  .host-table-stacked .action-btns {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .host-table-stacked .btn-copy-link,
+  .host-table-stacked .btn-edit,
+  .host-table-stacked .btn-delete {
+    min-height: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  .host-content {
+    padding: 1rem 0.9rem;
+    gap: 12px;
+  }
+
+  .section-header {
+    padding: 12px;
+  }
+
+  .section-title {
+    font-size: 1.12rem;
+  }
+
+  .wallet-amount {
+    font-size: 1.45rem;
+    font-family: var(--font-body);
+    letter-spacing: -0.01em;
+  }
+
+  .wallet-stat-value {
+    font-size: 1.05rem;
+  }
+
+  .host-kpis.summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .host-dash-hero {
+    border-radius: 14px;
+    padding: 13px;
+  }
+
+  .host-dash-hero-copy h1 {
+    font-size: 1.2rem;
+  }
+
+  .host-dash-hero-copy p {
+    font-size: 0.84rem;
+  }
+
+  .host-dash-balance-card {
+    padding: 10px;
+  }
+
+  .host-dash-balance-card .wallet-amount {
+    font-size: 1.45rem;
+  }
+
+  .wallet-status-badge {
+    font-size: 0.69rem;
+    padding: 2px 8px;
+  }
+
+  .wallet-note-cell {
+    font-size: 0.8rem;
+  }
 }

@@ -1,5 +1,13 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  FiCalendar,
+  FiCreditCard,
+  FiGrid,
+  FiLogOut,
+  FiSettings,
+  FiX,
+} from "react-icons/fi";
 import { auth } from "../../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
 
@@ -8,10 +16,10 @@ const HostSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const navItems = [
-    { to: "/host/dashboard", icon: "📊", label: "Dashboard" },
-    { to: "/host/events",    icon: "🎫", label: "Events"    },
-    { to: "/host/wallet",    icon: "💳", label: "Wallet"    },
-    { to: "/host/settings",  icon: "⚙️", label: "Settings"  },
+    { to: "/host/dashboard", icon: FiGrid, label: "Dashboard" },
+    { to: "/host/events", icon: FiCalendar, label: "Events" },
+    { to: "/host/wallet", icon: FiCreditCard, label: "Wallet" },
+    { to: "/host/settings", icon: FiSettings, label: "Settings" },
   ];
 
   const handleLogout = async () => {
@@ -30,42 +38,56 @@ const HostSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
       <aside className={`host-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <img
-            src="/images/Logo4.jpg"
-            alt="Nova Eko Logo"
-            className="sidebar-logo-img"
-          />
+          <div className="sidebar-brand">
+            <img
+              src="/images/Logo1.jpg"
+              alt="Ekotix logo"
+              className="sidebar-logo-img"
+            />
+            <div className="sidebar-brand-copy">
+              <strong>Ekotix Host</strong>
+              <span>Control Center</span>
+            </div>
+          </div>
           <button
             className="sidebar-close-btn"
             onClick={() => setSidebarOpen(false)}
           >
-            ✕
+            <FiX aria-hidden="true" />
           </button>
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map(({ to, icon, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`sidebar-link ${location.pathname === to ? "active" : ""}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sidebar-icon">{icon}</span>
-              <span className="sidebar-label">{label}</span>
-            </Link>
-          ))}
+          <p className="sidebar-nav-title">Navigation</p>
+          {navItems.map(({ to, icon: Icon, label }) => {
+            const isActive = location.pathname === to;
+
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`sidebar-link ${isActive ? "active" : ""}`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <span className="sidebar-icon" aria-hidden="true">
+                  <Icon />
+                </span>
+                <span className="sidebar-label">{label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Logout at bottom */}
         <div className="sidebar-logout">
           <button className="sidebar-logout-btn" onClick={handleLogout}>
-            <span className="sidebar-icon">🚪</span>
+            <span className="sidebar-icon sidebar-icon-logout" aria-hidden="true">
+              <FiLogOut />
+            </span>
             <span className="sidebar-label">Logout</span>
           </button>
         </div>
 
-        <div className="sidebar-footer">Host Portal</div>
+        <div className="sidebar-footer">Ekotix Host Portal</div>
       </aside>
     </>
   );

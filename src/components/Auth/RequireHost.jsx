@@ -3,6 +3,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import { auth, database } from "../../firebase/firebaseConfig";
 import { ref, get } from "firebase/database";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const RequireHost = ({ children }) => {
   const [user, loading] = useAuthState(auth);
@@ -36,7 +37,9 @@ const RequireHost = ({ children }) => {
     checkRole();
   }, [user, loading]);
 
-  if (loading || isAuthorized === null) return <div>Loading...</div>;
+  if (loading || isAuthorized === null) {
+    return <LoadingSpinner message="Preparing host dashboard..." />;
+  }
 
   if (!user || !isAuthorized) {
     return <Navigate to="/login" state={{ from: location }} replace />;

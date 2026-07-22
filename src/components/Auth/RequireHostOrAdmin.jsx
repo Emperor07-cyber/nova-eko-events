@@ -3,6 +3,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import { auth, database } from "../../firebase/firebaseConfig";
 import { ref, get } from "firebase/database";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const RequireHostOrAdmin = ({ children }) => {
   const [user, loading] = useAuthState(auth);
@@ -43,12 +44,7 @@ const RequireHostOrAdmin = ({ children }) => {
   }, [user, loading]);
 
   if (loading || authorized === null) {
-    return (
-      <div style={{ textAlign: "center", padding: "3rem" }}>
-        <div className="spinner" />
-        <p style={{ marginTop: "1rem" }}>Checking permissions...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Checking permissions..." />;
   }
 
   if (!user || !authorized) {
