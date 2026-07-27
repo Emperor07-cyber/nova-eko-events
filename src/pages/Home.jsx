@@ -1,353 +1,361 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { database } from "../firebase/firebaseConfig";
 import { ref, onValue } from "firebase/database";
 import { Link } from "react-router-dom";
-import "./home-troop.css";
-
-const FAQ_ITEMS = [
-  {
-    q: "How do I create an event?",
-    a: "Register as host, complete setup, create your event, then publish ticket types.",
-  },
-  {
-    q: "How do I buy tickets?",
-    a: "Open an event, choose ticket type, enter your details, and pay securely via Paystack.",
-  },
-  {
-    q: "Can I get a refund?",
-    a: "Refund policy is managed by each event organizer.",
-  },
-  {
-    q: "How do I contact support?",
-    a: "Reach support at support@ekotix.com.",
-  },
-];
-
-const CATEGORIES = ["All", "Nightlife", "Concert", "Festival", "Business", "Workshop", "Sports"];
-const HERO_IMAGES = ["/images/nova-1.jpg", "/images/nova-2.jpg", "/images/nova-3.jpg"];
-const HERO_STATS = [
-  { value: "2K+", label: "Events hosted" },
-  { value: "90K+", label: "Tickets issued" },
-  { value: "24/7", label: "Buyer support" },
-];
-const OFFER_ITEMS = [
-  {
-    icon: "🎟️",
-    title: "Host events effortlessly",
-    description:
-      "Create and launch events quickly while Ekotix handles ticket delivery, checkout, and attendee flow.",
-  },
-  {
-    icon: "🔗",
-    title: "Smart ticketing",
-    description:
-      "Share event links instantly and let guests buy tickets or RSVP with a simple, low-friction flow.",
-  },
-  {
-    icon: "⚡",
-    title: "Quick pay at the gate",
-    description:
-      "Accept fast in-person payments and keep door entry moving with better speed and accuracy.",
-  },
-  {
-    icon: "📊",
-    title: "Event dashboard",
-    description:
-      "Track sales, monitor engagement, manage ticket tiers, and stay on top of every event detail.",
-  },
-  {
-    icon: "🛍️",
-    title: "Merch integration",
-    description:
-      "Attach merch to event pages so attendees can browse and purchase products during checkout.",
-  },
-  {
-    icon: "💳",
-    title: "Payment manager",
-    description:
-      "Get a clear view of transactions, payouts, and payment activity across events and merch.",
-  },
-  {
-    icon: "🛡️",
-    title: "Check-in and security",
-    description:
-      "Scan tickets, verify guests instantly, and improve on-ground control with real-time attendee data.",
-  },
-  {
-    icon: "👥",
-    title: "Team access controls",
-    description:
-      "Add collaborators, assign roles, and manage permissions to run events smoothly with your team.",
-  },
-];
+import Header from "../components/Layout/Header";
+import Footer from "../components/Layout/Footer";
+import "./home.css";
 
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr === "TBA") return "To be announced";
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+};
+
+const getMinPrice = (tickets) => {
+  if (!tickets || tickets.length === 0) return "Free";
+  const prices = tickets.map((t) => Number(t.price)).filter((p) => p > 0);
+  if (prices.length === 0) return "Free";
+  return `₦${Math.min(...prices).toLocaleString()}`;
+};
+
+const getEventLink = (event) => {
+  try {
+    if (event.eventUrl) return new URL(event.eventUrl).pathname;
+  } catch {}
+  return `/event/${event.id}`;
 };
 
 const Home = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [openFaq, setOpenFaq] = useState(null);
+  const [featuredIdx, setFeaturedIdx] = useState(0);
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [category, setCategory] = useState("");
 
   useEffect(() => {
     const eventsRef = ref(database, "events");
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val();
-      if (!data) {
+      if (data) {
+        const now = new Date();
+        const list = Object.keys(data)
+          .map((key) => ({ id: key, ...data[key] }))
+          .filter((e) => e.date === "TBA" || new Date(e.date) >= now)
+          .sort((a, b) => {
+            if (a.date === "TBA") return 1;
+            if (b.date === "TBA") return -1;
+            return new Date(a.date) - new Date(b.date);
+          });
+        setEvents(list);
+      } else {
         setEvents([]);
-        setLoading(false);
-        return;
       }
-
-      const now = new Date();
-      const rows = Object.keys(data)
-        .map((id) => ({ id, ...data[id] }))
-        .filter((event) => event.date === "TBA" || new Date(event.date) >= now)
-        .sort((a, b) => {
-          if (a.date === "TBA") return 1;
-          if (b.date === "TBA") return -1;
-          return new Date(a.date) - new Date(b.date);
-        });
-
-      setEvents(rows);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  const filteredEvents = useMemo(() => {
-    if (activeCategory === "All") return events;
-    return events.filter((event) => event.category === activeCategory);
-  }, [events, activeCategory]);
+  // Auto-rotate featured event every 5s
+  useEffect(() => {
+    if (events.length === 0) return;
+    const interval = setInterval(() => {
+      setFeaturedIdx((i) => (i + 1) % Math.min(events.length, 4));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [events]);
 
-  const displayEvents = filteredEvents.slice(0, 9);
+  const featuredEvent = events[featuredIdx] || null;
+  const popularEvents = events.slice(0, 4);
 
-  const getEventLink = (event) => {
-    if (event.eventUrl) {
-      try {
-        return new URL(event.eventUrl).pathname;
-      } catch (error) {
-        console.warn("Invalid eventUrl, falling back to event id route", error);
-      }
-    }
-    return `/event/${event.id}`;
-  };
-
-  const getMinPrice = (tickets) => {
-    if (!Array.isArray(tickets) || tickets.length === 0) return "Free";
-    const prices = tickets.map((t) => Number(t.price)).filter((p) => p > 0);
-    return prices.length ? `₦${Math.min(...prices).toLocaleString()}` : "Free";
+  const buildSearchUrl = () => {
+    const params = new URLSearchParams();
+    if (search) params.set("q", search);
+    if (location) params.set("loc", location);
+    if (dateFilter) params.set("date", dateFilter);
+    if (category) params.set("cat", category);
+    return `/eventlist${params.toString() ? `?${params}` : ""}`;
   };
 
   return (
-    <section className="stack home-troop">
-      <div className="card hero-panel">
-        <div className="hero-content">
-          <p className="kicker">Nigeria&apos;s event platform</p>
-          <h1>Find events worth your time</h1>
-          <p className="event-meta">
-            Discover nightlife, concerts, workshops and festivals. Get tickets in seconds.
-          </p>
-          <div className="hero-proof">
-            <span>Secure checkout</span>
-            <span>Instant QR ticket</span>
-            <span>Trusted hosts</span>
-          </div>
-          <div className="row hero-actions">
-            <Link to="/eventlist" className="btn btn-primary">Browse events</Link>
-            <Link to="/register" className="btn btn-ghost">Host an event</Link>
-          </div>
-          <div className="hero-stats">
-            {HERO_STATS.map((item) => (
-              <div key={item.label} className="hero-stat-card">
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
+    <>
+      <Header />
+
+      {/* ── Hero ── */}
+      <section className="hm-hero">
+        <div className="hm-hero-bg">
+          {featuredEvent?.image && (
+            <img src={featuredEvent.image} alt="" className="hm-hero-bg-img" />
+          )}
+          <div className="hm-hero-overlay" />
+        </div>
+
+        <div className="hm-hero-inner">
+          {/* Left: copy + trust badges */}
+          <div className="hm-hero-left">
+            <h1 className="hm-hero-h1">
+              Discover Events.<br />
+              Book <span className="hm-hero-accent">Instantly.</span><br />
+              Experience <span className="hm-hero-accent">More.</span>
+            </h1>
+            <p className="hm-hero-sub">
+              EKOTIX is your all-in-one platform for discovering,<br />
+              booking and managing amazing events.
+            </p>
+
+            <div className="hm-hero-ctas">
+              <Link to="/eventlist" className="hm-hero-btn-primary">
+                Discover Events →
+              </Link>
+              <Link to="/register" className="hm-hero-btn-ghost">
+                List Your Event 📅
+              </Link>
+            </div>
+
+            {/* Trust badges */}
+            <div className="hm-hero-trust">
+              <div className="hm-hero-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#16a34a" strokeWidth="2" strokeLinejoin="round"/></svg>
+                <span><strong>100% Secure</strong> Secure payments</span>
               </div>
-            ))}
+              <div className="hm-hero-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#16a34a" strokeWidth="2" strokeLinejoin="round"/></svg>
+                <span><strong>Instant Delivery</strong> E-tickets on time</span>
+              </div>
+              <div className="hm-hero-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="12" r="9" stroke="#16a34a" strokeWidth="2"/></svg>
+                <span><strong>Trusted Platform</strong> Reliable. Legit. Legal.</span>
+              </div>
+            </div>
+
+            {/* Hero dots */}
+            {events.length > 1 && (
+              <div className="hm-hero-dots">
+                {events.slice(0, 4).map((_, i) => (
+                  <button
+                    key={i}
+                    className={`hm-hero-dot${i === featuredIdx ? " hm-hero-dot--active" : ""}`}
+                    onClick={() => setFeaturedIdx(i)}
+                    aria-label={`Featured event ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-        <div className="hero-media">
-          {HERO_IMAGES.map((src, index) => (
-            <img
-              key={src}
-              src={src}
-              alt={`Ekotix spotlight ${index + 1}`}
-              className={index === 0 ? "hero-media-main" : ""}
-            />
-          ))}
-          <div className="hero-media-badge">
-            <p>Featured this weekend</p>
-            <strong>Lagos • Abuja • Port Harcourt</strong>
-          </div>
-        </div>
-      </div>
 
-      <div className="chips-row">
-        {CATEGORIES.map((category) => (
-          <button
-            key={category}
-            type="button"
-            className={`chip ${activeCategory === category ? "chip-active" : ""}`}
-            onClick={() => setActiveCategory(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-
-      <div className="row">
-        <div>
-          <h2 className="section-title">
-            {activeCategory === "All" ? "Upcoming events" : activeCategory}
-          </h2>
-          <p className="section-subtle">Curated picks from top hosts on Ekotix</p>
-        </div>
-        {events.length > 9 ? <Link to="/eventlist" className="event-meta">View all →</Link> : null}
-      </div>
-
-      {loading ? (
-        <div className="grid grid-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="card skeleton-card" />
-          ))}
-        </div>
-      ) : displayEvents.length === 0 ? (
-        <div className="card card-body stack empty-events">
-          <p className="empty-events-title">No events in this category yet</p>
-          <p className="event-meta">Try another category or check back soon for new drops.</p>
-          <button className="btn btn-ghost" type="button" onClick={() => setActiveCategory("All")}>
-            Show all events
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-3">
-          {displayEvents.map((event) => (
-            <Link key={event.id} to={getEventLink(event)} className="card event-link-card">
+          {/* Right: Featured event card */}
+          {featuredEvent && (
+            <div className="hm-featured-card">
+              <div className="hm-featured-label">
+                <span className="hm-featured-dot-pulse" /> Featured Event
+              </div>
               <img
-                src={event.image || "/images/nova-5.jpg"}
-                alt={event.title}
-                className="event-image"
-                loading="lazy"
+                src={featuredEvent.image || "/images/nova1.jpg"}
+                alt={featuredEvent.title}
+                className="hm-featured-img"
               />
-              <div className="card-body stack">
-                <strong>{event.title}</strong>
-                <span className="event-meta">
-                  {formatDate(event.date)} {event.startTime ? `• ${event.startTime}` : ""} • {event.location || "TBA"}
-                </span>
-                <div className="row">
-                  <span>{getMinPrice(event.tickets)}</span>
-                  <span className="event-meta">Get tickets →</span>
+              <div className="hm-featured-body">
+                <h3 className="hm-featured-title">{featuredEvent.title}</h3>
+                <div className="hm-featured-meta">
+                  <span>📅 {formatDate(featuredEvent.date)}{featuredEvent.startTime ? ` • ${featuredEvent.startTime}` : ""}</span>
+                  <span>📍 {featuredEvent.location}</span>
+                </div>
+                <div className="hm-featured-footer">
+                  <span className="hm-featured-price">{getMinPrice(featuredEvent.tickets)}</span>
+                  <Link to={getEventLink(featuredEvent)} className="hm-featured-btn">
+                    Get Tickets →
+                  </Link>
                 </div>
               </div>
-            </Link>
-          ))}
+            </div>
+          )}
         </div>
-      )}
+      </section>
 
-      <div className="grid grid-3 feature-grid">
-        <div className="card card-body feature-card">
-          <span className="feature-icon">🔎</span>
-          <strong>Discover events</strong>
-          <span className="event-meta">Filter by category and location.</span>
-        </div>
-        <div className="card card-body feature-card">
-          <span className="feature-icon">⚡</span>
-          <strong>Buy in seconds</strong>
-          <span className="event-meta">Fast checkout with secure payment.</span>
-        </div>
-        <div className="card card-body feature-card">
-          <span className="feature-icon">✅</span>
-          <strong>QR ticket access</strong>
-          <span className="event-meta">Door-ready digital tickets and check-in.</span>
+      {/* ── Search bar ── */}
+      <div className="hm-search-bar">
+        <div className="hm-search-inner">
+          <div className="hm-search-field hm-search-field--main">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <circle cx="9" cy="9" r="6" stroke="#94a3b8" strokeWidth="1.5"/>
+              <path d="M13.5 13.5L17 17" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search events, artists or venues..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (window.location.href = buildSearchUrl())}
+            />
+          </div>
+          <div className="hm-search-divider" />
+          <div className="hm-search-field">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#94a3b8"/></svg>
+            <input
+              type="text"
+              placeholder="All Locations"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+          <div className="hm-search-divider" />
+          <select
+            className="hm-search-select"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="">All Dates</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+          <div className="hm-search-divider" />
+          <select
+            className="hm-search-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            <option value="Concerts">Concerts</option>
+            <option value="Parties">Parties</option>
+            <option value="Sports">Sports</option>
+            <option value="Festivals">Festivals</option>
+            <option value="Campus">Campus</option>
+            <option value="Business">Business</option>
+          </select>
+          <Link to={buildSearchUrl()} className="hm-search-btn">
+            Search Events
+          </Link>
         </div>
       </div>
 
-      <div className="card card-body why-wrap">
-        <p className="kicker">Why Ekotix?</p>
-        <p className="why-copy">
-          Ekotix is an all-in-one event platform designed to help organizers host, manage, and monetize
-          events with ease. From intimate gatherings to large-scale experiences, you get practical tools
-          to run every phase with confidence.
-        </p>
-      </div>
-
-      <div className="card card-body stack offer-wrap">
-        <h3 className="section-title offer-title">What does Ekotix offer?</h3>
-        <div className="offer-grid">
-          {OFFER_ITEMS.map((item) => (
-            <article key={item.title} className="offer-card">
-              <span className="offer-icon" aria-hidden="true">{item.icon}</span>
-              <strong>{item.title}</strong>
-              <p className="event-meta">{item.description}</p>
-            </article>
-          ))}
-        </div>
-        <p className="offer-more">And more.</p>
-      </div>
-
-      <div className="card card-body pricing-wrap">
-        <div>
-          <strong className="pricing-title">Simple pricing</strong>
-          <p className="event-meta">Free events are free. Paid events apply 5% + ₦100 to buyer total.</p>
-        </div>
-        <Link to="/register" className="btn btn-primary">Start hosting</Link>
-      </div>
-
-      {/* <div className="card app-download-wrap">
-        <div className="app-download-media">
-          <img src="/images/regispic.png" alt="Ekotix mobile app preview" />
-        </div>
-        <div className="app-download-content">
-          <p className="kicker">Download Ekotix</p>
-          <h3>Host, manage, and monetize your events on any device.</h3>
-          <p className="event-meta">Use the mobile experience to stay on top of events from anywhere.</p>
-          <div className="app-download-actions">
-            <a
-              href="https://apps.apple.com/us/app/troop-the-party-app/id6476594192"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary"
-            >
-              App Store
-            </a>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.samabdul.troopapp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-ghost"
-            >
-              Google Play
-            </a>
+      {/* ── Stats bar ── */}
+      <div className="hm-stats-bar">
+        <div className="hm-stats-inner">
+          <div className="hm-stat-item">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#16a34a" strokeWidth="1.5"/><path d="M3 10h18M8 2v4M16 2v4" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <div><strong>10K+</strong><span>Events Hosted</span></div>
+          </div>
+          <div className="hm-stat-divider" />
+          <div className="hm-stat-item">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <div><strong>250K+</strong><span>Tickets Sold</span></div>
+          </div>
+          <div className="hm-stat-divider" />
+          <div className="hm-stat-item">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#16a34a" strokeWidth="1.5"/><path d="M8 13s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <div><strong>15K+</strong><span>Happy Hosts</span></div>
+          </div>
+          <div className="hm-stat-divider" />
+          <div className="hm-stat-item">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#16a34a" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+            <div><strong>100%</strong><span>Secure & Reliable</span></div>
           </div>
         </div>
-      </div> */}
-
-      <div className="card card-body stack faq-wrap">
-        <h3 className="section-title faq-title">Frequently asked questions</h3>
-        <p className="faq-subtitle">Everything you need to know before you book or host.</p>
-        {FAQ_ITEMS.map((item, index) => (
-          <button
-            key={item.q}
-            type="button"
-            className="faq-item"
-            onClick={() => setOpenFaq(openFaq === index ? null : index)}
-          >
-            <div className="row">
-              <span>{item.q}</span>
-              <span>{openFaq === index ? "−" : "+"}</span>
-            </div>
-            {openFaq === index ? <p className="event-meta faq-answer">{item.a}</p> : null}
-          </button>
-        ))}
       </div>
 
-    </section>
+      {/* ── Popular Events ── */}
+      <section className="hm-section">
+        <div className="hm-section-inner">
+          <div className="hm-section-header">
+            <h2 className="hm-section-title">Popular Events</h2>
+            <Link to="/eventlist" className="hm-view-all">View All Events →</Link>
+          </div>
+
+          <div className="hm-popular-grid">
+            {/* Event cards */}
+            <div className="hm-events-col">
+              {loading ? (
+                <div className="hm-popular-cards">
+                  {[1, 2, 3, 4].map((i) => <div key={i} className="hm-sk" />)}
+                </div>
+              ) : popularEvents.length === 0 ? (
+                <div className="hm-empty">
+                  <p>No upcoming events yet. Check back soon!</p>
+                </div>
+              ) : (
+                <div className="hm-popular-cards">
+                  {popularEvents.map((event) => (
+                    <Link to={getEventLink(event)} className="hm-event-card" key={event.id}>
+                      <div className="hm-card-img-wrap">
+                        <img src={event.image || "/images/nova1.jpg"} alt={event.title} className="hm-card-img" loading="lazy" />
+                        <div className="hm-card-price-tag">{getMinPrice(event.tickets)}</div>
+                      </div>
+                      <div className="hm-card-body">
+                        <p className="hm-card-cat-text">{event.category || "Event"}</p>
+                        <h3 className="hm-card-title">{event.title}</h3>
+                        <div className="hm-card-meta">
+                          <span>📅 {formatDate(event.date)}{event.startTime ? ` • ${event.startTime}` : ""}</span>
+                          <span>📍 {event.location}</span>
+                        </div>
+                        <div className="hm-card-footer">
+                          <span className="hm-card-price">{getMinPrice(event.tickets)}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Merch promo panel */}
+            <div className="hm-merch-panel">
+              <span className="hm-merch-kicker">Official Merch</span>
+              <h3>Rep The Culture.<br />Wear NOVAEKO.</h3>
+              <p>Premium quality. Timeless style.</p>
+              <Link to="/eventlist" className="hm-merch-btn">Shop Merch →</Link>
+              <img src="/images/ekotix7.jpeg" alt="NOVAEKO merch" className="hm-merch-img" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features bar ── */}
+      <section className="hm-features">
+        <div className="hm-features-inner">
+          <div className="hm-feature">
+            <div className="hm-feature-icon">✅</div>
+            <div>
+              <h4>100% Legal &amp; Compliant</h4>
+              <p>We operate with full legality and protection.</p>
+            </div>
+          </div>
+          <div className="hm-feature">
+            <div className="hm-feature-icon">🎧</div>
+            <div>
+              <h4>24/7 Support</h4>
+              <p>Our support team is always ready to help.</p>
+            </div>
+          </div>
+          <div className="hm-feature">
+            <div className="hm-feature-icon">🎫</div>
+            <div>
+              <h4>Easy Ticketing</h4>
+              <p>Simple, fast and seamless ticket booking.</p>
+            </div>
+          </div>
+          <div className="hm-feature">
+            <div className="hm-feature-icon">📱</div>
+            <div>
+              <h4>Mobile Friendly</h4>
+              <p>Seamless experience on any device.</p>
+            </div>
+          </div>
+          <div className="hm-feature">
+            <div className="hm-feature-icon">🏙️</div>
+            <div>
+              <h4>Built in EKO</h4>
+              <p>Proudly made for creators and communities.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </>
   );
 };
 

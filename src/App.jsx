@@ -46,7 +46,7 @@ function SiteHeader({ links, navId }) {
     <header className="topbar">
       <div className="container topbar-inner">
         <Link to="/" className="brand">
-          <img src="/images/Logo1.jpg" alt="Ekotix logo" className="brand-logo" />
+          <img src="/images/Logo4.jpg" alt="Ekotix logo" className="brand-logo" />
           <span>Ekotix</span>
         </Link>
         <button
@@ -93,27 +93,7 @@ function PublicLayout() {
 }
 
 function AuthLayout() {
-  return (
-    <div className="app-shell">
-      <SiteHeader
-        navId="auth-nav"
-        links={[
-          { to: "/", label: "Discover" },
-          { to: "/eventlist", label: "Events" },
-          { to: "/login", label: "Login" },
-          { to: "/register", label: "Register" },
-        ]}
-      />
-      <main className="page">
-        <div className="container" style={{ maxWidth: 540 }}>
-          <div className="card card-body auth-panel">
-            <Outlet />
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  return <Outlet />;
 }
 
 function AdminShellLayout() {
