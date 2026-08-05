@@ -1,5 +1,15 @@
 const functions = require("firebase-functions");
 const axios = require("axios");
+const admin = require('firebase-admin');
+
+try {
+  admin.initializeApp();
+} catch (err) {
+  console.warn('firebase admin init:', err.message);
+}
+
+// separate admin functions appended from adminFunctions.js
+require('./adminFunctions');
 
 exports.getBanks = functions.https.onRequest(async (req, res) => {
   try {

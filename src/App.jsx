@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Routes, Route, Link, Outlet, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,23 +11,38 @@ import Footer from "./components/Layout/Footer";
 import EventList from "./components/Events/EventList";
 import EventForm from "./components/Events/EventForm";
 import EventDetails from "./components/Events/EventDetails";
-import EventDetailsBySlug from "./components/Events/EventDetailsBySlug";
 import EditEvent from "./components/Events/EditEvent";
 
 import MyTickets from "./components/Tickets/MyTickets";
 
 import Home from "./pages/Home";
-import Dashboard from "./pages/AdminDashboard";
+const Dashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminTransactions = React.lazy(() => import('./pages/AdminTransactions'));
+const AdminWithdrawals = React.lazy(() => import('./pages/AdminWithdrawals'));
+const AdminEvents = React.lazy(() => import('./pages/AdminEvents'));
+const AdminReports = React.lazy(() => import('./pages/AdminReports'));
+const AdminTicketsLedger = React.lazy(() => import('./pages/AdminTicketsLedger'));
+const AdminUsers = React.lazy(() => import('./pages/AdminUsers'));
+const AdminSettings = React.lazy(() => import('./pages/AdminSettings'));
+const AdminSystemLogs = React.lazy(() => import('./pages/AdminSystemLogs'));
+
 import HostDashboard from "./pages/HostDashboard";
 import HostEvents from "./pages/HostEvents";
+import HostEventDetails from "./pages/HostEventDetails";
+import TicketCheckout from "./pages/TicketCheckout";
+import MerchCheckout from "./pages/MerchCheckout";
 import HostWallet from "./pages/HostWallet";
 import HostSettings from "./pages/HostSettings";
+import HostAttendees from "./pages/HostAttendees";
+import HostMerch from "./pages/HostMerch";
+import HostCheckIn from "./pages/HostCheckIn";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import CheckInPage from "./pages/CheckInPage";
 import HostLayout from "./components/Layout/HostLayout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import EventEditorShell from "./components/Layout/EventEditorShell";
+import AdminPlaceholder from "./pages/AdminPlaceholder";
 
 import RequireAdmin from "./components/Auth/RequireAdmin";
 import RequireAuth from "./components/Auth/RequireAuth";
@@ -138,7 +153,9 @@ function App() {
 
           {/* Event routes */}
           <Route path="/event/:eventId" element={<EventDetails />} />
-          <Route path="/:slug" element={<EventDetailsBySlug />} />
+          <Route path="/:slug" element={<EventDetails />} />
+          <Route path="/checkout/tickets/:eventId" element={<TicketCheckout />} />
+          <Route path="/checkout/merch/:eventId" element={<MerchCheckout />} />
 
           {/* Protected */}
           <Route
@@ -176,6 +193,38 @@ function App() {
           }
         />
         <Route
+          path="/host/events/:eventId"
+          element={
+            <RequireHost>
+              <HostEventDetails />
+            </RequireHost>
+          }
+        />
+        <Route
+          path="/host/checkin"
+          element={
+            <RequireHost>
+              <HostCheckIn />
+            </RequireHost>
+          }
+        />
+        <Route
+          path="/host/attendees"
+          element={
+            <RequireHost>
+              <HostAttendees />
+            </RequireHost>
+          }
+        />
+        <Route
+          path="/host/merch"
+          element={
+            <RequireHost>
+              <HostMerch />
+            </RequireHost>
+          }
+        />
+        <Route
           path="/host/wallet"
           element={
             <RequireHost>
@@ -195,11 +244,22 @@ function App() {
         <Route
           element={
             <RequireAdmin>
-              <AdminShellLayout />
+              <Suspense fallback={<div className="admin-loading">Loading admin...</div>}>
+                <AdminShellLayout />
+              </Suspense>
             </RequireAdmin>
           }
         >
           <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/transactions" element={<AdminTransactions />} />
+          <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
+          <Route path="/admin/events" element={<AdminEvents />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/tickets-ledger" element={<AdminTicketsLedger />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/system-logs" element={<AdminSystemLogs />} />
+          <Route path="/admin/:section" element={<AdminPlaceholder />} />
         </Route>
 
         <Route

@@ -1,13 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
+@import '../../styles/admin-theme.css';
 
 :root {
   --admin-shell-bg: #f4f7f6;
-  --admin-sidebar-bg: #0f172a;
-  --admin-sidebar-surface: rgba(255, 255, 255, 0.06);
+  --admin-sidebar-bg: #071b10;
+  --admin-sidebar-surface: rgba(255, 255, 255, 0.08);
   --admin-sidebar-border: rgba(255, 255, 255, 0.1);
-  --admin-sidebar-text: rgba(255, 255, 255, 0.74);
+  --admin-sidebar-text: rgba(255, 255, 255, 0.78);
+  --admin-sidebar-muted: rgba(255, 255, 255, 0.58);
   --admin-sidebar-active: #22c55e;
-  --admin-sidebar-width: 260px;
+  --admin-sidebar-width: 300px;
   --admin-shell-surface: #ffffff;
   --admin-shell-border: #dceee0;
   --admin-shell-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
@@ -34,6 +36,33 @@
   max-width: 1280px;
   color: var(--admin-shell-text);
   font-family: var(--admin-font-body);
+  margin: 0 auto;
+}
+
+/* topbar used inside admin pages */
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #f7fff6);
+  border: 1px solid #e6f2ea;
+  box-shadow: 0 8px 28px rgba(15,23,42,0.06);
+  margin-bottom: 1rem;
+}
+
+.admin-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .admin-sidebar-overlay {
@@ -52,10 +81,10 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 1rem 0.85rem 0.9rem;
+  padding: 1.25rem 1rem 1rem;
   background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.24), transparent 24%),
-    linear-gradient(180deg, #0f172a, #111827);
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), transparent 20%),
+    linear-gradient(180deg, #071b10, #07120d);
   color: #ffffff;
   transform: translateX(-100%);
   transition: transform 0.22s ease;
@@ -69,16 +98,15 @@
 
 .admin-sidebar-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.3rem 0.3rem 1rem;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 0.4rem 0.4rem 1rem;
 }
 
 .admin-sidebar-brand {
   display: flex;
-  align-items: center;
-  gap: 0.7rem;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .admin-sidebar-logo {
@@ -96,21 +124,23 @@
 }
 
 .admin-sidebar-brand-copy strong {
-  font-size: 0.92rem;
+  font-size: 1.2rem;
   font-family: var(--admin-font-display);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .admin-sidebar-brand-copy span,
 .admin-sidebar-footer,
 .admin-sidebar-nav-title {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .admin-sidebar-brand-copy span {
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.62rem;
+  color: var(--admin-sidebar-active);
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .admin-sidebar-close-btn,
@@ -145,10 +175,11 @@
 }
 
 .admin-sidebar-nav-title {
-  margin: 0 0.45rem 0.45rem;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 0.62rem;
-  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
 }
 
 .admin-sidebar-link,
@@ -156,9 +187,9 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 46px;
-  padding: 0.8rem 0.95rem;
-  border-radius: 16px;
+  min-height: 48px;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
   text-decoration: none;
   border: 1px solid transparent;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
@@ -166,37 +197,49 @@
 
 .admin-sidebar-link {
   color: var(--admin-sidebar-text);
+  position: relative;
 }
 
 .admin-sidebar-link:hover {
-  background: var(--admin-sidebar-surface);
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
-  border-color: var(--admin-sidebar-border);
-  transform: translateX(2px);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(1px);
 }
 
 .admin-sidebar-link.active {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(34, 197, 94, 0.16);
   color: #ffffff;
-  box-shadow: 0 14px 28px rgba(34, 197, 94, 0.25);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 4px 0 0 rgba(34, 197, 94, 0.95);
+}
+
+.admin-sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 999px;
+  background: #22c55e;
 }
 
 .admin-sidebar-icon,
 .admin-sidebar-highlight-icon {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
   flex-shrink: 0;
 }
 
 .admin-sidebar-icon {
-  background: rgba(255, 255, 255, 0.09);
-  color: inherit;
-  font-size: 0.94rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d9f7dc;
+  font-size: 1rem;
 }
 
 .admin-sidebar-label {
@@ -207,12 +250,41 @@
 .admin-sidebar-highlight {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.75rem;
+  gap: 0.7rem;
   padding: 1rem;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  margin: 0.5rem 0 0.85rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.admin-sidebar-user {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  margin-top: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.admin-user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+.admin-user-name {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.admin-user-email {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.7);
 }
 
 .admin-sidebar-highlight-icon {
@@ -243,6 +315,7 @@
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.24);
   color: #fca5a5;
+  justify-content: center;
 }
 
 .admin-sidebar-logout-btn:hover {
@@ -282,6 +355,7 @@
 
   .admin-shell-main {
     margin-left: var(--admin-sidebar-width);
+    padding-top: 1.75rem; /* give breathing room for topbar */
   }
 }
 

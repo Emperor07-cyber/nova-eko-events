@@ -156,6 +156,7 @@ const HostEvents = () => {
                     )}
                   </td>
                   <td className="action-btns" data-label="Actions">
+                    <button className="btn-copy-link" onClick={() => navigate(`/host/events/${event.id}`)}>View</button>
                     <button className="btn-edit" onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
                     <button className="btn-delete" onClick={() => handleDelete(event.id)}>Delete</button>
                   </td>

@@ -7,22 +7,36 @@ import {
   FiShield,
   FiTool,
   FiX,
+  FiFileText,
+  FiList,
+  FiSettings,
+  FiUsers,
+  FiActivity,
+  FiCreditCard,
 } from "react-icons/fi";
 import { signOut } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig";
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth as firebaseAuth } from '../../firebase/firebaseConfig.jsx';
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [user] = useAuthState(firebaseAuth);
 
   const navItems = [
-    { to: "/admin/dashboard", icon: FiGrid, label: "Dashboard" },
-    { to: "/event/new", icon: FiCalendar, label: "Create Event" },
-    { to: "/checkin", icon: FiTool, label: "Check-In Tool" },
+    { to: "/admin/dashboard", icon: FiGrid, label: "Overview" },
+    { to: "/admin/transactions", icon: FiActivity, label: "Transactions" },
+    { to: "/admin/withdrawals", icon: FiCreditCard, label: "Withdrawal Requests" },
+    { to: "/admin/events", icon: FiCalendar, label: "Events" },
+    { to: "/admin/reports", icon: FiFileText, label: "Reports" },
+    { to: "/admin/tickets-ledger", icon: FiList, label: "Tickets Ledger" },
+    { to: "/admin/users", icon: FiUsers, label: "Users" },
+    { to: "/admin/settings", icon: FiSettings, label: "Settings" },
+    { to: "/admin/system-logs", icon: FiShield, label: "System Logs" },
   ];
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await signOut(firebaseAuth);
     navigate("/login");
   };
 
@@ -41,8 +55,8 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
               className="admin-sidebar-logo"
             />
             <div className="admin-sidebar-brand-copy">
-              <strong>Ekotix Admin</strong>
-              <span>Operations Suite</span>
+              <strong>Etix.</strong>
+              <span>eko tix</span>
             </div>
           </div>
           <button
@@ -56,7 +70,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
 
         <nav className="admin-sidebar-nav">
-          <p className="admin-sidebar-nav-title">Navigation</p>
+          <p className="admin-sidebar-nav-title">ADMIN PANEL</p>
           {navItems.map(({ to, icon: Icon, label }) => {
             const isActive = location.pathname === to;
 
@@ -83,6 +97,15 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
           <div>
             <strong>Admin-only access</strong>
             <p>Monitor revenue, payouts, ticket activity, and event operations.</p>
+          </div>
+        </div>
+
+        {/* user box */}
+        <div className="admin-sidebar-user">
+          <img src={user?.photoURL || '/images/ekotixx.jpeg'} alt={user?.displayName || user?.email || 'Admin'} className="admin-user-avatar" />
+          <div className="admin-user-info">
+            <div className="admin-user-name">{user?.displayName || 'Admin'}</div>
+            <div className="admin-user-email">{user?.email || ''}</div>
           </div>
         </div>
 

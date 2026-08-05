@@ -1,0 +1,75 @@
+:root {
+  /* Color tokens */
+  --admin-bg: #f4f7f6;
+  --admin-sidebar-bg: #052018; /* deep forest */
+  --admin-accent: #16a34a; /* primary green */
+  --admin-accent-2: #22c55e;
+  --admin-muted: #64748b;
+  --admin-card-bg: #ffffff;
+  --admin-shadow: 0 18px 40px rgba(2, 6, 23, 0.06);
+
+  /* Sizes */
+  --admin-sidebar-width: 260px;
+  --admin-radius: 12px;
+
+  /* Typography */
+  --admin-font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+  --admin-font-display: "Syne", "Segoe UI", system-ui;
+}
+
+/* Shared utilities */
+.admin-card {
+  background: var(--admin-card-bg);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid rgba(12, 52, 23, 0.03);
+  padding: 1rem;
+}
+
+/* KPI specifics to improve visual weight */
+.kpi-label {
+  font-size: 0.82rem;
+  color: var(--admin-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.25rem 0;
+}
+
+.kpi-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.kpi-sub {
+  color: var(--admin-muted);
+  font-size: 0.8rem;
+}
+
+/* small tweaks for export button in topbar */
+.admin-topbar .button-primary {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+
+.button-primary {
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2));
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+/* Accessible focus */
+:focus {
+  outline: 3px solid rgba(34,197,94,0.15);
+  outline-offset: 2px;
+}

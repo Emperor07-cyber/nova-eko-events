@@ -47,18 +47,26 @@ function Register() {
 
   return (
     <div className="auth-grid">
-      <div className="auth-hero">
-        <p className="kicker">Join Ekotix</p>
-        <h2 className="section-title">Create account</h2>
-        <p className="auth-note">Buy tickets, host events, and manage everything in one place.</p>
-        <div className="auth-badges">
-          <span className="auth-badge">Buyer account</span>
-          <span className="auth-badge">Host tools</span>
-          <span className="auth-badge">Premium checkout</span>
+      <div className="auth-brand">
+        <img src="/images/Logo1.jpg" alt="Ekotix logo" className="auth-logo" />
+        <div className="auth-brand-copy">
+          <strong className="auth-brand-name">Ekotix</strong>
+          
         </div>
       </div>
 
-      <form onSubmit={handleRegister} className="auth-grid">
+      <div className="auth-hero">
+        <p className="kicker">Join Ekotix</p>
+        
+        <p className="auth-note">Buy tickets, host events, and manage everything in one place.</p>
+        <div className="auth-badges">
+          <span className="auth-badge"><span className="auth-badge-icon">🛒</span>Buyer account</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host tools</span>
+          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Premium checkout</span>
+        </div>
+      </div>
+
+      <form onSubmit={handleRegister} className="auth-grid auth-form">
         <input
           className="input"
           type="text"
@@ -103,13 +111,14 @@ function Register() {
       {emailInUse ? (
         <div className="card card-body stack">
           <p style={{ color: "var(--danger)" }}>This email is already registered.</p>
-          <Link to="/login" className="btn btn-ghost">Login instead</Link>
+          <Link to="/login" className="btn btn-outline auth-switch-button">Login instead</Link>
         </div>
       ) : null}
 
-      <p className="event-meta">
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+      <div className="auth-footer">
+        <span className="event-meta">Already have an account?</span>
+        <Link to="/login" className="btn btn-primary auth-switch-button">Login</Link>
+      </div>
     </div>
   );
 }

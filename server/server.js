@@ -3,6 +3,7 @@ const axios = require("axios");
 const crypto = require("crypto");
 require("dotenv").config();
 const cors = require("cors");
+const admin = require('firebase-admin');
 
 const app = express();
 
@@ -15,6 +16,18 @@ app.use(cors({
   methods: ["GET", "POST"],
   credentials: true,
 }));
+
+// initialize firebase-admin (will use application default credentials if available)
+try {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      databaseURL: process.env.FIREBASE_DATABASE_URL,
+    });
+  }
+} catch (err) {
+  console.warn('firebase-admin init warning:', err.message);
+}
 
 // ✅ Webhook must use raw body — add BEFORE express.json()
 app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (req, res) => {
@@ -75,6 +88,9 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
 
 // ✅ Regular JSON middleware for other routes
 app.use(express.json());
+
+// Mount admin routes (summary, sales-trend, hosts/top)
+require('./admin-routes')(app);
 
 app.get("/get-banks", async (req, res) => {
   try {

@@ -91,18 +91,26 @@ function Login() {
 
   return (
     <div className="auth-grid">
-      <div className="auth-hero">
-        <p className="kicker">Welcome back</p>
-        <h2 className="section-title">Login</h2>
-        <p className="auth-note">Access tickets, hosting tools, and your Ekotix dashboard.</p>
-        <div className="auth-badges">
-          <span className="auth-badge">Secure session</span>
-          <span className="auth-badge">Fast checkout</span>
-          <span className="auth-badge">Host access</span>
+      <div className="auth-brand">
+        <img src="/images/Logo1.jpg" alt="Ekotix logo" className="auth-logo" />
+        <div className="auth-brand-copy">
+          <strong className="auth-brand-name">Ekotix</strong>
+          
         </div>
       </div>
 
-      <form onSubmit={handleLogin} className="auth-grid">
+      <div className="auth-hero">
+        <p className="kicker">Welcome back</p>
+        
+        <p className="auth-note">Access tickets, hosting tools, and your Ekotix dashboard.</p>
+        <div className="auth-badges">
+          <span className="auth-badge"><span className="auth-badge-icon">🔒</span>Secure session</span>
+          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Fast checkout</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host access</span>
+        </div>
+      </div>
+
+      <form onSubmit={handleLogin} className="auth-grid auth-form">
         <input
           className="input"
           type="email"
@@ -122,7 +130,7 @@ function Login() {
         <button className="btn btn-primary" type="submit">Login</button>
       </form>
 
-      <button className="btn btn-ghost" type="button" onClick={handleForgotPassword}>
+      <button className="btn btn-ghost auth-switch-button" type="button" onClick={handleForgotPassword}>
         Forgot Password?
       </button>
 
@@ -138,9 +146,10 @@ function Login() {
         <span>Sign in with Google</span>
       </button>
 
-      <p className="event-meta">
-        Don&apos;t have an account? <Link to="/register">Sign Up</Link>
-      </p>
+      <div className="auth-footer">
+        <span className="event-meta">Don&apos;t have an account?</span>
+        <Link to="/register" className="btn btn-primary auth-switch-button">Sign Up</Link>
+      </div>
     </div>
   );
 }

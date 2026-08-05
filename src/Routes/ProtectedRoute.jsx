@@ -4,7 +4,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/firebaseConfig";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
-const adminEmail = "Ekotix234@gmail.com"; // 👈 Replace with your actual admin email
+const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "Ekotix234@gmail.com"; // Use VITE_ADMIN_EMAIL to override in each environment
 
 function ProtectedRoute({ Component, adminOnly = false }) {
   const [user, loading] = useAuthState(auth);

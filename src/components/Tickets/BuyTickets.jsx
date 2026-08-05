@@ -4,6 +4,8 @@ import storeTicket from "./storeTicket";
 import QRCode from "react-qr-code";
 import "../styles/main.css";
 
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
+
 function BuyTicket({ event }) {
   const currentUser = auth.currentUser;
   const [name, setName] = useState(currentUser?.displayName || "");
@@ -19,8 +21,18 @@ function BuyTicket({ event }) {
 
     const amount = event.prices[ticketType];
 
+    if (!PAYSTACK_PUBLIC_KEY) {
+      alert("Paystack public key is not configured. Please set VITE_PAYSTACK_PUBLIC_KEY.");
+      return;
+    }
+
+    if (!window.PaystackPop) {
+      alert("Paystack script is not loaded. Please refresh the page.");
+      return;
+    }
+
     const handler = window.PaystackPop.setup({
-      key:  "invalid_key_test",
+      key: PAYSTACK_PUBLIC_KEY,
       email,
       amount: amount * 100,
       currency: "NGN",

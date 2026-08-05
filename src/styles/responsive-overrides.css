@@ -1,0 +1,329 @@
+/* Global responsive safety net across public, host, and admin pages */
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+canvas,
+video,
+iframe {
+  max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    width: 94%;
+  }
+
+  .admin-shell-content,
+  .host-content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .admin-sidebar-toggle-btn,
+  .sidebar-toggle-btn {
+    margin-left: 1rem !important;
+    margin-top: 1rem !important;
+  }
+
+  .admin-kpi-grid,
+  .admin-main-grid,
+  .admin-finance-grid,
+  .admin-overview-grid,
+  .wallet-stats,
+  .scanner-code-grid,
+  .host-dash-main-grid,
+  .host-event-hero,
+  .host-event-grid,
+  .host-event-details-grid,
+  .host-event-metrics,
+  .checkout-content {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-shell-content,
+  .host-content,
+  .container {
+    padding-top: 1rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  .admin-transactions-header,
+  .tx-pills,
+  .admin-toolbar,
+  .admin-panel-head,
+  .admin-modal-head,
+  .section-header,
+  .wallet-withdraw-row,
+  .wallet-modal-actions,
+  .host-event-topbar,
+  .host-event-actions,
+  .host-event-copy-row,
+  .checkout-heading,
+  .checkout-heading-brand,
+  .checkout-links-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .admin-primary-btn,
+  .admin-secondary-btn,
+  .admin-inline-btn,
+  .admin-page-btn,
+  .admin-search,
+  .btn-primary,
+  .btn-copy-link,
+  .btn-edit,
+  .btn-delete,
+  .btn-withdraw,
+  .wallet-modal-cancel,
+  .wallet-modal-actions .btn-primary,
+  .checkout-pay-btn,
+  .checkout-heading .btn-copy-link,
+  .el-search-wrap,
+  .el-search {
+    width: 100% !important;
+  }
+
+  .admin-search {
+    min-width: 0 !important;
+  }
+
+  .admin-toolbar > * {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-table-wrap,
+  .table-wrapper,
+  .host-table-wrap,
+  .wallet-table-gap {
+    overflow-x: auto;
+  }
+
+  .admin-table-stacked thead,
+  .host-table-stacked thead,
+  .host-table thead {
+    display: none;
+  }
+
+  .admin-table-stacked,
+  .admin-table-stacked tbody,
+  .admin-table-stacked tr,
+  .admin-table-stacked td,
+  .host-table-stacked,
+  .host-table-stacked tbody,
+  .host-table-stacked tr,
+  .host-table-stacked td,
+  .host-table,
+  .host-table tbody,
+  .host-table tr,
+  .host-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table-stacked tr,
+  .host-table-stacked tr,
+  .host-table tr {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 0.7rem;
+    padding: 0.8rem;
+    background: #ffffff;
+  }
+
+  .admin-table-stacked td,
+  .host-table-stacked td,
+  .host-table td {
+    border-bottom: none !important;
+    padding: 0.35rem 0 !important;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .admin-table-stacked td::before,
+  .host-table-stacked td::before,
+  .host-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.1rem;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .admin-modal,
+  .modal-box,
+  .checkout-panel,
+  .order-summary-card,
+  .wallet-card,
+  .host-event-card,
+  .admin-panel {
+    border-radius: 16px !important;
+    padding: 1rem !important;
+  }
+
+  .host-event-title,
+  .checkout-heading-brand h1,
+  .admin-dashboard-header h1 {
+    font-size: clamp(1.35rem, 6vw, 2rem) !important;
+  }
+
+  .hdr-inner,
+  .hm-inner {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .hm-section-header,
+  .hm-host-cta-inner,
+  .hm-host-cta-actions,
+  .el-filters-inner,
+  .legal-footer-nav,
+  .event-editor-hero,
+  .event-editor-card-head,
+  .event-editor-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .hm-host-cta-actions .hm-btn-primary,
+  .hm-host-cta-actions .hm-btn-ghost,
+  .event-editor-actions .event-editor-primary-btn,
+  .event-editor-actions .event-editor-secondary-btn,
+  .event-editor-actions .event-editor-danger-btn {
+    width: 100% !important;
+  }
+
+  .auth-form button {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .register-container,
+  .register-wrapper {
+    padding: 1rem !important;
+  }
+
+  .register-form {
+    height: auto !important;
+    width: 100% !important;
+    padding: 1rem !important;
+  }
+
+  .register-image {
+    display: none !important;
+  }
+
+  .checkout-event-card,
+  .checkout-merch-card,
+  .checkout-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .checkout-event-card img,
+  .checkout-merch-card img {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .event-editor-hero-stats {
+    grid-template-columns: 1fr !important;
+    min-width: 0 !important;
+  }
+
+  .event-editor-fields-two,
+  .event-editor-fields-three,
+  .event-preview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .event-editor-url-input {
+    flex-direction: column;
+  }
+
+  .event-editor-url-input span {
+    border-right: none;
+    border-bottom: 1px solid #d7e6dc;
+  }
+}
+
+@media (max-width: 640px) {
+  .hm-loading,
+  .hm-event-grid,
+  .hm-stats-grid,
+  .hm-pricing-inner,
+  .hm-how-grid,
+  .summary-cards,
+  .host-kpis.summary-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .el-list-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .el-list-img-wrap {
+    width: 100% !important;
+    height: 170px !important;
+  }
+
+  .el-list-desc {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .admin-shell-content,
+  .host-content {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .admin-sidebar,
+  .host-sidebar {
+    width: min(88vw, 320px) !important;
+  }
+
+  .wallet-amount,
+  .kpi-value {
+    font-size: 1.4rem !important;
+  }
+
+  .admin-page-btn {
+    min-width: 38px;
+    height: 38px;
+  }
+
+  .hdr-inner,
+  .hm-inner,
+  .checkout-page,
+  .legal-container,
+  .event-detail-container,
+  .event-details,
+  .tickets-container,
+  .my-tickets-page {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .hm-marquee-item {
+    width: 150px;
+    height: 112px;
+  }
+}

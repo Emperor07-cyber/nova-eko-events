@@ -59,18 +59,23 @@ const HostWallet = () => {
   }, [user]);
 
   // Recalculate balance whenever tickets or requests change
+  const sanitizeNumber = (value) => {
+    const cleaned = String(value || "").replace(/,/g, "");
+    return Number(cleaned) || 0;
+  };
+
   useEffect(() => {
-    const totalEarned = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
+    const totalEarned = tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0);
     const totalWithdrawn = requests
       .filter((r) => r.status === "completed")
-      .reduce((sum, r) => sum + (r.amount || 0), 0);
-    setBalance(totalEarned - totalWithdrawn);
+      .reduce((sum, r) => sum + sanitizeNumber(r.amount), 0);
+    setBalance(Math.max(0, totalEarned - totalWithdrawn));
   }, [tickets, requests]);
 
-  const totalGross = tickets.reduce((sum, t) => sum + (t.totalPaid || 0), 0);
+  const totalGross = tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0);
   const totalWithdrawn = requests
     .filter((r) => r.status === "completed")
-    .reduce((sum, r) => sum + (r.amount || 0), 0);
+    .reduce((sum, r) => sum + sanitizeNumber(r.amount), 0);
 
   const handleWithdrawRequest = async (e) => {
     e.preventDefault();
@@ -117,8 +122,13 @@ const HostWallet = () => {
       <div className="wallet-stats">
         <div className="wallet-card">
           <div className="wallet-card-inner">
-            <span className="wallet-label">Available Balance</span>
-            <span className="wallet-amount">₦{balance.toLocaleString()}</span>
+            <div className="wallet-card-main">
+              <span className="wallet-label">Available Balance</span>
+              <span className="wallet-amount">₦{balance.toLocaleString()}</span>
+              <p className="wallet-card-note">
+                Current funds ready for withdrawal once approved by the admin.
+              </p>
+            </div>
           </div>
         </div>
         <div className="wallet-stat-card">

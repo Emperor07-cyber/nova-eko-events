@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ref, onValue, remove, update, get } from "firebase/database";
-import { database } from "../firebase/firebaseConfig";
+import { database, auth } from "../firebase/firebaseConfig";
+import { adminApiUrl } from '../Utils/adminApi';
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import {
   FiActivity,
   FiCalendar,
@@ -17,16 +18,20 @@ import {
   FiEye,
   FiMail,
   FiSearch,
+  FiShield,
   FiTrash2,
   FiTrendingUp,
   FiUsers,
   FiX,
 } from "react-icons/fi";
+import RemoteAdminOverview from "../components/common/RemoteAdminOverview";
+import TopPerformingEvents from '../components/common/TopPerformingEvents';
 import "./admin-dashboard-troop.css";
+import { useSalesTrend } from '../hooks/useSalesTrend';
 
-const EMAILJS_SERVICE_ID = "service_vu5rgjd";
-const EMAILJS_TEMPLATE_ID = "template_xdiunfr";
-const EMAILJS_PUBLIC_KEY = "H4Z5LHti97uiudwEY";
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "";
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "";
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
 
 const formatNaira = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
 
@@ -124,10 +129,53 @@ const AdminDashboard = () => {
     tickets.reduce((accumulator, ticket) => {
       const date = new Date(ticket.timestamp || Date.now()).toLocaleDateString();
       accumulator[date] = accumulator[date] || { date, total: 0 };
-      accumulator[date].total += ticket.totalPaid || 0;
+      accumulator[date].total += ticket.totalPaid || ticket.totalCharged || 0;
       return accumulator;
     }, {})
   );
+
+  const categoryData = Object.values(
+    tickets.reduce((accumulator, ticket) => {
+      const event = events.find((eventItem) => eventItem.id === ticket.eventId);
+      const category = event?.category || "Others";
+      accumulator[category] = accumulator[category] || { category, total: 0 };
+      accumulator[category].total += ticket.totalPaid || ticket.totalCharged || 0;
+      return accumulator;
+    }, {})
+  );
+
+  const categoryTotal = categoryData.reduce((sum, category) => sum + category.total, 0);
+  const categorySummary = categoryData
+    .sort((left, right) => right.total - left.total)
+    .slice(0, 4)
+    .map((category) => ({
+      ...category,
+      percent: categoryTotal ? Math.round((category.total / categoryTotal) * 100) : 0,
+    }));
+
+  const donutGradient = categorySummary.length
+    ? categorySummary
+        .map((item, index) => {
+          const colors = ["#16a34a", "#1d4ed8", "#f59e0b", "#7c3aed"];
+          const start = categorySummary.slice(0, index).reduce((sum, prev) => sum + prev.percent, 0);
+          const end = start + item.percent;
+          return `${colors[index] || "#94a3b8"} ${start}% ${end}%`;
+        })
+        .join(", ")
+    : "#dbeafe 0% 100%";
+
+  const healthChecks = [
+    { label: "Payment Gateway", status: "Operational" },
+    { label: "Email Service", status: "Operational" },
+    { label: "Server Status", status: "Operational" },
+    { label: "Backup Service", status: "Operational" },
+  ];
+
+  // remote sales trend (from server aggregates)
+  const { data: remoteSales, isLoading: remoteSalesLoading } = useSalesTrend(30);
+  const recentWithdrawals = withdrawals.slice(0, 4);
+  const periodLabel = "May 1 - May 31, 2025";
+  const chartData = remoteSales && remoteSales.length ? remoteSales : salesData;
 
   const filteredTickets = tickets
     .sort((left, right) => (right.timestamp || 0) - (left.timestamp || 0))
@@ -149,6 +197,23 @@ const AdminDashboard = () => {
   );
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
 
+  const sendAudit = async (action, details) => {
+    try {
+      if (!auth || !auth.currentUser) return;
+      const token = await auth.currentUser.getIdToken(true);
+      await fetch(adminApiUrl('/audit'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, details }),
+      });
+    } catch (err) {
+      console.warn('Failed to send audit log', err);
+    }
+  };
+
   const handleDeleteEvent = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event and all its tickets?")) {
       try {
@@ -164,6 +229,8 @@ const AdminDashboard = () => {
         }
 
         await remove(ref(database, `events/${eventId}`));
+        // audit
+        sendAudit('delete_event', { eventId });
         alert("Event and all its tickets deleted successfully.");
       } catch (error) {
         alert(`Error deleting event: ${error.message}`);
@@ -174,6 +241,8 @@ const AdminDashboard = () => {
   const handleWithdrawalStatus = async (id, status) => {
     try {
       await update(ref(database, `withdrawalRequests/${id}`), { status });
+      // audit
+      sendAudit('withdrawal_update', { id, status });
       alert(`Request marked as ${status}.`);
     } catch (error) {
       alert(`Failed to update status: ${error.message}`);
@@ -191,32 +260,39 @@ const AdminDashboard = () => {
     const ticketPrice = ticket.totalPaid || 0;
     const totalPaid = ticket.totalCharged || ticket.totalPaid || 0;
 
-    try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          to_email: ticket.email,
-          user_name: ticket.name || ticket.email,
-          event_name: ticket.eventTitle || event?.title || "Your Event",
-          event_date: event?.date || "",
-          event_location: event?.location || "",
-          ticket_type: ticket.ticketType || "",
-          quantity: String(ticket.quantity || 1),
-          unit_price: ticketPrice.toLocaleString(),
-          total_paid: totalPaid.toLocaleString(),
-          order_id: ticket.transactionId || ticket.id,
-          qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.transactionId || ticket.id)}`,
-          support_email: "Ekotix234@gmail.com",
-          company_name: "Ekotix",
-          current_year: String(new Date().getFullYear()),
-        },
-        EMAILJS_PUBLIC_KEY
-      );
-      alert(`Email resent successfully to ${ticket.email}`);
-    } catch (error) {
-      console.error("EmailJS error:", error);
-      alert(`Failed to resend email: ${error.text || error.message}`);
+    if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY) {
+      try {
+        await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          {
+            to_email: ticket.email,
+            user_name: ticket.name || ticket.email,
+            event_name: ticket.eventTitle || event?.title || "Your Event",
+            event_date: event?.date || "",
+            event_location: event?.location || "",
+            ticket_type: ticket.ticketType || "",
+            quantity: String(ticket.quantity || 1),
+            unit_price: ticketPrice.toLocaleString(),
+            total_paid: totalPaid.toLocaleString(),
+            order_id: ticket.transactionId || ticket.id,
+            qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.transactionId || ticket.id)}`,
+            support_email: "Ekotix234@gmail.com",
+            company_name: "Ekotix",
+            current_year: String(new Date().getFullYear()),
+          },
+          EMAILJS_PUBLIC_KEY
+        );
+        // audit
+        sendAudit('resend_ticket_email', { ticketId: ticket.id, to: ticket.email });
+        alert(`Email resent successfully to ${ticket.email}`);
+      } catch (error) {
+        console.error("EmailJS error:", error);
+        alert(`Failed to resend email: ${error.text || error.message}`);
+      }
+    } else {
+      console.warn("EmailJS is not configured. Skipping resend email.");
+      alert("Ticket email was not resent because EmailJS is not configured.");
     }
 
     setResendingId(null);
@@ -226,192 +302,200 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <section className="admin-hero">
-        <div className="admin-hero-copy">
-          <span className="admin-kicker">Operations center</span>
-          <h1>Run Ekotix with clarity</h1>
-          <p>
-            Oversee platform revenue, track event performance, review withdrawals, and manage ticket activity from one premium control room.
+      <section className="admin-dashboard-header admin-card">
+        <div>
+          <p className="admin-dashboard-welcome">Overview</p>
+          <h1>Welcome back, Super Admin 👋</h1>
+          <p className="admin-dashboard-intro">
+            Track revenue, withdrawals, events and ticket activity from one premium control room.
           </p>
-          <div className="admin-hero-actions">
-            <Link to="/event/new" className="admin-primary-btn">
-              <FiCalendar aria-hidden="true" />
-              Create New Event
-            </Link>
-            <button
-              type="button"
-              className="admin-secondary-btn"
-              onClick={() => setShowEventList(true)}
-            >
-              <FiEye aria-hidden="true" />
-              View Event Index
-            </button>
-            <CSVLink data={filteredTickets} filename="tickets.csv" className="admin-secondary-btn">
-              <FiDownload aria-hidden="true" />
-              Export Tickets
-            </CSVLink>
-          </div>
         </div>
-
-        <div className="admin-hero-aside">
-          <div className="admin-hero-stat">
-            <span>Live events</span>
-            <strong>{totalEvents}</strong>
-            <small>All active and archived event records</small>
+        <div className="admin-dashboard-header-actions">
+          <div className="admin-dashboard-date-range">
+            <span>{periodLabel}</span>
           </div>
-          <div className="admin-hero-stat">
-            <span>Pending withdrawals</span>
-            <strong>{pendingCount}</strong>
-            <small>Requests needing finance review</small>
-          </div>
+          <button type="button" className="admin-primary-btn">
+            <FiDownload aria-hidden="true" />
+            Export Report
+          </button>
         </div>
       </section>
 
-      <section className="admin-kpi-grid">
-        <article className="admin-kpi-card">
-          <span className="admin-kpi-icon admin-kpi-icon-events">
-            <FiCalendar aria-hidden="true" />
-          </span>
-          <div>
-            <p>Total Events</p>
-            <strong>{totalEvents}</strong>
-          </div>
-        </article>
-
-        <article className="admin-kpi-card">
-          <span className="admin-kpi-icon admin-kpi-icon-tickets">
-            <FiCreditCard aria-hidden="true" />
-          </span>
-          <div>
-            <p>Tickets Sold</p>
-            <strong>{totalTicketsSold}</strong>
-          </div>
-        </article>
-
-        <article className="admin-kpi-card">
-          <span className="admin-kpi-icon admin-kpi-icon-revenue">
-            <FiDollarSign aria-hidden="true" />
-          </span>
-          <div>
-            <p>Total Revenue</p>
-            <strong>{formatNaira(totalRevenue)}</strong>
-          </div>
-        </article>
-
-        <article className="admin-kpi-card">
-          <span className="admin-kpi-icon admin-kpi-icon-attendees">
-            <FiUsers aria-hidden="true" />
-          </span>
-          <div>
-            <p>Unique Attendees</p>
-            <strong>{totalAttendees}</strong>
-          </div>
-        </article>
+      <section className="admin-kpi-grid admin-remote-overview">
+        <RemoteAdminOverview />
       </section>
 
-      <section className="admin-finance-grid">
-        <article className="admin-finance-card admin-finance-card-emerald">
-          <div className="admin-finance-head">
-            <span className="admin-panel-chip">
-              <FiTrendingUp aria-hidden="true" />
-              Platform revenue
-            </span>
-          </div>
-          <strong>{formatNaira(platformRevenue)}</strong>
-          <p>5% host fee plus NGN 100 service fee per ticket.</p>
-        </article>
-
-        <article className="admin-finance-card admin-finance-card-amber">
-          <div className="admin-finance-head">
-            <span className="admin-panel-chip">
-              <FiCheckCircle aria-hidden="true" />
-              Total paid out
-            </span>
-          </div>
-          <strong>{formatNaira(totalPaidOut)}</strong>
-          <p>Completed withdrawals already processed to hosts.</p>
-        </article>
-
-        <article className="admin-finance-card admin-finance-card-blue">
-          <div className="admin-finance-head">
-            <span className="admin-panel-chip">
-              <FiActivity aria-hidden="true" />
-              Still owed to hosts
-            </span>
-          </div>
-          <strong>{formatNaira(totalOwedToHosts)}</strong>
-          <p>Total host earnings remaining after settled payouts.</p>
-        </article>
-      </section>
-
-      <section className="admin-main-grid">
-        <div className="admin-panel">
-          <div className="admin-panel-head">
+      <section className="admin-main-grid admin-dashboard-main">
+        <article className="admin-panel admin-panel-graph">
+          <div className="admin-panel-head admin-panel-head-wrap">
             <div>
               <span className="admin-panel-chip">
-                <FiUsers aria-hidden="true" />
-                Host overview
+                <FiCreditCard aria-hidden="true" />
+                Revenue Overview
               </span>
-              <h2>Per host payout breakdown</h2>
+              <h2>Revenue overview</h2>
+            </div>
+            <div className="admin-dashboard-graph-meta">
+              <span>Daily</span>
             </div>
           </div>
-
-          <div className="admin-table-wrap">
-            <table className="admin-table admin-table-stacked">
-              <thead>
-                <tr>
-                  <th>Host Email</th>
-                  <th>Tickets Sold</th>
-                  <th>Total Earned</th>
-                  <th>Total Withdrawn</th>
-                  <th>Still Owed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hostBreakdown.map((host) => (
-                  <tr key={host.hostEmail}>
-                    <td data-label="Host Email">{host.hostEmail}</td>
-                    <td data-label="Tickets Sold">{host.tickets}</td>
-                    <td data-label="Total Earned" className="admin-value admin-value-emerald">
-                      {formatNaira(host.totalEarned)}
-                    </td>
-                    <td data-label="Total Withdrawn" className="admin-value admin-value-amber">
-                      {formatNaira(host.withdrawn)}
-                    </td>
-                    <td
-                      data-label="Still Owed"
-                      className={`admin-value ${host.stillOwed > 0 ? "admin-value-blue" : "admin-value-muted"}`}
-                    >
-                      {formatNaira(host.stillOwed)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="admin-panel">
-          <div className="admin-panel-head">
-            <div>
-              <span className="admin-panel-chip">
-                <FiTrendingUp aria-hidden="true" />
-                Revenue trend
-              </span>
-              <h2>Sales performance</h2>
-            </div>
-          </div>
-
           <div className="admin-chart-wrap">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={salesData}>
-                <XAxis dataKey="date" />
-                <YAxis />
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={chartData} margin={{ top: 12, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 6" vertical={false} stroke="#e6f2ea" />
+                <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(value) => formatNaira(value)} />
-                <Bar dataKey="total" fill="#16a34a" radius={[8, 8, 0, 0]} />
-              </BarChart>
+                <Line type="monotone" dataKey="total" stroke="#16a34a" strokeWidth={3} dot={false} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
+        </article>
+
+        <article className="admin-panel admin-panel-events">
+          <TopPerformingEvents events={React.useMemo(() => {
+            const byEvent = {};
+            tickets.forEach((t) => {
+              const id = t.eventId || 'unknown';
+              if (!byEvent[id]) byEvent[id] = { id, title: t.eventTitle || 'Event', tickets: 0, revenue: 0 };
+              byEvent[id].tickets += (t.quantity || 1);
+              byEvent[id].revenue += (t.totalPaid || t.totalCharged || 0);
+            });
+            return Object.values(byEvent)
+              .sort((a, b) => b.revenue - a.revenue)
+              .map((e) => ({ ...e, thumbnail: (events.find((ev) => ev.id === e.id) || {}).poster }));
+          }, [tickets, events])} />
+        </article>
+      </section>
+
+      <section className="admin-finance-grid admin-overview-grid">
+        <article className="admin-panel admin-category-card">
+          <div className="admin-panel-head admin-panel-head-wrap">
+            <div>
+              <span className="admin-panel-chip">
+                <FiCalendar aria-hidden="true" />
+                Sales by category
+              </span>
+              <h2>Sales by category</h2>
+            </div>
+            <span className="admin-panel-chip admin-panel-chip-small">{categorySummary.reduce((sum, item) => sum + item.percent, 0)}% tracked</span>
+          </div>
+          <div className="admin-category-chart-row">
+            <div className="admin-donut-chart" style={{ background: `conic-gradient(${donutGradient})` }}>
+              <div className="admin-donut-center">
+                <strong>{formatNaira(categoryTotal)}</strong>
+                <span>Total</span>
+              </div>
+            </div>
+            <div className="admin-category-list">
+              {categorySummary.map((category) => (
+                <div key={category.category} className="admin-category-entry">
+                  <span className="admin-category-label">{category.category}</span>
+                  <strong>{category.percent}%</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <article className="admin-panel admin-activity-card">
+          <div className="admin-panel-head admin-panel-head-wrap">
+            <div>
+              <span className="admin-panel-chip">
+                <FiClock aria-hidden="true" />
+                Recent withdrawals
+              </span>
+              <h2>Recent withdrawals</h2>
+            </div>
+            <button type="button" className="admin-inline-btn admin-inline-btn-amber">View all</button>
+          </div>
+          <div className="admin-activity-list">
+            {recentWithdrawals.length ? (
+              recentWithdrawals.map((withdrawal) => (
+                <div key={withdrawal.id} className="admin-activity-row">
+                  <div>
+                    <strong>{withdrawal.hostEmail}</strong>
+                    <span>{withdrawal.accountName || 'Host payment'}</span>
+                  </div>
+                  <div>
+                    <span className="admin-value admin-value-emerald">{formatNaira(withdrawal.amount)}</span>
+                    <span className={getStatusBadgeClass(withdrawal.status)}>{withdrawal.status}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="admin-empty-state">No recent withdrawals to show.</p>
+            )}
+          </div>
+        </article>
+
+        <article className="admin-panel admin-health-card">
+          <div className="admin-panel-head admin-panel-head-wrap">
+            <div>
+              <span className="admin-panel-chip">
+                <FiShield aria-hidden="true" />
+                System health
+              </span>
+              <h2>Platform services</h2>
+            </div>
+          </div>
+          <div className="admin-health-list">
+            {healthChecks.map((check) => (
+              <div key={check.label} className="admin-health-item">
+                <span className="admin-health-dot" />
+                <div>
+                  <strong>{check.label}</strong>
+                  <p>{check.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-panel-head">
+          <div>
+            <span className="admin-panel-chip">
+              <FiUsers aria-hidden="true" />
+              Host overview
+            </span>
+            <h2>Per host payout breakdown</h2>
+          </div>
+        </div>
+
+        <div className="admin-table-wrap">
+          <table className="admin-table admin-table-stacked">
+            <thead>
+              <tr>
+                <th>Host Email</th>
+                <th>Tickets Sold</th>
+                <th>Total Earned</th>
+                <th>Total Withdrawn</th>
+                <th>Still Owed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hostBreakdown.map((host) => (
+                <tr key={host.hostEmail}>
+                  <td data-label="Host Email">{host.hostEmail}</td>
+                  <td data-label="Tickets Sold">{host.tickets}</td>
+                  <td data-label="Total Earned" className="admin-value admin-value-emerald">
+                    {formatNaira(host.totalEarned)}
+                  </td>
+                  <td data-label="Total Withdrawn" className="admin-value admin-value-amber">
+                    {formatNaira(host.withdrawn)}
+                  </td>
+                  <td
+                    data-label="Still Owed"
+                    className={`admin-value ${host.stillOwed > 0 ? "admin-value-blue" : "admin-value-muted"}`}
+                  >
+                    {formatNaira(host.stillOwed)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -484,7 +568,7 @@ const AdminDashboard = () => {
                   <td data-label="Resend Email">
                     <button
                       type="button"
-                      className="admin-inline-btn admin-inline-btn-amber"
+                      className="admin-inline-btn admin-inline-btn-approve"
                       onClick={() => handleResendEmail(ticket)}
                       disabled={resendingId === ticket.id}
                     >

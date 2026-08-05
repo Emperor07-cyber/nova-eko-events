@@ -196,6 +196,39 @@ const HostDashboard = () => {
         </div>
       </div>
 
+      <div className="host-dash-panel host-dash-codes-panel">
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">Scanner access codes</h2>
+            <p className="section-subtitle">
+              Each event code is copyable and can be used directly on the check-in page.
+            </p>
+          </div>
+        </div>
+
+        <div className="scanner-code-grid">
+          {events.length === 0 ? (
+            <p className="host-muted-note">No events available yet. Create an event to see its access code.</p>
+          ) : (
+            events.map((event) => (
+              <div key={event.id} className="scanner-code-card">
+                <div>
+                  <p className="scanner-code-title">{event.title}</p>
+                  <p className="scanner-code-text">{event.scannerCode || "Not generated yet"}</p>
+                </div>
+                <button
+                  className="btn-copy-link"
+                  onClick={() => handleCopyScannerCode(event.id, event.scannerCode || "")}
+                  disabled={!event.scannerCode}
+                >
+                  {copiedCode === event.id ? "Copied" : "Copy code"}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       <div className="host-dash-main-grid">
         <section className="host-dash-panel host-dash-panel-table">
           <div className="section-header">

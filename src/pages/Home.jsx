@@ -33,52 +33,60 @@ const HERO_STATS = [
 const OFFER_ITEMS = [
   {
     icon: "🎟️",
+    image: "/images/whyekotixx.jpeg",
     title: "Host events effortlessly",
     description:
       "Create and launch events quickly while Ekotix handles ticket delivery, checkout, and attendee flow.",
   },
   {
     icon: "🔗",
+    image: "/images/Smartticket.jpeg",
     title: "Smart ticketing",
     description:
       "Share event links instantly and let guests buy tickets or RSVP with a simple, low-friction flow.",
   },
   {
     icon: "⚡",
+    image: "/images/quickpay.jpeg",
     title: "Quick pay at the gate",
     description:
       "Accept fast in-person payments and keep door entry moving with better speed and accuracy.",
   },
   {
     icon: "📊",
+    image: "/images/eventdashboard.jpeg",
     title: "Event dashboard",
     description:
       "Track sales, monitor engagement, manage ticket tiers, and stay on top of every event detail.",
   },
   {
     icon: "🛍️",
+    image: "/images/merch.jpeg",
     title: "Merch integration",
     description:
       "Attach merch to event pages so attendees can browse and purchase products during checkout.",
   },
-  {
-    icon: "💳",
-    title: "Payment manager",
-    description:
-      "Get a clear view of transactions, payouts, and payment activity across events and merch.",
-  },
+  // {
+  //   icon: "💳",
+  //   image: "/images/nova-6.jpg",
+  //   title: "Payment manager",
+  //   description:
+  //     "Get a clear view of transactions, payouts, and payment activity across events and merch.",
+  // },
   {
     icon: "🛡️",
+    image: "/images/checkin.jpeg",
     title: "Check-in and security",
     description:
       "Scan tickets, verify guests instantly, and improve on-ground control with real-time attendee data.",
   },
-  {
-    icon: "👥",
-    title: "Team access controls",
-    description:
-      "Add collaborators, assign roles, and manage permissions to run events smoothly with your team.",
-  },
+  // {
+  //   icon: "👥",
+  //   image: "/images/l2.jpg",
+  //   title: "Team access controls",
+  //   description:
+  //     "Add collaborators, assign roles, and manage permissions to run events smoothly with your team.",
+  // },
 ];
 
 const formatDate = (dateStr) => {
@@ -269,12 +277,19 @@ const Home = () => {
       </div>
 
       <div className="card card-body why-wrap">
-        <p className="kicker">Why Ekotix?</p>
-        <p className="why-copy">
-          Ekotix is an all-in-one event platform designed to help organizers host, manage, and monetize
-          events with ease. From intimate gatherings to large-scale experiences, you get practical tools
-          to run every phase with confidence.
-        </p>
+        <div className="why-grid">
+          <div>
+            <p className="kicker">Why Ekotix?</p>
+            <p className="why-copy">
+              Ekotix is an all-in-one event platform designed to help organizers host, manage, and monetize
+              events with ease. From intimate gatherings to large-scale experiences, you get practical tools
+              to run every phase with confidence.
+            </p>
+          </div>
+          <div className="why-media">
+            <img src="/images/ekotixx.jpeg" alt="Why Ekotix" />
+          </div>
+        </div>
       </div>
 
       <div className="card card-body stack offer-wrap">
@@ -282,9 +297,12 @@ const Home = () => {
         <div className="offer-grid">
           {OFFER_ITEMS.map((item) => (
             <article key={item.title} className="offer-card">
-              <span className="offer-icon" aria-hidden="true">{item.icon}</span>
-              <strong>{item.title}</strong>
-              <p className="event-meta">{item.description}</p>
+              <img src={item.image} alt={item.title} className="offer-image" />
+              <div className="offer-content">
+                <span className="offer-icon" aria-hidden="true">{item.icon}</span>
+                <strong>{item.title}</strong>
+                <p className="event-meta">{item.description}</p>
+              </div>
             </article>
           ))}
         </div>
