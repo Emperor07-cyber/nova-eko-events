@@ -363,7 +363,23 @@ const AdminDashboard = () => {
             });
             return Object.values(byEvent)
               .sort((a, b) => b.revenue - a.revenue)
-              .map((e) => ({ ...e, thumbnail: (events.find((ev) => ev.id === e.id) || {}).poster }));
+              .map((e) => {
+                const matchedEvent = events.find((ev) => {
+                  if (ev.id === e.id) return true;
+                  if (!ev.title || !e.title) return false;
+                  return ev.title.trim().toLowerCase() === e.title.trim().toLowerCase();
+                });
+
+                const thumbnail =
+                  matchedEvent?.image ||
+                  matchedEvent?.poster ||
+                  matchedEvent?.thumbnail ||
+                  matchedEvent?.coverImage ||
+                  matchedEvent?.banner ||
+                  '/images/ekotixx.jpeg';
+
+                return { ...e, thumbnail };
+              });
           }, [tickets, events])} />
         </article>
       </section>
