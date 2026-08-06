@@ -3,6 +3,7 @@ import { get, ref } from 'firebase/database';
 import { auth } from '../firebase/firebaseConfig.jsx';
 import { database } from '../firebase/firebaseConfig.jsx';
 import { adminApiUrl } from '../Utils/adminApi';
+import { normalizeTicketTransactions, normalizeWithdrawals } from '../Utils/adminTransactionsTransform';
 
 const buildTransactionsFallback = async () => {
   const [withdrawalsSnap, ticketsSnap] = await Promise.all([
@@ -13,21 +14,8 @@ const buildTransactionsFallback = async () => {
   const withdrawalsMap = withdrawalsSnap.val() || {};
   const ticketsMap = ticketsSnap.val() || {};
 
-  const withdrawals = Object.entries(withdrawalsMap)
-    .map(([id, withdrawal]) => ({ id, ...withdrawal }))
-    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-  const transactions = Object.entries(ticketsMap)
-    .map(([id, ticket]) => ({
-      id,
-      reference: ticket.transactionId || id,
-      type: 'Ticket Sale',
-      description: ticket.eventTitle || ticket.ticketType || 'Ticket',
-      amount: ticket.totalPaid || ticket.totalCharged || 0,
-      date: ticket.timestamp || 0,
-      status: 'Success',
-    }))
-    .sort((a, b) => (b.date || 0) - (a.date || 0));
+  const withdrawals = normalizeWithdrawals(withdrawalsMap);
+  const transactions = normalizeTicketTransactions(ticketsMap);
 
   return { withdrawals, transactions };
 };

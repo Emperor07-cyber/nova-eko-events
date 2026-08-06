@@ -4,6 +4,7 @@ import { auth, database } from "../../firebase/firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { hasAdminAccess, shouldRedirectFromAdmin } from "../../Utils/adminAccess";
 
 const RequireAdmin = ({ Component, children }) => {
   const [user, loading] = useAuthState(auth);
@@ -25,7 +26,7 @@ const RequireAdmin = ({ Component, children }) => {
         setVerificationError("");
 
         const tokenResult = await user.getIdTokenResult();
-        if (tokenResult?.claims?.admin === true) {
+        if (hasAdminAccess({ tokenClaims: tokenResult?.claims })) {
           if (!cancelled) setIsAdmin(true);
           return;
         }
@@ -33,7 +34,9 @@ const RequireAdmin = ({ Component, children }) => {
         const userRef = ref(database, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const data = snapshot.val();
-        if (!cancelled) setIsAdmin(data?.role === "admin");
+        if (!cancelled) {
+          setIsAdmin(hasAdminAccess({ tokenClaims: tokenResult?.claims, userRecord: data }));
+        }
       } catch (error) {
         if (cancelled) return;
         setVerificationError(error?.message || "Unable to verify admin access right now.");
@@ -62,7 +65,7 @@ const RequireAdmin = ({ Component, children }) => {
     return <LoadingSpinner message="Checking admin access..." />;
   }
 
-  if (!user || !isAdmin) {
+  if (shouldRedirectFromAdmin({ user, isAdmin })) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
