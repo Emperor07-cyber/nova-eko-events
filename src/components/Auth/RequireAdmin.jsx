@@ -6,6 +6,23 @@ import { Navigate, useLocation } from "react-router-dom";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { hasAdminAccess, shouldRedirectFromAdmin } from "../../Utils/adminAccess";
 
+const getAdminCacheKey = (uid) => `ekotix-admin-access:${uid}`;
+
+const readCachedAdminAccess = (uid) => {
+  if (!uid || typeof window === "undefined") return false;
+  return window.sessionStorage.getItem(getAdminCacheKey(uid)) === "true";
+};
+
+const writeCachedAdminAccess = (uid, value) => {
+  if (!uid || typeof window === "undefined") return;
+  const key = getAdminCacheKey(uid);
+  if (value) {
+    window.sessionStorage.setItem(key, "true");
+    return;
+  }
+  window.sessionStorage.removeItem(key);
+};
+
 const RequireAdmin = ({ Component, children }) => {
   const [user, loading] = useAuthState(auth);
   const [isAdmin, setIsAdmin] = useState(null);
@@ -14,11 +31,23 @@ const RequireAdmin = ({ Component, children }) => {
 
   useEffect(() => {
     let cancelled = false;
+    const cachedAccess = readCachedAdminAccess(user?.uid);
 
     if (!user) {
       setIsAdmin(false);
       setVerificationError("");
+      if (typeof window !== "undefined") {
+        Object.keys(window.sessionStorage)
+          .filter((key) => key.startsWith("ekotix-admin-access:"))
+          .forEach((key) => window.sessionStorage.removeItem(key));
+      }
       return;
+    }
+
+    if (cachedAccess) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(null);
     }
 
     const verifyAdmin = async () => {
@@ -27,7 +56,10 @@ const RequireAdmin = ({ Component, children }) => {
 
         const tokenResult = await user.getIdTokenResult();
         if (hasAdminAccess({ tokenClaims: tokenResult?.claims })) {
-          if (!cancelled) setIsAdmin(true);
+          if (!cancelled) {
+            setIsAdmin(true);
+            writeCachedAdminAccess(user.uid, true);
+          }
           return;
         }
 
@@ -35,11 +67,17 @@ const RequireAdmin = ({ Component, children }) => {
         const snapshot = await get(userRef);
         const data = snapshot.val();
         if (!cancelled) {
-          setIsAdmin(hasAdminAccess({ tokenClaims: tokenResult?.claims, userRecord: data }));
+          const nextIsAdmin = hasAdminAccess({ tokenClaims: tokenResult?.claims, userRecord: data });
+          setIsAdmin(nextIsAdmin);
+          writeCachedAdminAccess(user.uid, nextIsAdmin);
         }
       } catch (error) {
         if (cancelled) return;
-        setVerificationError(error?.message || "Unable to verify admin access right now.");
+        if (cachedAccess) {
+          setIsAdmin(true);
+        } else {
+          setVerificationError(error?.message || "Unable to verify admin access right now.");
+        }
       }
     };
 
