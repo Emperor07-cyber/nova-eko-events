@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import HostLayout from "../components/Layout/HostLayout";
 import { database, auth } from "../firebase/firebaseConfig";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, push, set, get } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { apiUrl } from "../Utils/apiBase";
 
 const HostWallet = () => {
   const [user] = useAuthState(auth);
   const [tickets, setTickets] = useState([]);
-  const [merchOrders, setMerchOrders] = useState([]);
   const [balance, setBalance] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -37,29 +35,11 @@ const HostWallet = () => {
       const data = snapshot.val() || {};
       const hostTickets = Object.entries(data)
         .map(([id, value]) => ({ id, ...value }))
-        .filter(
-          (ticket) =>
-            ticket.hostEmail?.toLowerCase() === user.email?.toLowerCase() ||
-            hostEventIds.includes(ticket.eventId)
+        .filter((ticket) =>
+          ticket.hostEmail?.toLowerCase() === user.email?.toLowerCase() ||
+          hostEventIds.includes(ticket.eventId)
         );
       setTickets(hostTickets);
-    });
-    return () => unsubscribe();
-  }, [user, hostEventIds]);
-
-  useEffect(() => {
-    if (!user || hostEventIds.length === 0) return;
-    const merchRef = ref(database, "merchOrders");
-    const unsubscribe = onValue(merchRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const hostMerch = Object.entries(data)
-        .map(([id, value]) => ({ id, ...value }))
-        .filter(
-          (order) =>
-            order.hostEmail?.toLowerCase() === user.email?.toLowerCase() ||
-            hostEventIds.includes(order.eventId)
-        );
-      setMerchOrders(hostMerch);
     });
     return () => unsubscribe();
   }, [user, hostEventIds]);
@@ -78,73 +58,50 @@ const HostWallet = () => {
     return () => unsubscribe();
   }, [user]);
 
+  // Recalculate balance whenever tickets or requests change
   const sanitizeNumber = (value) => {
     const cleaned = String(value || "").replace(/,/g, "");
     return Number(cleaned) || 0;
   };
 
   useEffect(() => {
-    const totalEarned =
-      tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0) +
-      merchOrders.reduce((sum, order) => sum + sanitizeNumber(order.hostFee || order.totalPaid || 0), 0);
+    const totalEarned = tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0);
     const totalWithdrawn = requests
-      .filter((r) => r.status === "completed" || r.status === "approved")
+      .filter((r) => r.status === "completed")
       .reduce((sum, r) => sum + sanitizeNumber(r.amount), 0);
     setBalance(Math.max(0, totalEarned - totalWithdrawn));
-  }, [tickets, merchOrders, requests]);
+  }, [tickets, requests]);
 
-  const totalGross =
-    tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0) +
-    merchOrders.reduce((sum, order) => sum + sanitizeNumber(order.hostFee || order.totalPaid || 0), 0);
+  const totalGross = tickets.reduce((sum, t) => sum + sanitizeNumber(t.totalPaid), 0);
   const totalWithdrawn = requests
-    .filter((r) => r.status === "completed" || r.status === "approved")
+    .filter((r) => r.status === "completed")
     .reduce((sum, r) => sum + sanitizeNumber(r.amount), 0);
 
   const handleWithdrawRequest = async (e) => {
     e.preventDefault();
     const amount = Number(withdrawAmount);
-
-    if (!amount || amount <= 0) {
-      alert("Please enter a valid amount.");
-      return;
-    }
-
-    if (amount > balance) {
-      alert(`Amount exceeds your available balance of ₦${balance.toLocaleString()}.`);
-      return;
-    }
-
+    if (!amount || amount <= 0) { alert("Please enter a valid amount."); return; }
+    if (amount > balance) { alert(`Amount exceeds your available balance of ₦${balance.toLocaleString()}.`); return; }
     setSubmitting(true);
     try {
-      const currentUser = auth.currentUser;
-      const authToken = currentUser ? await currentUser.getIdToken(true) : "";
-      const res = await fetch(apiUrl("/withdrawals/request"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          amount,
-          note: withdrawNote,
-        }),
-      });
-
-      const result = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(result?.error || "Failed to submit withdrawal request.");
-      }
-
-      alert("Withdrawal request submitted. Admin will process it shortly.");
-      setShowModal(false);
-      setWithdrawAmount("");
-      setWithdrawNote("");
+      const userSnap = await get(ref(database, "users/" + user.uid));
+      const userInfo = userSnap.val();
+      const requestData = {
+        hostEmail: user.email, hostUid: user.uid,
+        hostName: userInfo?.displayName || user.email,
+        accountName: userInfo?.accountName || "",
+        accountNumber: userInfo?.accountNumber || "",
+        bank: userInfo?.bank || "", bankCode: userInfo?.bankCode || "",
+        amount, note: withdrawNote, balance, status: "pending", timestamp: Date.now(),
+      };
+      const newRef = push(ref(database, "withdrawalRequests"));
+      await set(newRef, requestData);
+      alert("✅ Withdrawal request submitted! Admin will process it shortly.");
+      setShowModal(false); setWithdrawAmount(""); setWithdrawNote("");
     } catch (err) {
       console.error(err);
       alert("Failed to submit request. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
   const getStatusBadge = (status) => {
@@ -188,7 +145,9 @@ const HostWallet = () => {
         <button className="btn-withdraw" onClick={() => setShowModal(true)} disabled={balance <= 0}>
           Request Withdrawal
         </button>
-        {balance <= 0 && <p className="wallet-muted-message">No balance available to withdraw.</p>}
+        {balance <= 0 && (
+          <p className="wallet-muted-message">No balance available to withdraw.</p>
+        )}
       </div>
 
       {requests.length > 0 && (
@@ -197,24 +156,15 @@ const HostWallet = () => {
           <div className="table-wrapper wallet-table-gap">
             <table className="host-table host-table-stacked">
               <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Note</th>
-                </tr>
+                <tr><th>Date</th><th>Amount</th><th>Status</th><th>Note</th></tr>
               </thead>
               <tbody>
                 {requests.map((r) => (
                   <tr key={r.id}>
                     <td data-label="Date">{new Date(r.timestamp).toLocaleDateString()}</td>
-                    <td className="wallet-amount-cell" data-label="Amount">
-                      ₦{r.amount.toLocaleString()}
-                    </td>
+                    <td className="wallet-amount-cell" data-label="Amount">₦{r.amount.toLocaleString()}</td>
                     <td data-label="Status">{getStatusBadge(r.status)}</td>
-                    <td className="wallet-note-cell" data-label="Note">
-                      {r.note || "—"}
-                    </td>
+                    <td className="wallet-note-cell" data-label="Note">{r.note || "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -227,19 +177,11 @@ const HostWallet = () => {
       <div className="table-wrapper">
         <table className="host-table host-table-stacked">
           <thead>
-            <tr>
-              <th>Buyer</th>
-              <th>Event</th>
-              <th>Amount</th>
-            </tr>
+            <tr><th>Buyer</th><th>Event</th><th>Amount</th></tr>
           </thead>
           <tbody>
             {tickets.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="table-empty">
-                  No transactions yet.
-                </td>
-              </tr>
+              <tr><td colSpan={3} className="table-empty">No transactions yet.</td></tr>
             ) : (
               tickets.map((ticket) => (
                 <tr key={ticket.id}>

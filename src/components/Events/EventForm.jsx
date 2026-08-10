@@ -21,13 +21,11 @@ import { generateScannerCode } from "./generateScannerCode";
 import { uploadEventImage } from "./uploadEventImage";
 import {
   buildEventUrl,
-  createDefaultEmailBranding,
   createDefaultTicket,
   createEmptyMerchItem,
   createEmptyTicket,
   EVENT_CATEGORIES,
   getEventUrlDisplayValue,
-  normalizeEmailBranding,
   TICKETING_POLICY_ITEMS,
 } from "./eventEditorConfig";
 
@@ -52,7 +50,6 @@ const EventForm = () => {
     eventUrl: "",
     tickets: [createDefaultTicket()],
     merch: [],
-    emailBranding: createDefaultEmailBranding(),
   });
 
   const totalTicketTypes = formData.tickets.length;
@@ -210,16 +207,6 @@ const EventForm = () => {
     });
   };
 
-  const handleBrandingChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      emailBranding: {
-        ...prev.emailBranding,
-        [field]: value,
-      },
-    }));
-  };
-
   const handleAddMerch = () => {
     setFormData((prev) => ({
       ...prev,
@@ -248,7 +235,6 @@ const EventForm = () => {
       price: Number(item.price || 0),
       stock: Number(item.stock || 0),
     }));
-  const normalizedBranding = normalizeEmailBranding(formData.emailBranding);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -264,10 +250,7 @@ const EventForm = () => {
         eventUrl: finalEventUrl,
         tickets: normalizedTickets,
         merch: normalizedMerch,
-        emailBranding: normalizedBranding,
         createdBy: user?.email || "Unknown",
-        hostEmail: user?.email || "Unknown",
-        hostUid: user?.uid || "",
         timestamp: Date.now(),
         scannerCode: generateScannerCode(),
       };
@@ -752,76 +735,6 @@ const EventForm = () => {
                     I have read and agree to the ticketing policy, including the ban on physical ticket sales.
                   </span>
                 </label>
-              </section>
-
-              <section className="event-editor-card">
-                <div className="event-editor-card-head">
-                  <div>
-                    <span className="event-editor-section-chip">
-                      <FiShield aria-hidden="true" />
-                      Email branding
-                    </span>
-                    <h2>Receipt branding</h2>
-                    <p>Personalize ticket emails for this event without changing the platform default.</p>
-                  </div>
-                </div>
-
-                <div className="event-editor-fields event-editor-fields-two">
-                  <label className="event-editor-field">
-                    <span>Brand name</span>
-                    <input
-                      value={formData.emailBranding.brandName}
-                      onChange={(event) => handleBrandingChange("brandName", event.target.value)}
-                      placeholder="Ekotix Presents"
-                    />
-                  </label>
-
-                  <label className="event-editor-field">
-                    <span>Support email</span>
-                    <input
-                      type="email"
-                      value={formData.emailBranding.supportEmail}
-                      onChange={(event) => handleBrandingChange("supportEmail", event.target.value)}
-                      placeholder="support@example.com"
-                    />
-                  </label>
-
-                  <label className="event-editor-field">
-                    <span>Logo URL</span>
-                    <input
-                      value={formData.emailBranding.logoUrl}
-                      onChange={(event) => handleBrandingChange("logoUrl", event.target.value)}
-                      placeholder="https://example.com/logo.png"
-                    />
-                  </label>
-
-                  <label className="event-editor-field">
-                    <span>Footer note</span>
-                    <input
-                      value={formData.emailBranding.footerNote}
-                      onChange={(event) => handleBrandingChange("footerNote", event.target.value)}
-                      placeholder="Thanks for your support."
-                    />
-                  </label>
-
-                  <label className="event-editor-field">
-                    <span>Primary color</span>
-                    <input
-                      type="color"
-                      value={formData.emailBranding.primaryColor}
-                      onChange={(event) => handleBrandingChange("primaryColor", event.target.value)}
-                    />
-                  </label>
-
-                  <label className="event-editor-field">
-                    <span>Accent color</span>
-                    <input
-                      type="color"
-                      value={formData.emailBranding.accentColor}
-                      onChange={(event) => handleBrandingChange("accentColor", event.target.value)}
-                    />
-                  </label>
-                </div>
               </section>
             </aside>
           </div>

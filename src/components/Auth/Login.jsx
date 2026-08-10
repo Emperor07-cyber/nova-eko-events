@@ -14,29 +14,8 @@ import { ref, set, get } from "firebase/database";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [feedback, setFeedback] = useState({ type: "", message: "" });
   const navigate = useNavigate();
   const location = useLocation();
-
-  const showFeedback = (type, message) => {
-    setFeedback({ type, message });
-  };
-
-  const getLoginErrorMessage = (error) => {
-    switch (error?.code) {
-      case "auth/invalid-credential":
-      case "auth/wrong-password":
-        return "Invalid email or password. Please try again.";
-      case "auth/user-not-found":
-        return "No account found for that email.";
-      case "auth/invalid-email":
-        return "Please enter a valid email address.";
-      case "auth/network-request-failed":
-        return "Network error. Check your connection and try again.";
-      default:
-        return "Sign in failed. Please try again.";
-    }
-  };
 
   const routeAfterLogin = (userData) => {
     const from = location.state?.from?.pathname;
@@ -76,24 +55,24 @@ function Login() {
       await setPersistence(auth, browserSessionPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userData = await getOrCreateUser(userCredential.user);
-      showFeedback("success", "Login successful. Redirecting...");
+      alert("Login successful!");
       routeAfterLogin(userData);
     } catch (error) {
-      showFeedback("error", getLoginErrorMessage(error));
+      alert("Error: " + error.message);
     }
   };
 
   const handleForgotPassword = async () => {
     if (!email) {
-      showFeedback("warning", "Please enter your email address first.");
+      alert("Please enter your email to reset password.");
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email);
-      showFeedback("success", "Password reset email sent. Check your inbox.");
+      alert("Password reset email sent!");
     } catch (error) {
-      showFeedback("error", getLoginErrorMessage(error));
+      alert("Error: " + error.message);
     }
   };
 
@@ -103,10 +82,10 @@ function Login() {
       await setPersistence(auth, browserSessionPersistence);
       const result = await signInWithPopup(auth, provider);
       const userData = await getOrCreateUser(result.user);
-      showFeedback("success", "Google sign-in successful. Redirecting...");
+      alert("Google sign-in successful!");
       routeAfterLogin(userData);
     } catch (error) {
-      showFeedback("error", "Google sign-in failed. Please try again.");
+      alert("Google sign-in failed: " + error.message);
     }
   };
 
@@ -132,11 +111,6 @@ function Login() {
       </div>
 
       <form onSubmit={handleLogin} className="auth-grid auth-form">
-        {feedback.message ? (
-          <div className={`auth-feedback auth-feedback-${feedback.type}`} role="status" aria-live="polite">
-            {feedback.message}
-          </div>
-        ) : null}
         <input
           className="input"
           type="email"

@@ -1,11 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { onValue, ref } from 'firebase/database';
 import { CSVLink } from 'react-csv';
-import { auth } from '../firebase/firebaseConfig.jsx';
-import { adminApiUrl } from '../Utils/adminApi';
+import emailjs from '@emailjs/browser';
 import { FiDownload, FiFileText, FiMail, FiSearch } from 'react-icons/fi';
 import { database } from '../firebase/firebaseConfig.jsx';
 import './admin-dashboard-troop.css';
+
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
 const formatNaira = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
 
@@ -119,27 +122,39 @@ const AdminTicketsLedger = () => {
       return;
     }
 
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      setFeedback({ type: 'error', message: 'Email resend is unavailable because EmailJS is not configured.' });
+      return;
+    }
+
     try {
       setResendingId(ticket.id);
       setFeedback({ type: '', message: '' });
+      const event = events.find((row) => row.id === ticket.eventId);
+      const ticketPrice = ticket.totalPaid || 0;
+      const totalPaid = ticket.totalCharged || ticket.totalPaid || 0;
 
-      if (!auth?.currentUser) {
-        throw new Error('You must be signed in to resend emails.');
-      }
-
-      const token = await auth.currentUser.getIdToken(true);
-      const response = await fetch(adminApiUrl(`/tickets/${ticket.id}/resend-email`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_email: ticket.email,
+          user_name: ticket.name || ticket.email,
+          event_name: ticket.eventTitle || event?.title || 'Your Event',
+          event_date: event?.date || '',
+          event_location: event?.location || '',
+          ticket_type: ticket.ticketType || '',
+          quantity: String(ticket.quantity || 1),
+          unit_price: Number(ticketPrice).toLocaleString(),
+          total_paid: Number(totalPaid).toLocaleString(),
+          order_id: ticket.transactionId || ticket.id,
+          qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.transactionId || ticket.id)}`,
+          support_email: 'Ekotix234@gmail.com',
+          company_name: 'Ekotix',
+          current_year: String(new Date().getFullYear()),
         },
-      });
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result?.error || 'Failed to resend ticket email.');
-      }
+        EMAILJS_PUBLIC_KEY
+      );
 
       setFeedback({ type: 'success', message: `Ticket email resent to ${ticket.email}.` });
     } catch (error) {

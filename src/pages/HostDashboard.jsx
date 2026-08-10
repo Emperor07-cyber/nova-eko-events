@@ -44,11 +44,7 @@ const HostDashboard = () => {
 
       const userEvents = Object.entries(eventsData)
         .map(([id, val]) => ({ id, ...val }))
-        .filter((event) =>
-          [event.createdBy, event.hostEmail].some(
-            (ownerEmail) => ownerEmail?.toLowerCase() === user.email?.toLowerCase()
-          ) || (event.hostUid && event.hostUid === user.uid)
-        );
+        .filter((event) => event.createdBy?.toLowerCase() === user.email?.toLowerCase());
 
       setEvents(userEvents);
 
@@ -139,10 +135,6 @@ const HostDashboard = () => {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const scannerEvents = [...events]
-    .sort((left, right) => (right.timestamp || 0) - (left.timestamp || 0))
-    .slice(0, 5);
-
   return (
     <HostLayout>
       <section className="host-dash-hero">
@@ -218,7 +210,7 @@ const HostDashboard = () => {
           {events.length === 0 ? (
             <p className="host-muted-note">No events available yet. Create an event to see its access code.</p>
           ) : (
-            scannerEvents.map((event) => (
+            events.map((event) => (
               <div key={event.id} className="scanner-code-card">
                 <div>
                   <p className="scanner-code-title">{event.title}</p>
@@ -235,11 +227,6 @@ const HostDashboard = () => {
             ))
           )}
         </div>
-        {events.length > scannerEvents.length ? (
-          <p className="host-muted-note" style={{ marginTop: 12 }}>
-            Showing the 5 most recent scanner codes. Use My Events for the full list.
-          </p>
-        ) : null}
       </div>
 
       <div className="host-dash-main-grid">

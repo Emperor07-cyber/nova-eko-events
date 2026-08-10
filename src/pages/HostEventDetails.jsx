@@ -72,8 +72,8 @@ const HostEventDetails = () => {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "To be announced";
-    if (dateStr === "TBA") return "To be announced";
+    if (!dateStr) return "TBA";
+    if (dateStr === "TBA") return "TBA";
     const parsed = Date.parse(dateStr);
     if (isNaN(parsed)) return dateStr;
     return new Intl.DateTimeFormat(undefined, {
@@ -85,7 +85,7 @@ const HostEventDetails = () => {
   };
 
   const formatTime = (timeStr) => {
-    if (!timeStr) return "To be announced";
+    if (!timeStr) return "Time TBA";
     // try HH:MM (24h) format first
     if (/^\d{1,2}:\d{2}(?:(:\d{2})?)?$/.test(timeStr)) {
       try {

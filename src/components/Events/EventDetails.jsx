@@ -3,12 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ref, get } from "firebase/database";
 import { database } from "../../firebase/firebaseConfig";
 import "../../main.css";
-import {
-  formatEventDate,
-  formatEventLocation,
-  formatEventTime,
-  getEventMapUrl,
-} from "./eventEditorConfig";
 
 const EventDetails = () => {
   const navigate = useNavigate();
@@ -35,13 +29,13 @@ const EventDetails = () => {
         } else {
           setNotFound(true);
         }
-      } catch (error) {
-        console.error("Event load error:", error);
+      } catch (e) {
+        console.error("Event load error:", e);
         setNotFound(true);
       }
     };
 
-    const loadBySlug = async (value) => {
+    const loadBySlug = async (s) => {
       try {
         const eventsSnap = await get(ref(database, "events"));
         if (!mounted) return;
@@ -50,17 +44,15 @@ const EventDetails = () => {
           return;
         }
 
-        const normalizedSlug = (value || "").trim().toLowerCase();
+        const normalizedSlug = (s || "").trim().toLowerCase();
         const entries = Object.entries(eventsSnap.val());
 
         const match = entries.find(([, data]) => {
           const storedRaw = (data.eventUrl || "").trim();
           if (!storedRaw) return false;
-
           const stored = storedRaw.toLowerCase();
           if (stored === normalizedSlug) return true;
           if (stored.endsWith(`/${normalizedSlug}`)) return true;
-
           try {
             const parsed = new URL(storedRaw);
             const path = parsed.pathname.replace(/^\/+/, "").toLowerCase();
@@ -79,8 +71,8 @@ const EventDetails = () => {
         if (!mounted) return;
         setEvent({ id, ...data });
         setEventId(id);
-      } catch (error) {
-        console.error("Error loading event by slug:", error);
+      } catch (e) {
+        console.error("Error loading event by slug:", e);
         setNotFound(true);
       }
     };
@@ -101,7 +93,6 @@ const EventDetails = () => {
 
   const tickets = Array.isArray(event?.tickets) ? event.tickets : [];
   const merch = Array.isArray(event?.merch) ? event.merch : [];
-  const mapUrl = getEventMapUrl(event || {});
 
   if (loading) {
     return (
@@ -132,9 +123,9 @@ const EventDetails = () => {
           <p className="kicker">Event details</p>
           <h1 className="event-title">{event.title}</h1>
           <div className="detail-meta-grid">
-            <span className="detail-pill">📅 {formatEventDate(event.date)}</span>
-            <span className="detail-pill">🕐 {formatEventTime(event.startTime)}</span>
-            <span className="detail-pill">📍 {formatEventLocation(event.location)}</span>
+            <span className="detail-pill">📅 {event.date === "TBA" ? "To be announced" : event.date}</span>
+            <span className="detail-pill">🕐 {event.startTime || "To be announced"}</span>
+            <span className="detail-pill">📍 {event.location || "TBA"}</span>
           </div>
         </div>
         <div className="detail-stats">
@@ -153,27 +144,11 @@ const EventDetails = () => {
         </div>
       </div>
 
-      <img className="detail-hero-image" src={event.image || "/images/partypic.jpg"} alt={event.title} />
-
-      <div className="checkout-card">
-        <h2>Event location</h2>
-        <p>{formatEventLocation(event.location)}</p>
-        {mapUrl ? (
-          <div style={{ marginTop: "1rem", overflow: "hidden", borderRadius: "16px", border: "1px solid #dbe7dd" }}>
-            <iframe
-              title={`${event.title} map`}
-              src={mapUrl}
-              width="100%"
-              height="320"
-              style={{ border: 0, display: "block" }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        ) : (
-          <p className="event-meta">A map will appear here once the venue is added.</p>
-        )}
-      </div>
+      <img
+        className="detail-hero-image"
+        src={event.image || "/images/partypic.jpg"}
+        alt={event.title}
+      />
 
       <p className="event-description">{event.description}</p>
 

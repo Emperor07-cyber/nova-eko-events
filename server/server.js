@@ -4,7 +4,6 @@ const crypto = require("crypto");
 require("dotenv").config();
 const cors = require("cors");
 const admin = require('firebase-admin');
-const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
 
 const app = express();
 
@@ -43,8 +42,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     return res.status(401).send("Unauthorized");
   }
 
-  const payload = Buffer.isBuffer(req.body) ? req.body.toString("utf8") : req.body;
-  const event = JSON.parse(payload);
+  const event = JSON.parse(req.body);
   console.log("📦 Webhook received:", event.event);
 
   if (event.event === "charge.success") {
@@ -55,97 +53,30 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     const amount = data.amount / 100;
     const metadata = data.metadata || {};
 
-    const customFields = Array.isArray(metadata.custom_fields) ? metadata.custom_fields : [];
-    const readField = (variableName) => customFields.find(f => f.variable_name === variableName)?.value || "";
     const name = metadata.name || email;
-    const ticketType = readField("ticket_type");
-    const quantity = Number(readField("quantity")) || 1;
-    const eventId = readField("event_id");
-    const eventTitle = readField("event_title") || metadata.event_title || "";
-    const hostEmail = readField("host_email") || metadata.host_email || "";
-    const hostUid = readField("host_uid") || metadata.host_uid || "";
-    const merchName = readField("merch_name") || metadata.merch_name || "";
-    const deliveryType = readField("delivery_type") || metadata.delivery_type || "";
-    const phone = readField("phone") || metadata.phone || "";
-    const baseAmount = Number(readField("base_amount") || metadata.base_amount || 0) || Math.max(0, amount);
-    const platformFee = Number(readField("platform_fee") || metadata.platform_fee || 0) || Math.max(0, amount - baseAmount);
-    const deliveryFee = Number(readField("delivery_fee") || metadata.delivery_fee || 0) || 0;
-    const totalAmount = Number(readField("total_amount") || metadata.total_amount || amount) || amount;
+    const ticketType = metadata.custom_fields?.find(f => f.variable_name === "ticket_type")?.value || "";
+    const quantity = Number(metadata.custom_fields?.find(f => f.variable_name === "quantity")?.value) || 1;
+    const eventId = metadata.custom_fields?.find(f => f.variable_name === "event_id")?.value || "";
+    const eventTitle = metadata.custom_fields?.find(f => f.variable_name === "event_title")?.value || "";
+    const hostEmail = metadata.custom_fields?.find(f => f.variable_name === "host_email")?.value || "";
 
     try {
-      if (merchName) {
-        const merchData = {
-          name,
-          email,
-          phone,
-          eventId,
-          eventTitle,
-          hostEmail,
-          hostUid,
-          merchId: readField("merch_id") || metadata.merch_id || "",
-          merchName,
-          quantity,
-          price: baseAmount,
-          deliveryType,
-          deliveryFee,
-          platformFee,
-          hostFee: baseAmount,
-          totalCharged: totalAmount,
-          transactionId: reference,
-          timestamp: Date.now(),
-          status: "pending",
-          savedBy: "webhook",
-        };
-
-        const orderRef = admin.database().ref("merchOrders").push();
-        await orderRef.set(merchData);
-        console.log("✅ Merch order saved to Firebase via webhook:", reference);
-        return;
-      }
-
+      const firebaseUrl = `${process.env.FIREBASE_DATABASE_URL}/tickets.json`;
       const ticketData = {
         name,
         email,
         eventId,
         eventTitle,
         hostEmail,
-        hostUid,
         ticketType,
         quantity,
-        totalPaid: baseAmount,
-        hostFee: baseAmount,
-        serviceFee: platformFee,
-        platformFee,
-        deliveryFee,
-        totalCharged: totalAmount,
+        totalPaid: amount,
         transactionId: reference,
         timestamp: Date.now(),
         savedBy: "webhook",
       };
 
-      const ticketRef = admin.database().ref('tickets').push();
-      await ticketRef.set(ticketData);
-
-      const eventRecord = await loadEventById(eventId);
-      try {
-        const emailResult = await sendTicketReceiptEmail({
-          ticket: { id: ticketRef.key, ...ticketData },
-          event: eventRecord,
-          resend: false,
-        });
-        await ticketRef.update({
-          emailStatus: emailResult.sent ? 'sent' : 'skipped',
-          emailSentAt: emailResult.sent ? Date.now() : null,
-          emailBrandName: emailResult.brandName || (eventRecord?.emailBranding?.brandName || eventRecord?.title || 'Ekotix'),
-        });
-      } catch (mailErr) {
-        await ticketRef.update({
-          emailStatus: 'failed',
-          emailError: mailErr?.message || 'Failed to send receipt',
-        });
-        console.error('❌ Failed to send ticket receipt:', mailErr.message);
-      }
-
+      await axios.post(firebaseUrl, ticketData);
       console.log("✅ Ticket saved to Firebase via webhook:", reference);
     } catch (err) {
       console.error("❌ Failed to save ticket to Firebase:", err.message);
