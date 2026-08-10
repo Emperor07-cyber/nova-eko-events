@@ -57,6 +57,15 @@ export const createDefaultTicket = () => ({
   limit: "",
 });
 
+export const createDefaultEmailBranding = () => ({
+  brandName: "",
+  supportEmail: "",
+  logoUrl: "",
+  primaryColor: "#10612B",
+  accentColor: "#1F7A47",
+  footerNote: "",
+});
+
 export const normalizeTicket = (ticket = {}) => ({
   type: ticket.type || "",
   price: ticket.price ?? "",
@@ -72,4 +81,45 @@ export const normalizeMerchItem = (item = {}) => ({
   description: item.description || "",
 });
 
+export const normalizeEmailBranding = (branding = {}) => ({
+  brandName: branding.brandName || "",
+  supportEmail: branding.supportEmail || "",
+  logoUrl: branding.logoUrl || "",
+  primaryColor: branding.primaryColor || "#10612B",
+  accentColor: branding.accentColor || "#1F7A47",
+  footerNote: branding.footerNote || "",
+});
+
 export const createEmptyMerchItem = () => normalizeMerchItem();
+
+export const formatEventDate = (dateValue) => {
+  if (!dateValue || dateValue === "TBA") return "To be announced";
+  const parsed = new Date(dateValue);
+  if (Number.isNaN(parsed.getTime())) return dateValue;
+  return parsed.toLocaleDateString();
+};
+
+export const formatEventTime = (timeValue) => {
+  if (!timeValue) return "To be announced";
+  return timeValue;
+};
+
+export const formatEventLocation = (locationValue) => {
+  if (!locationValue || String(locationValue).trim().toUpperCase() === "TBA") {
+    return "To be announced";
+  }
+  return locationValue;
+};
+
+export const getEventMapUrl = (event = {}) => {
+  const latitude = Number(event.latitude);
+  const longitude = Number(event.longitude);
+
+  if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+    return `https://www.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+  }
+
+  const query = [event.location, event.title].filter(Boolean).join(", ").trim();
+  if (!query) return "";
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
+};

@@ -10,11 +10,17 @@ function Register() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("user");
   const [emailInUse, setEmailInUse] = useState(false);
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
   const navigate = useNavigate();
+
+  const showFeedback = (type, message) => {
+    setFeedback({ type, message });
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setEmailInUse(false);
+    setFeedback({ type: "", message: "" });
 
     if (role === "host") {
       navigate("/host-setup", {
@@ -34,13 +40,14 @@ function Register() {
         role,
       });
 
-      alert("Registration successful!");
+      showFeedback("success", "Registration successful. Redirecting...");
       navigate("/");
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         setEmailInUse(true);
+        showFeedback("warning", "This email is already registered.");
       } else {
-        alert("Error registering: " + error.message);
+        showFeedback("error", "Registration failed. Please try again.");
       }
     }
   };
@@ -67,6 +74,11 @@ function Register() {
       </div>
 
       <form onSubmit={handleRegister} className="auth-grid auth-form">
+        {feedback.message ? (
+          <div className={`auth-feedback auth-feedback-${feedback.type}`} role="status" aria-live="polite">
+            {feedback.message}
+          </div>
+        ) : null}
         <input
           className="input"
           type="text"

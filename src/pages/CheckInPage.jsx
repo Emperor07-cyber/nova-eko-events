@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ref, get, update } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { Html5Qrcode } from "html5-qrcode";
+import { apiUrl } from "../Utils/apiBase";
 
 const CheckInPage = () => {
   const [step, setStep] = useState("login"); // login | scanning | result
@@ -159,11 +160,26 @@ const CheckInPage = () => {
         return;
       }
 
-      // Mark as checked in
-      await update(ref(database, `tickets/${ticket.id}`), {
-        checkedIn: true,
-        checkedInAt: Date.now(),
+      const response = await fetch(apiUrl("/checkin/ticket"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ticketId: ticket.id,
+          eventId,
+          accessCode,
+        }),
       });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 409 || result?.alreadyCheckedIn) {
+          showResult("already", `Already checked in at ${result?.checkedInAt ? new Date(result.checkedInAt).toLocaleTimeString() : "earlier"}`, ticket);
+          return;
+        }
+        throw new Error(result?.error || "Error verifying ticket");
+      }
 
       setCheckedInCount((c) => c + (ticket.quantity || 1));
       showResult("success", "Check-in Successful!", ticket);
