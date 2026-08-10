@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiCreditCard, FiShield, FiUsers, FiPhone, FiCheckCircle } from "react-icons/fi";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { ref, get, push, set } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { PaystackButton } from "react-paystack";
 import { database, auth } from "../firebase/firebaseConfig";
-import { generateTicketToken } from "../components/Events/generateScannerCode";
+import { apiUrl } from "../Utils/apiBase";
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
 
@@ -80,33 +80,31 @@ const TicketCheckout = () => {
 
   const handlePaymentSuccess = async (response) => {
     setSending(true);
-    const token = generateTicketToken(response.reference);
-
-    const ticketData = {
-      name: userData.name.trim(),
-      email: userData.email.trim(),
-      eventId,
-      eventTitle: event?.title || "",
-      hostEmail: event?.createdBy || "",
-      ticketType: selectedTicket,
-      quantity: ticketQuantity,
-      totalPaid: baseAmount,
-      platformFee,
-      totalCharged: totalAmount,
-      transactionId: response.reference,
-      token,
-      checkedIn: false,
-      checkedInAt: null,
-      timestamp: Date.now(),
-    };
 
     try {
-      const ticketRef = push(ref(database, "tickets"));
-      await set(ticketRef, ticketData);
-      setSuccessMessage("Payment successful. Your ticket has been issued.");
+      const currentUser = auth.currentUser;
+      const authToken = currentUser ? await currentUser.getIdToken(true) : "";
+      const res = await fetch(apiUrl("/payments/verify"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({
+          reference: response.reference,
+          kind: "ticket",
+        }),
+      });
+
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result?.verified) {
+        throw new Error(result?.error || "Payment verification failed.");
+      }
+
+      setSuccessMessage("Payment verified. Your ticket is being finalized by the server.");
     } catch (error) {
-      console.error("Ticket save error:", error);
-      setSuccessMessage("Payment succeeded, but saving the ticket failed. Please contact support.");
+      console.error("Ticket verification error:", error);
+      setSuccessMessage("Payment succeeded, but verification is still in progress. Please refresh shortly.");
     } finally {
       setSending(false);
     }
@@ -134,10 +132,22 @@ const TicketCheckout = () => {
     publicKey: PAYSTACK_PUBLIC_KEY,
     metadata: {
       name: userData.name,
+      event_title: event?.title || "",
+      host_email: event?.hostEmail || event?.createdBy || "",
+      host_uid: event?.hostUid || "",
+      base_amount: String(baseAmount),
+      platform_fee: String(platformFee),
+      total_amount: String(totalAmount),
       custom_fields: [
         { display_name: "Ticket Type", variable_name: "ticket_type", value: selectedTicket },
         { display_name: "Quantity", variable_name: "quantity", value: String(ticketQuantity) },
         { display_name: "Event ID", variable_name: "event_id", value: eventId },
+        { display_name: "Event Title", variable_name: "event_title", value: event?.title || "" },
+        { display_name: "Host Email", variable_name: "host_email", value: event?.hostEmail || event?.createdBy || "" },
+        { display_name: "Host UID", variable_name: "host_uid", value: event?.hostUid || "" },
+        { display_name: "Base Amount", variable_name: "base_amount", value: String(baseAmount) },
+        { display_name: "Platform Fee", variable_name: "platform_fee", value: String(platformFee) },
+        { display_name: "Total Amount", variable_name: "total_amount", value: String(totalAmount) },
       ],
     },
     text: sending ? "Processing..." : "Pay Now",
@@ -169,7 +179,7 @@ const TicketCheckout = () => {
             <div>
               <strong>{event.title}</strong>
               <p>{event.date === "TBA" ? "Date to be announced" : event.date}</p>
-              <p>{event.location || "Location TBA"}</p>
+              <p>{event.location || "To be announced"}</p>
             </div>
           </div>
 

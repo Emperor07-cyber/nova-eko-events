@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { auth, database } from "../../firebase/firebaseConfig";
-import storeTicket from "./storeTicket";
+import { auth } from "../../firebase/firebaseConfig";
 import QRCode from "react-qr-code";
 import "../styles/main.css";
 
@@ -53,13 +52,11 @@ function BuyTicket({ event }) {
           email,
           ticketId: response.reference,
           totalPaid: event.prices[ticketType],  // ✅ save price for revenue reports
-    timestamp: Date.now(),                  // ✅ save date for revenue reports
+          timestamp: Date.now(),                // ✅ save date for revenue reports
         };
 
-        await storeTicket(ticketData);
-
         setQrCodeData(JSON.stringify(ticketData)); // Show QR code
-        alert("Payment successful! Ticket stored.");
+        alert("Payment successful! Ticket prepared.");
       },
       onClose: () => {
         console.log("Payment modal closed");

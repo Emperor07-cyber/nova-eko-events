@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { ref, update } from 'firebase/database';
-import { database } from '../firebase/firebaseConfig.jsx';
+import { auth } from '../firebase/firebaseConfig.jsx';
+import { adminApiUrl } from '../Utils/adminApi';
 import { useAdminTransactions } from '../hooks/useAdminTransactions';
 import './admin-dashboard-troop.css';
 
@@ -43,7 +43,25 @@ const AdminTransactions = () => {
       setUpdatingId(withdrawalId);
       setActionError('');
       setActionMessage('');
-      await update(ref(database, `withdrawalRequests/${withdrawalId}`), { status: nextStatus });
+      if (!auth?.currentUser) {
+        throw new Error('You must be signed in to update withdrawals.');
+      }
+
+      const token = await auth.currentUser.getIdToken(true);
+      const response = await fetch(adminApiUrl(`/withdrawals/${withdrawalId}/status`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || 'Failed to update withdrawal status.');
+      }
+
       await refetch();
       setActionMessage(nextStatus === 'completed' ? 'Withdrawal approved.' : 'Withdrawal rejected.');
     } catch (err) {

@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ref, onValue, remove, update, get } from "firebase/database";
+import { ref, onValue, remove, get } from "firebase/database";
 import { database, auth } from "../firebase/firebaseConfig";
 import { adminApiUrl } from '../Utils/adminApi';
 import { CSVLink } from "react-csv";
 import { Link, useNavigate } from "react-router-dom";
-import emailjs from "@emailjs/browser";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import {
   FiActivity,
@@ -28,10 +27,6 @@ import RemoteAdminOverview from "../components/common/RemoteAdminOverview";
 import TopPerformingEvents from '../components/common/TopPerformingEvents';
 import "./admin-dashboard-troop.css";
 import { useSalesTrend } from '../hooks/useSalesTrend';
-
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "";
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "";
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
 
 const formatNaira = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
 
@@ -240,7 +235,25 @@ const AdminDashboard = () => {
 
   const handleWithdrawalStatus = async (id, status) => {
     try {
-      await update(ref(database, `withdrawalRequests/${id}`), { status });
+      if (!auth?.currentUser) {
+        throw new Error("You must be signed in to update withdrawals.");
+      }
+
+      const token = await auth.currentUser.getIdToken(true);
+      const response = await fetch(adminApiUrl(`/withdrawals/${id}/status`), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to update withdrawal status.");
+      }
+
       // audit
       sendAudit('withdrawal_update', { id, status });
       alert(`Request marked as ${status}.`);
@@ -256,46 +269,32 @@ const AdminDashboard = () => {
     }
 
     setResendingId(ticket.id);
-    const event = events.find((currentEvent) => currentEvent.id === ticket.eventId);
-    const ticketPrice = ticket.totalPaid || 0;
-    const totalPaid = ticket.totalCharged || ticket.totalPaid || 0;
-
-    if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY) {
-      try {
-        await emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_TEMPLATE_ID,
-          {
-            to_email: ticket.email,
-            user_name: ticket.name || ticket.email,
-            event_name: ticket.eventTitle || event?.title || "Your Event",
-            event_date: event?.date || "",
-            event_location: event?.location || "",
-            ticket_type: ticket.ticketType || "",
-            quantity: String(ticket.quantity || 1),
-            unit_price: ticketPrice.toLocaleString(),
-            total_paid: totalPaid.toLocaleString(),
-            order_id: ticket.transactionId || ticket.id,
-            qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticket.transactionId || ticket.id)}`,
-            support_email: "Ekotix234@gmail.com",
-            company_name: "Ekotix",
-            current_year: String(new Date().getFullYear()),
-          },
-          EMAILJS_PUBLIC_KEY
-        );
-        // audit
-        sendAudit('resend_ticket_email', { ticketId: ticket.id, to: ticket.email });
-        alert(`Email resent successfully to ${ticket.email}`);
-      } catch (error) {
-        console.error("EmailJS error:", error);
-        alert(`Failed to resend email: ${error.text || error.message}`);
+    try {
+      if (!auth?.currentUser) {
+        throw new Error("You must be signed in to resend emails.");
       }
-    } else {
-      console.warn("EmailJS is not configured. Skipping resend email.");
-      alert("Ticket email was not resent because EmailJS is not configured.");
-    }
 
-    setResendingId(null);
+      const token = await auth.currentUser.getIdToken(true);
+      const response = await fetch(adminApiUrl(`/tickets/${ticket.id}/resend-email`), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to resend ticket email.");
+      }
+
+      alert(`Email resent successfully to ${ticket.email}`);
+    } catch (error) {
+      console.error("Ticket resend error:", error);
+      alert(`Failed to resend email: ${error.message}`);
+    } finally {
+      setResendingId(null);
+    }
   };
 
   const getStatusBadgeClass = (status) => `admin-status admin-status-${status || "pending"}`;

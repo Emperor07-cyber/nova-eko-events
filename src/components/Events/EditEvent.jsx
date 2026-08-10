@@ -20,10 +20,12 @@ import {
 import LoadingSpinner from "../common/LoadingSpinner";
 import {
   buildEventUrl,
+  createDefaultEmailBranding,
   createEmptyMerchItem,
   createEmptyTicket,
   EVENT_CATEGORIES,
   getEventUrlDisplayValue,
+  normalizeEmailBranding,
   normalizeMerchItem,
   normalizeTicket,
   TICKETING_POLICY_ITEMS,
@@ -78,6 +80,7 @@ const EditEvent = () => {
           tickets: Array.isArray(event.tickets) ? event.tickets.map(normalizeTicket) : [],
           merch: Array.isArray(event.merch) ? event.merch.map(normalizeMerchItem) : [],
           eventUrl: event.eventUrl || "",
+          emailBranding: normalizeEmailBranding(event.emailBranding || createDefaultEmailBranding()),
         });
       } catch (fetchError) {
         console.error(fetchError);
@@ -249,6 +252,16 @@ const EditEvent = () => {
     });
   };
 
+  const handleBrandingChange = (field, value) => {
+    setEventData((prev) => ({
+      ...prev,
+      emailBranding: {
+        ...prev.emailBranding,
+        [field]: value,
+      },
+    }));
+  };
+
   const handleAddMerch = () => {
     setEventData((prev) => ({
       ...prev,
@@ -277,6 +290,7 @@ const EditEvent = () => {
       price: Number(item.price || 0),
       stock: Number(item.stock || 0),
     }));
+  const normalizedBranding = normalizeEmailBranding(eventData.emailBranding);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -285,15 +299,18 @@ const EditEvent = () => {
       const maxPerUser = Number(eventData.maxPerUser || 1);
       const eventRef = ref(database, `events/${eventId}`);
 
-      await update(eventRef, {
-        ...eventData,
-        date: eventData.dateUnknown ? "TBA" : eventData.date,
-        maxPerUser,
-        maxPurchaseLimit: maxPerUser,
-        eventUrl: finalEventUrl,
-        tickets: normalizedTickets,
-        merch: normalizedMerch,
-      });
+        await update(eventRef, {
+          ...eventData,
+          date: eventData.dateUnknown ? "TBA" : eventData.date,
+          maxPerUser,
+          maxPurchaseLimit: maxPerUser,
+          eventUrl: finalEventUrl,
+          tickets: normalizedTickets,
+          merch: normalizedMerch,
+          emailBranding: normalizedBranding,
+          hostEmail: eventData.hostEmail || user?.email || "Unknown",
+          hostUid: eventData.hostUid || user?.uid || "",
+        });
 
       toast.success("Event updated successfully!");
 
@@ -759,6 +776,76 @@ const EditEvent = () => {
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
+              </section>
+
+              <section className="event-editor-card">
+                <div className="event-editor-card-head">
+                  <div>
+                    <span className="event-editor-section-chip">
+                      <FiShield aria-hidden="true" />
+                      Email branding
+                    </span>
+                    <h2>Receipt branding</h2>
+                    <p>Adjust the email identity attached to this event’s ticket receipts.</p>
+                  </div>
+                </div>
+
+                <div className="event-editor-fields event-editor-fields-two">
+                  <label className="event-editor-field">
+                    <span>Brand name</span>
+                    <input
+                      value={eventData.emailBranding?.brandName || ""}
+                      onChange={(event) => handleBrandingChange("brandName", event.target.value)}
+                      placeholder="Ekotix Presents"
+                    />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Support email</span>
+                    <input
+                      type="email"
+                      value={eventData.emailBranding?.supportEmail || ""}
+                      onChange={(event) => handleBrandingChange("supportEmail", event.target.value)}
+                      placeholder="support@example.com"
+                    />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Logo URL</span>
+                    <input
+                      value={eventData.emailBranding?.logoUrl || ""}
+                      onChange={(event) => handleBrandingChange("logoUrl", event.target.value)}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Footer note</span>
+                    <input
+                      value={eventData.emailBranding?.footerNote || ""}
+                      onChange={(event) => handleBrandingChange("footerNote", event.target.value)}
+                      placeholder="Thanks for your support."
+                    />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Primary color</span>
+                    <input
+                      type="color"
+                      value={eventData.emailBranding?.primaryColor || "#10612B"}
+                      onChange={(event) => handleBrandingChange("primaryColor", event.target.value)}
+                    />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Accent color</span>
+                    <input
+                      type="color"
+                      value={eventData.emailBranding?.accentColor || "#1F7A47"}
+                      onChange={(event) => handleBrandingChange("accentColor", event.target.value)}
+                    />
+                  </label>
+                </div>
               </section>
             </aside>
           </div>

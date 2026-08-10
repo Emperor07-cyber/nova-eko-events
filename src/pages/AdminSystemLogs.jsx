@@ -61,7 +61,7 @@ const AdminSystemLogs = () => {
       if (!severityMatch) return false;
 
       if (!normalizedSearch) return true;
-      const haystack = [entry.action, entry.uid, entry.detailsPreview]
+      const haystack = [entry.action, entry.uid, entry.email, entry.name, entry.detailsPreview]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
@@ -157,13 +157,14 @@ const AdminSystemLogs = () => {
               <th>Severity</th>
               <th>Action</th>
               <th>Admin UID</th>
+              <th>Admin Email</th>
               <th>Details</th>
             </tr>
           </thead>
           <tbody>
             {paginatedLogs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="admin-empty-state">No log entries match your filters.</td>
+                <td colSpan={6} className="admin-empty-state">No log entries match your filters.</td>
               </tr>
             ) : (
               paginatedLogs.map((entry) => (
@@ -176,6 +177,7 @@ const AdminSystemLogs = () => {
                   </td>
                   <td data-label="Action">{entry.action || 'N/A'}</td>
                   <td data-label="Admin UID">{entry.uid || 'N/A'}</td>
+                  <td data-label="Admin Email">{entry.email || 'N/A'}</td>
                   <td data-label="Details">
                     <div style={{ maxWidth: 420, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                       {entry.detailsPreview}

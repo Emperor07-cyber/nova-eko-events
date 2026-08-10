@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ref, get } from "firebase/database";
 import { database } from "../../firebase/firebaseConfig";
+import { formatEventDate, formatEventLocation, formatEventTime, getEventMapUrl } from "./eventEditorConfig";
 
 const EventDetailsBySlug = () => {
   const navigate = useNavigate();
@@ -11,7 +12,6 @@ const EventDetailsBySlug = () => {
   const [eventId, setEventId] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [selectedTicket, setSelectedTicket] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -53,7 +53,7 @@ const EventDetailsBySlug = () => {
 
         const [id, data] = match;
         setEventId(id);
-        setEvent(data);
+        setEvent({ id, ...data });
       } catch (error) {
         console.error("Error loading event:", error);
         if (mounted) setNotFound(true);
@@ -70,6 +70,7 @@ const EventDetailsBySlug = () => {
 
   const tickets = Array.isArray(event?.tickets) ? event.tickets : [];
   const merch = Array.isArray(event?.merch) ? event.merch : [];
+  const mapUrl = getEventMapUrl(event || {});
 
   if (notFound) {
     return <div className="event-wrap">Event not found.</div>;
@@ -86,16 +87,35 @@ const EventDetailsBySlug = () => {
     );
   }
 
-  const isPaystackLoaded = typeof window !== "undefined" && !!window.PaystackPop;
-
   return (
     <div className="event-wrap">
       <h1 className="event-title">{event?.title}</h1>
-      <p className="event-meta"><strong>Date:</strong> {event?.date === "TBA" ? "To be announced" : event?.date}</p>
-      <p className="event-meta"><strong>Time:</strong> {event?.startTime || "To be announced"}</p>
-      <p className="event-meta"><strong>Location:</strong> {event?.location || "TBA"}</p>
+      <p className="event-meta"><strong>Date:</strong> {formatEventDate(event?.date)}</p>
+      <p className="event-meta"><strong>Time:</strong> {formatEventTime(event?.startTime)}</p>
+      <p className="event-meta"><strong>Location:</strong> {formatEventLocation(event?.location)}</p>
 
       <img className="event-image" src={event?.image || "/images/partypic.jpg"} alt={event?.title || "Event"} />
+
+      <div className="checkout-card" style={{ marginTop: "1rem" }}>
+        <h2>Event location</h2>
+        <p>{formatEventLocation(event?.location)}</p>
+        {mapUrl ? (
+          <div style={{ marginTop: "1rem", overflow: "hidden", borderRadius: "16px", border: "1px solid #dbe7dd" }}>
+            <iframe
+              title={`${event?.title || "Event"} map`}
+              src={mapUrl}
+              width="100%"
+              height="320"
+              style={{ border: 0, display: "block" }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        ) : (
+          <p className="event-meta">A map will appear here once the venue is added.</p>
+        )}
+      </div>
+
       <p className="event-description">{event?.description}</p>
 
       {merch.length > 0 ? (
