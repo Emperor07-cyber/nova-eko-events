@@ -16,6 +16,43 @@ try {
 const db = () => admin.database();
 
 const normalizeText = (value) => String(value || "").trim().toLowerCase();
+
+// Sums how many tickets `email` has already bought for `eventId`, across
+// every past order, so purchase limits can't be bypassed by re-checking out.
+const getExistingTicketQuantity = async (eventId, email) => {
+  const normalizedEmail = normalizeText(email);
+  const snapshot = await db().ref("tickets").once("value");
+  const tickets = snapshot.val() || {};
+  return Object.values(tickets)
+    .filter((ticket) => String(ticket.eventId || "") === String(eventId) && normalizeText(ticket.email) === normalizedEmail)
+    .reduce((sum, ticket) => sum + (Number(ticket.quantity) || 1), 0);
+};
+
+const getMaxPerUser = (event) => {
+  const raw = Number(event?.maxPerUser ?? event?.maxPurchaseLimit);
+  return Number.isFinite(raw) && raw > 0 ? raw : null;
+};
+
+// Validates a scanner's access code against an event's single legacy
+// scannerCode (shared code, backward-compatible) or a named scanner account
+// under event.scanners/{id}. Returns who scanned it in, for attribution.
+const resolveScannerAccess = (event, accessCode) => {
+  const entered = String(accessCode || "").trim().toUpperCase();
+  if (!entered) return null;
+
+  if (String(event.scannerCode || "").toUpperCase() === entered) {
+    return { scannerId: null, scannerName: "Shared event code" };
+  }
+
+  const scanners = event.scanners || {};
+  const match = Object.entries(scanners).find(
+    ([, scanner]) => scanner.active !== false && String(scanner.code || "").toUpperCase() === entered
+  );
+  if (!match) return null;
+
+  const [scannerId, scanner] = match;
+  return { scannerId, scannerName: scanner.name || "Unnamed scanner" };
+};
 const sanitizeNumber = (value) => {
   const cleaned = String(value ?? "").replace(/,/g, "");
   const parsed = Number(cleaned);
@@ -147,6 +184,13 @@ const calculateHostBalance = async (hostEmail, hostUid) => {
 };
 
 module.exports = (app) => {
+  return registerRoutes(app);
+};
+
+module.exports.getExistingTicketQuantity = getExistingTicketQuantity;
+module.exports.getMaxPerUser = getMaxPerUser;
+
+function registerRoutes(app) {
   app.post("/checkin/ticket", async (req, res) => {
     try {
       const { ticketId, eventId, accessCode } = req.body || {};
@@ -164,7 +208,8 @@ module.exports = (app) => {
       }
 
       const event = eventSnap.val() || {};
-      if (String(event.scannerCode || "").toUpperCase() !== String(accessCode).trim().toUpperCase()) {
+      const scannerAccess = resolveScannerAccess(event, accessCode);
+      if (!scannerAccess) {
         return res.status(403).json({ error: "Invalid access code" });
       }
 
@@ -185,10 +230,12 @@ module.exports = (app) => {
         });
       }
 
+      const checkedInAt = Date.now();
       await db().ref(`tickets/${ticketId}`).update({
         checkedIn: true,
-        checkedInAt: Date.now(),
-        checkedInBy: "scanner",
+        checkedInAt,
+        checkedInBy: scannerAccess.scannerName,
+        checkedInByScannerId: scannerAccess.scannerId,
       });
 
       res.json({
@@ -197,12 +244,226 @@ module.exports = (app) => {
           id: ticketId,
           ...ticket,
           checkedIn: true,
-          checkedInAt: Date.now(),
+          checkedInAt,
+          checkedInBy: scannerAccess.scannerName,
         },
       });
     } catch (err) {
       console.error("checkin/ticket error", err);
       res.status(500).json({ error: "Failed to check in ticket" });
+    }
+  });
+
+  // Called before showing the Paystack button so the UI can block/adjust
+  // quantity if the buyer is already at or near their per-event limit.
+  // Scanner accounts: named, individually revocable access codes per event,
+  // separate from the single shared scannerCode. Only the event's host or a
+  // platform admin may manage them.
+  const canManageEvent = async (decoded, event) => {
+    if (decoded?.admin === true) return true;
+    const email = normalizeText(decoded.email);
+    const uid = normalizeText(decoded.uid);
+    return (
+      (email && normalizeText(event.hostEmail) === email) ||
+      (email && normalizeText(event.createdBy) === email) ||
+      (uid && normalizeText(event.hostUid) === uid)
+    );
+  };
+
+  app.post("/events/:eventId/scanners", verifyAuthenticatedMiddleware, async (req, res) => {
+    try {
+      const { eventId } = req.params;
+      const name = String(req.body?.name || "").trim();
+      if (!name) {
+        return res.status(400).json({ error: "Scanner name is required" });
+      }
+
+      const eventRef = db().ref(`events/${eventId}`);
+      const eventSnap = await eventRef.once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      const event = eventSnap.val() || {};
+      if (!(await canManageEvent(req.user, event))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const code = `SCN-${Array.from({ length: 6 }, () =>
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 33)]
+      ).join("")}`;
+
+      const scannerRef = eventRef.child("scanners").push();
+      const scannerData = {
+        name,
+        code,
+        active: true,
+        createdAt: Date.now(),
+        createdBy: req.user.email || req.user.uid,
+      };
+      await scannerRef.set(scannerData);
+
+      res.json({ success: true, id: scannerRef.key, scanner: scannerData });
+    } catch (err) {
+      console.error("scanners create error", err);
+      res.status(500).json({ error: "Failed to create scanner account" });
+    }
+  });
+
+  app.patch("/events/:eventId/scanners/:scannerId", verifyAuthenticatedMiddleware, async (req, res) => {
+    try {
+      const { eventId, scannerId } = req.params;
+      const active = Boolean(req.body?.active);
+
+      const eventRef = db().ref(`events/${eventId}`);
+      const eventSnap = await eventRef.once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      const event = eventSnap.val() || {};
+      if (!(await canManageEvent(req.user, event))) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      const scannerRef = eventRef.child(`scanners/${scannerId}`);
+      const scannerSnap = await scannerRef.once("value");
+      if (!scannerSnap.exists()) {
+        return res.status(404).json({ error: "Scanner not found" });
+      }
+
+      await scannerRef.update({ active });
+      res.json({ success: true, id: scannerId, active });
+    } catch (err) {
+      console.error("scanners update error", err);
+      res.status(500).json({ error: "Failed to update scanner account" });
+    }
+  });
+
+  app.post("/tickets/check-limit", async (req, res) => {
+    try {
+      const { eventId, email, quantity } = req.body || {};
+      const requestedQty = Math.max(1, Number(quantity) || 1);
+
+      if (!eventId || !email) {
+        return res.status(400).json({ error: "Missing eventId or email" });
+      }
+
+      const eventSnap = await db().ref(`events/${eventId}`).once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+
+      const event = eventSnap.val() || {};
+      const maxPerUser = getMaxPerUser(event);
+
+      if (!maxPerUser) {
+        return res.json({ allowed: true, remaining: null, maxPerUser: null });
+      }
+
+      const alreadyBought = await getExistingTicketQuantity(eventId, email);
+      const remaining = Math.max(0, maxPerUser - alreadyBought);
+
+      return res.json({
+        allowed: requestedQty <= remaining,
+        remaining,
+        maxPerUser,
+        alreadyBought,
+      });
+    } catch (err) {
+      console.error("tickets/check-limit error", err);
+      res.status(500).json({ error: "Failed to check ticket limit" });
+    }
+  });
+
+  // Issues a ticket directly for a free (₦0) ticket type, bypassing
+  // Paystack entirely since there's nothing to charge. Still enforces the
+  // event's per-user limit and reuses the same email-receipt pipeline as
+  // paid tickets, so free and paid tickets look identical to the buyer.
+  app.post("/tickets/claim-free", async (req, res) => {
+    try {
+      const { eventId, ticketType, name, email, quantity } = req.body || {};
+      const qty = Math.max(1, Number(quantity) || 1);
+
+      if (!eventId || !ticketType || !name || !email) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        return res.status(400).json({ error: "Invalid email address" });
+      }
+
+      const eventSnap = await db().ref(`events/${eventId}`).once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      const event = eventSnap.val() || {};
+
+      const tickets = Array.isArray(event.tickets) ? event.tickets : [];
+      const matchedTicket = tickets.find((t) => t.type === ticketType);
+      if (!matchedTicket) {
+        return res.status(400).json({ error: "Ticket type not found for this event" });
+      }
+      const price = Number(matchedTicket.price || 0);
+      if (price !== 0) {
+        return res.status(400).json({ error: "This ticket type is not free. Use the paid checkout flow." });
+      }
+
+      const perOrderLimit = Math.max(Number(matchedTicket.limit || 1), 1);
+      if (qty > perOrderLimit) {
+        return res.status(400).json({ error: `Max ${perOrderLimit} tickets per order for this ticket type.` });
+      }
+
+      const maxPerUser = getMaxPerUser(event);
+      if (maxPerUser) {
+        const alreadyBought = await getExistingTicketQuantity(eventId, email);
+        if (alreadyBought + qty > maxPerUser) {
+          return res.status(400).json({
+            error: `You can only claim ${Math.max(0, maxPerUser - alreadyBought)} more ticket(s) for this event.`,
+          });
+        }
+      }
+
+      const ticketData = {
+        name,
+        email,
+        eventId,
+        eventTitle: event.title || "",
+        hostEmail: event.hostEmail || event.createdBy || "",
+        hostUid: event.hostUid || "",
+        ticketType,
+        quantity: qty,
+        totalPaid: 0,
+        hostFee: 0,
+        serviceFee: 0,
+        platformFee: 0,
+        deliveryFee: 0,
+        totalCharged: 0,
+        transactionId: `FREE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: Date.now(),
+        savedBy: "free-claim",
+      };
+
+      const ticketRef = db().ref("tickets").push();
+      await ticketRef.set(ticketData);
+
+      try {
+        const emailResult = await sendTicketReceiptEmail({
+          ticket: { id: ticketRef.key, ...ticketData },
+          event,
+          resend: false,
+        });
+        await ticketRef.update({
+          emailStatus: emailResult.sent ? "sent" : "skipped",
+          emailSentAt: emailResult.sent ? Date.now() : null,
+          emailBrandName: emailResult.brandName || event?.emailBranding?.brandName || event?.title || "Ekotix",
+        });
+      } catch (mailErr) {
+        await ticketRef.update({ emailStatus: "failed", emailError: mailErr?.message || "Failed to send receipt" });
+        console.error("claim-free email error", mailErr.message);
+      }
+
+      res.json({ success: true, ticketId: ticketRef.key, ticket: ticketData });
+    } catch (err) {
+      console.error("tickets/claim-free error", err);
+      res.status(500).json({ error: "Failed to claim free ticket" });
     }
   });
 

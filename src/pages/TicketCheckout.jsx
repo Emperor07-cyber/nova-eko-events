@@ -21,6 +21,8 @@ const TicketCheckout = () => {
   const [userData, setUserData] = useState({ name: "", email: "" });
   const [sending, setSending] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [limitInfo, setLimitInfo] = useState(null); // { allowed, remaining, maxPerUser }
+  const [limitError, setLimitError] = useState("");
 
   useEffect(() => {
     if (!eventId) return;
@@ -59,6 +61,56 @@ const TicketCheckout = () => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
+  // Checks the buyer's per-event purchase limit server-side before we let
+  // them pay, so the "max tickets per person" set by the host is actually
+  // enforced instead of only capping quantity within a single order.
+  useEffect(() => {
+    const isValidEmail = /\S+@\S+\.\S+/.test(userData.email);
+    if (!eventId || !isValidEmail || !ticketQuantity) {
+      setLimitInfo(null);
+      setLimitError("");
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(apiUrl("/tickets/check-limit"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventId, email: userData.email, quantity: ticketQuantity }),
+        });
+        const result = await res.json().catch(() => ({}));
+        if (cancelled) return;
+
+        if (!res.ok) {
+          setLimitInfo(null);
+          setLimitError("");
+          return;
+        }
+
+        setLimitInfo(result);
+        setLimitError(
+          result.allowed
+            ? ""
+            : result.remaining === 0
+              ? "You've already reached the maximum number of tickets allowed for this event."
+              : `You can only buy ${result.remaining} more ticket(s) for this event (limit ${result.maxPerUser} per person).`
+        );
+      } catch (error) {
+        if (!cancelled) {
+          setLimitInfo(null);
+          setLimitError("");
+        }
+      }
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [eventId, userData.email, ticketQuantity]);
+
   const tickets = Array.isArray(event?.tickets) ? event.tickets : [];
   const selectedTicketDetails = tickets.find((ticket) => ticket.type === selectedTicket);
   const ticketPrice = Number(selectedTicketDetails?.price || 0);
@@ -68,7 +120,9 @@ const TicketCheckout = () => {
   const totalAmount = baseAmount + platformFee;
 
   const isValidEmail = /\S+@\S+\.\S+/.test(userData.email);
+  const isFreeTicket = !!selectedTicket && ticketPrice === 0;
   const canPay =
+    !isFreeTicket &&
     !!selectedTicket &&
     userData.name.trim().length >= 2 &&
     isValidEmail &&
@@ -76,7 +130,16 @@ const TicketCheckout = () => {
     ticketQuantity <= ticketLimit &&
     totalAmount > 0 &&
     !!PAYSTACK_PUBLIC_KEY &&
-    !sending;
+    !sending &&
+    limitInfo?.allowed !== false;
+  const canClaimFree =
+    isFreeTicket &&
+    userData.name.trim().length >= 2 &&
+    isValidEmail &&
+    ticketQuantity >= 1 &&
+    ticketQuantity <= ticketLimit &&
+    !sending &&
+    limitInfo?.allowed !== false;
 
   const handlePaymentSuccess = async (response) => {
     setSending(true);
@@ -105,6 +168,33 @@ const TicketCheckout = () => {
     } catch (error) {
       console.error("Ticket verification error:", error);
       setSuccessMessage("Payment succeeded, but verification is still in progress. Please refresh shortly.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleClaimFree = async () => {
+    setSending(true);
+    try {
+      const res = await fetch(apiUrl("/tickets/claim-free"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId,
+          ticketType: selectedTicket,
+          name: userData.name,
+          email: userData.email,
+          quantity: ticketQuantity,
+        }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result?.success) {
+        throw new Error(result?.error || "Could not claim ticket.");
+      }
+      setSuccessMessage("Your free ticket has been reserved. Check your email for confirmation.");
+    } catch (error) {
+      console.error("Free ticket claim error:", error);
+      setLimitError(error.message || "Could not claim ticket. Please try again.");
     } finally {
       setSending(false);
     }
@@ -266,8 +356,21 @@ const TicketCheckout = () => {
             </ul>
           </div>
 
+          {limitError ? (
+            <div className="notification warning">{limitError}</div>
+          ) : null}
+
           {successMessage ? (
             <div className="checkout-success-banner">{successMessage}</div>
+          ) : isFreeTicket ? (
+            <button
+              type="button"
+              className="btn-primary checkout-pay-btn"
+              disabled={!canClaimFree}
+              onClick={handleClaimFree}
+            >
+              {sending ? "Claiming..." : "Claim free ticket"}
+            </button>
           ) : PAYSTACK_PUBLIC_KEY ? (
             <PaystackButton {...paystackConfig} className="btn-primary checkout-pay-btn" disabled={!canPay} />
           ) : (

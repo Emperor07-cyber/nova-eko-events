@@ -4,10 +4,12 @@ import { ref, get } from "firebase/database";
 import { database } from "../../firebase/firebaseConfig";
 import "../../main.css";
 import {
+  extractSlug,
   formatEventDate,
   formatEventLocation,
   formatEventTime,
   getEventMapUrl,
+  sanitizeSlug,
 } from "./eventEditorConfig";
 
 const EventDetails = () => {
@@ -50,25 +52,10 @@ const EventDetails = () => {
           return;
         }
 
-        const normalizedSlug = (value || "").trim().toLowerCase();
+        const normalizedSlug = sanitizeSlug(value);
         const entries = Object.entries(eventsSnap.val());
 
-        const match = entries.find(([, data]) => {
-          const storedRaw = (data.eventUrl || "").trim();
-          if (!storedRaw) return false;
-
-          const stored = storedRaw.toLowerCase();
-          if (stored === normalizedSlug) return true;
-          if (stored.endsWith(`/${normalizedSlug}`)) return true;
-
-          try {
-            const parsed = new URL(storedRaw);
-            const path = parsed.pathname.replace(/^\/+/, "").toLowerCase();
-            return path === normalizedSlug;
-          } catch {
-            return false;
-          }
-        });
+        const match = entries.find(([, data]) => extractSlug(data.eventUrl) === normalizedSlug);
 
         if (!match) {
           setNotFound(true);

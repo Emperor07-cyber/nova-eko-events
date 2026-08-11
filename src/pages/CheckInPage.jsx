@@ -72,9 +72,14 @@ const CheckInPage = () => {
         return;
       }
       const events = snapshot.val();
-      const match = Object.entries(events).find(
-        ([, ev]) => ev.scannerCode?.toUpperCase() === accessCode.trim().toUpperCase()
-      );
+      const enteredCode = accessCode.trim().toUpperCase();
+      const match = Object.entries(events).find(([, ev]) => {
+        if (ev.scannerCode?.toUpperCase() === enteredCode) return true;
+        const scanners = ev.scanners || {};
+        return Object.values(scanners).some(
+          (scanner) => scanner.active !== false && scanner.code?.toUpperCase() === enteredCode
+        );
+      });
       if (!match) {
         setCodeError("Invalid Access Code.");
         setLoading(false);
