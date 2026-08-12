@@ -1579,6 +1579,53 @@ a.btn-withdraw {
   min-width: 56px;
 }
 
+.host-scanner-add-row {
+  display: flex;
+  gap: 8px;
+  margin: 0.75rem 0;
+  flex-wrap: wrap;
+}
+
+.host-scanner-add-row .input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.host-scanner-list {
+  display: grid;
+  gap: 10px;
+}
+
+.host-scanner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #e6f0e6;
+  border-radius: 12px;
+  background: #fbfefb;
+  flex-wrap: wrap;
+}
+
+.host-scanner-status {
+  margin-left: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.host-scanner-status.active {
+  background: #eaf9ec;
+  color: var(--green);
+}
+
+.host-scanner-status.revoked {
+  background: #fdeeee;
+  color: #b42318;
+}
+
 .host-event-detail-page {
   display: grid;
   gap: 1.5rem;

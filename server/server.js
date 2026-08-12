@@ -5,6 +5,7 @@ require("dotenv").config();
 const cors = require("cors");
 const admin = require('firebase-admin');
 const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
+const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
 
 const app = express();
 
@@ -103,6 +104,20 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         return;
       }
 
+      const eventRecord = await loadEventById(eventId);
+
+      // Defense-in-depth: the checkout UI already calls /tickets/check-limit
+      // before showing the Pay button, but that's client-triggered and can
+      // be bypassed by hitting Paystack directly. Re-check here, where the
+      // ticket record actually gets created, since payment has already
+      // settled at this point and can't simply be "declined" anymore.
+      let overLimit = false;
+      const maxPerUser = getMaxPerUser(eventRecord);
+      if (maxPerUser) {
+        const alreadyBought = await getExistingTicketQuantity(eventId, email);
+        overLimit = alreadyBought + quantity > maxPerUser;
+      }
+
       const ticketData = {
         name,
         email,
@@ -121,12 +136,28 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         transactionId: reference,
         timestamp: Date.now(),
         savedBy: "webhook",
+        ...(overLimit
+          ? { status: "flagged_over_limit", flaggedReason: `Exceeds max ${maxPerUser} tickets per person` }
+          : {}),
       };
 
       const ticketRef = admin.database().ref('tickets').push();
       await ticketRef.set(ticketData);
 
-      const eventRecord = await loadEventById(eventId);
+      if (overLimit) {
+        // Payment was already captured by Paystack. Don't silently deliver
+        // the ticket — leave it flagged for the host/admin to refund or
+        // manually approve, and log it so it isn't missed.
+        await admin.database().ref('adminAudit').push({
+          action: 'ticket_over_limit',
+          details: { ticketId: ticketRef.key, eventId, email, quantity, maxPerUser, reference },
+          timestamp: Date.now(),
+        });
+        console.warn(`⚠️ Ticket ${ticketRef.key} exceeds per-user limit for event ${eventId} (${email}). Flagged, not auto-emailed.`);
+        res.sendStatus(200);
+        return;
+      }
+
       try {
         const emailResult = await sendTicketReceiptEmail({
           ticket: { id: ticketRef.key, ...ticketData },

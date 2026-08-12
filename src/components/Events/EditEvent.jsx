@@ -20,6 +20,7 @@ import {
 import LoadingSpinner from "../common/LoadingSpinner";
 import {
   buildEventUrl,
+  checkSlugAvailability,
   createDefaultEmailBranding,
   createEmptyMerchItem,
   createEmptyTicket,
@@ -296,6 +297,22 @@ const EditEvent = () => {
     event.preventDefault();
 
     try {
+      if (finalEventUrl) {
+        const { available, reason } = await checkSlugAvailability(
+          database,
+          getEventUrlDisplayValue(finalEventUrl),
+          eventId
+        );
+        if (!available) {
+          toast.error(
+            reason === "reserved"
+              ? "That event URL is reserved by the platform. Please choose another."
+              : "That event URL is already taken by another event. Please choose another."
+          );
+          return;
+        }
+      }
+
       const maxPerUser = Number(eventData.maxPerUser || 1);
       const eventRef = ref(database, `events/${eventId}`);
 

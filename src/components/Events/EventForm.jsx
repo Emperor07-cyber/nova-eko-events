@@ -21,6 +21,7 @@ import { generateScannerCode } from "./generateScannerCode";
 import { uploadEventImage } from "./uploadEventImage";
 import {
   buildEventUrl,
+  checkSlugAvailability,
   createDefaultEmailBranding,
   createDefaultTicket,
   createEmptyMerchItem,
@@ -255,6 +256,18 @@ const EventForm = () => {
     setError("");
 
     try {
+      if (finalEventUrl) {
+        const { available, reason } = await checkSlugAvailability(database, getEventUrlDisplayValue(finalEventUrl));
+        if (!available) {
+          setError(
+            reason === "reserved"
+              ? "That event URL is reserved by the platform. Please choose another."
+              : "That event URL is already taken by another event. Please choose another."
+          );
+          return;
+        }
+      }
+
       const maxPerUser = Number(formData.maxPerUser || 1);
       const newEvent = {
         ...formData,

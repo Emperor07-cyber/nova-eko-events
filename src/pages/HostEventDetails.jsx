@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 import HostLayout from "../components/Layout/HostLayout";
 import { database, auth } from "../firebase/firebaseConfig";
 import { ref, get } from "firebase/database";
+import { apiUrl } from "../Utils/apiBase";
 
 const HostEventDetails = () => {
   const { eventId } = useParams();
@@ -16,6 +17,9 @@ const HostEventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [scannerName, setScannerName] = useState("");
+  const [scannerBusy, setScannerBusy] = useState(false);
+  const [scannerError, setScannerError] = useState("");
 
   useEffect(() => {
     if (!user || !eventId) return;
@@ -54,6 +58,60 @@ const HostEventDetails = () => {
       })
       .finally(() => setLoading(false));
   }, [user, eventId]);
+
+  const refreshScanners = async () => {
+    const snap = await get(ref(database, `events/${eventId}/scanners`));
+    setEvent((prev) => (prev ? { ...prev, scanners: snap.exists() ? snap.val() : {} } : prev));
+  };
+
+  const handleAddScanner = async () => {
+    if (!scannerName.trim()) {
+      setScannerError("Enter a name for this scanner.");
+      return;
+    }
+    setScannerBusy(true);
+    setScannerError("");
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(apiUrl(`/events/${eventId}/scanners`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: scannerName.trim() }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result?.success) {
+        throw new Error(result?.error || "Failed to add scanner");
+      }
+      setScannerName("");
+      await refreshScanners();
+    } catch (error) {
+      setScannerError(error.message || "Failed to add scanner");
+    } finally {
+      setScannerBusy(false);
+    }
+  };
+
+  const handleToggleScanner = async (scannerId, nextActive) => {
+    setScannerBusy(true);
+    setScannerError("");
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(apiUrl(`/events/${eventId}/scanners/${scannerId}`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ active: nextActive }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result?.success) {
+        throw new Error(result?.error || "Failed to update scanner");
+      }
+      await refreshScanners();
+    } catch (error) {
+      setScannerError(error.message || "Failed to update scanner");
+    } finally {
+      setScannerBusy(false);
+    }
+  };
 
   const handleCopyScannerCode = (code) => {
     if (!code) return;
@@ -353,6 +411,68 @@ const HostEventDetails = () => {
               <li className={event.image ? "done" : "pending"}>Hero image added</li>
               <li className={event.description ? "done" : "pending"}>Description completed</li>
             </ul>
+          </section>
+
+          <section className="host-event-card host-event-scanners-card">
+            <div className="host-event-card-header">
+              <div>
+                <h2>Scanner accounts</h2>
+                <p>Give door staff their own named check-in code instead of sharing one code for everyone.</p>
+              </div>
+            </div>
+
+            <div className="host-scanner-add-row">
+              <input
+                className="input"
+                placeholder="Staff name, e.g. Tobi (Gate A)"
+                value={scannerName}
+                onChange={(e) => setScannerName(e.target.value)}
+                disabled={scannerBusy}
+              />
+              <button className="btn-primary" onClick={handleAddScanner} disabled={scannerBusy}>
+                {scannerBusy ? "Adding..." : "Add scanner"}
+              </button>
+            </div>
+            {scannerError ? <p className="notification warning">{scannerError}</p> : null}
+
+            <div className="host-scanner-list">
+              {event.scanners && Object.keys(event.scanners).length > 0 ? (
+                Object.entries(event.scanners)
+                  .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+                  .map(([scannerId, scanner]) => (
+                    <div key={scannerId} className="host-scanner-row">
+                      <div>
+                        <strong>{scanner.name}</strong>
+                        <span className={`host-scanner-status ${scanner.active === false ? "revoked" : "active"}`}>
+                          {scanner.active === false ? "Revoked" : "Active"}
+                        </span>
+                      </div>
+                      <div className="host-scanner-wrap">
+                        <span className="host-scanner-code">{scanner.code}</span>
+                        <button
+                          className="btn-copy-link host-scanner-copy-btn"
+                          onClick={() => handleCopyScannerCode(scanner.code)}
+                        >
+                          {copiedCode === scanner.code ? "Copied" : "Copy"}
+                        </button>
+                        <button
+                          className="btn-copy-link host-scanner-copy-btn"
+                          disabled={scannerBusy}
+                          onClick={() => handleToggleScanner(scannerId, scanner.active === false)}
+                        >
+                          {scanner.active === false ? "Reactivate" : "Revoke"}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <p className="host-muted-note">
+                  No named scanner accounts yet. Anyone with the shared scanner code above can still check tickets in —
+                  add a named account here if you want to track which staffer scanned which ticket, or revoke access
+                  for one person without changing the code everyone else uses.
+                </p>
+              )}
+            </div>
           </section>
         </div>
       </div>
