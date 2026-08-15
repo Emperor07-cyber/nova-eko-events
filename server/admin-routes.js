@@ -2,10 +2,24 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const { loadEventById, sendTicketReceiptEmail } = require("./emailService");
 
+// See server.js for why this can't just be admin.credential.applicationDefault()
+// on Render — that only resolves automatically on real GCP infrastructure.
+const buildFirebaseCredential = () => {
+  const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+  if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+    return admin.credential.cert({
+      projectId: FIREBASE_PROJECT_ID,
+      clientEmail: FIREBASE_CLIENT_EMAIL,
+      privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    });
+  }
+  return admin.credential.applicationDefault();
+};
+
 try {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
+      credential: buildFirebaseCredential(),
       databaseURL: process.env.FIREBASE_DATABASE_URL,
     });
   }

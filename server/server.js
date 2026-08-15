@@ -4,6 +4,26 @@ const crypto = require("crypto");
 require("dotenv").config();
 const cors = require("cors");
 const admin = require('firebase-admin');
+
+// Render (and most non-GCP hosts) cannot reach metadata.google.internal, so
+// admin.credential.applicationDefault() fails there with
+// "Failed to determine project ID" / app/invalid-credential. Use an explicit
+// service account instead when the env vars for one are present, and only
+// fall back to applicationDefault() for environments (like actual GCP) where
+// it works automatically.
+const buildFirebaseCredential = () => {
+  const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+  if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+    return admin.credential.cert({
+      projectId: FIREBASE_PROJECT_ID,
+      clientEmail: FIREBASE_CLIENT_EMAIL,
+      // Render (and most dashboards) can't store literal newlines in an env
+      // var, so the key is stored with escaped \n and unescaped here.
+      privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    });
+  }
+  return admin.credential.applicationDefault();
+};
 const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
 const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
 
@@ -23,7 +43,7 @@ app.use(cors({
 try {
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
+      credential: buildFirebaseCredential(),
       databaseURL: process.env.FIREBASE_DATABASE_URL,
     });
   }
