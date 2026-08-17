@@ -18,6 +18,9 @@ const CheckInPage = () => {
   const [torchOn, setTorchOn] = useState(false);
   const [scanHistory, setScanHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [scanMode, setScanMode] = useState("camera"); // camera | manual
+  const [manualCode, setManualCode] = useState("");
+  const [manualBusy, setManualBusy] = useState(false);
   const scannerRef = useRef(null);
   const html5QrRef = useRef(null);
   const resultTimeoutRef = useRef(null);
@@ -107,9 +110,9 @@ const CheckInPage = () => {
     }
   };
 
-  // Start QR scanner
+  // Start QR scanner (camera mode only)
   useEffect(() => {
-    if (step !== "scanning") return;
+    if (step !== "scanning" || scanMode !== "camera") return;
     const startScanner = async () => {
       try {
         html5QrRef.current = new Html5Qrcode("qr-reader");
@@ -127,41 +130,61 @@ const CheckInPage = () => {
     return () => {
       if (html5QrRef.current) {
         html5QrRef.current.stop().catch(() => {});
+        html5QrRef.current = null;
       }
     };
-  }, [step]);
+  }, [step, scanMode]);
 
   // Handle QR scan result
   const handleScan = async (decodedText) => {
     if (scanResult) return; // prevent double scan
-    // Stop scanner briefly
     if (html5QrRef.current) {
       await html5QrRef.current.pause();
     }
+    await lookupAndCheckIn(decodedText, { resumeCamera: true });
+  };
 
+  // Handle manual ticket code entry
+  const handleManualSubmit = async (e) => {
+    e?.preventDefault?.();
+    if (!manualCode.trim() || manualBusy) return;
+    setManualBusy(true);
+    await lookupAndCheckIn(manualCode.trim(), { resumeCamera: false });
+    setManualCode("");
+    setManualBusy(false);
+  };
+
+  // Shared lookup + check-in logic used by both camera scans and manual
+  // code entry, so both input methods hit the exact same validation path.
+  const lookupAndCheckIn = async (rawValue, { resumeCamera }) => {
     try {
-      // Find ticket by token
+      // Find ticket by token, transaction reference, or ticket id — covers
+      // whichever value the QR encodes (see emailService.js) and whichever
+      // value a staffer might read off the order-reference line and type in.
       const ticketsSnap = await get(ref(database, "tickets"));
       if (!ticketsSnap.exists()) {
-        showResult("error", "Invalid Ticket", null);
+        showResult("error", "Invalid Ticket", null, resumeCamera);
         return;
       }
 
       const allTickets = Object.entries(ticketsSnap.val()).map(([id, t]) => ({ id, ...t }));
-      const ticket = allTickets.find((t) => t.token === decodedText);
+      const needle = rawValue.trim();
+      const ticket = allTickets.find(
+        (t) => t.token === needle || t.transactionId === needle || t.id === needle
+      );
 
       if (!ticket) {
-        showResult("error", "Invalid Ticket", null);
+        showResult("error", "Invalid Ticket", null, resumeCamera);
         return;
       }
 
       if (ticket.eventId !== eventId) {
-        showResult("error", "Ticket is for a different event", null);
+        showResult("error", "Ticket is for a different event", null, resumeCamera);
         return;
       }
 
       if (ticket.checkedIn) {
-        showResult("already", `Already checked in at ${new Date(ticket.checkedInAt).toLocaleTimeString()}`, ticket);
+        showResult("already", `Already checked in at ${new Date(ticket.checkedInAt).toLocaleTimeString()}`, ticket, resumeCamera);
         return;
       }
 
@@ -180,14 +203,14 @@ const CheckInPage = () => {
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 409 || result?.alreadyCheckedIn) {
-          showResult("already", `Already checked in at ${result?.checkedInAt ? new Date(result.checkedInAt).toLocaleTimeString() : "earlier"}`, ticket);
+          showResult("already", `Already checked in at ${result?.checkedInAt ? new Date(result.checkedInAt).toLocaleTimeString() : "earlier"}`, ticket, resumeCamera);
           return;
         }
         throw new Error(result?.error || "Error verifying ticket");
       }
 
       setCheckedInCount((c) => c + (ticket.quantity || 1));
-      showResult("success", "Check-in Successful!", ticket);
+      showResult("success", "Check-in Successful!", ticket, resumeCamera);
 
       // Add to history
       setScanHistory((prev) => [
@@ -195,23 +218,24 @@ const CheckInPage = () => {
         ...prev.slice(0, 19),
       ]);
     } catch (err) {
-      showResult("error", "Error verifying ticket", null);
+      showResult("error", "Error verifying ticket", null, resumeCamera);
     }
   };
 
-  const showResult = (type, message, ticket) => {
+  const showResult = (type, message, ticket, resumeCamera = false) => {
     setScanResult(type);
     setScanMessage(message);
     setAttendeeInfo(ticket);
     playSound(type === "success" ? "success" : "error");
     vibrate(type === "success" ? "success" : "error");
 
-    // Auto-dismiss after 3 seconds and resume scanning
+    // Auto-dismiss after 3 seconds; only resume the camera feed if this
+    // result came from a camera scan (manual entries have no feed to resume).
     resultTimeoutRef.current = setTimeout(async () => {
       setScanResult(null);
       setScanMessage("");
       setAttendeeInfo(null);
-      if (html5QrRef.current) {
+      if (resumeCamera && html5QrRef.current) {
         try { await html5QrRef.current.resume(); } catch (e) {}
       }
     }, 3000);
@@ -230,6 +254,7 @@ const CheckInPage = () => {
   const handleExit = async () => {
     if (html5QrRef.current) {
       await html5QrRef.current.stop().catch(() => {});
+      html5QrRef.current = null;
     }
     setStep("login");
     setEventData(null);
@@ -237,6 +262,8 @@ const CheckInPage = () => {
     setScanResult(null);
     setAccessCode("");
     setScanHistory([]);
+    setScanMode("camera");
+    setManualCode("");
   };
 
   // ── LOGIN SCREEN ──
@@ -290,9 +317,46 @@ const CheckInPage = () => {
         <button style={styles.exitBtn} onClick={handleExit}>Exit</button>
       </div>
 
+      {/* Mode toggle */}
+      <div style={styles.modeToggleRow}>
+        <button
+          style={{ ...styles.modeToggleBtn, ...(scanMode === "camera" ? styles.modeToggleBtnActive : {}) }}
+          onClick={() => setScanMode("camera")}
+        >
+          📷 Camera
+        </button>
+        <button
+          style={{ ...styles.modeToggleBtn, ...(scanMode === "manual" ? styles.modeToggleBtnActive : {}) }}
+          onClick={() => setScanMode("manual")}
+        >
+          ⌨️ Ticket code
+        </button>
+      </div>
+
       {/* Scanner */}
       <div style={styles.scannerWrapper}>
-        <div id="qr-reader" style={styles.qrReader} ref={scannerRef} />
+        {scanMode === "camera" ? (
+          <div id="qr-reader" style={styles.qrReader} ref={scannerRef} />
+        ) : (
+          <form style={styles.manualEntryBox} onSubmit={handleManualSubmit}>
+            <p style={styles.manualEntryLabel}>Enter the ticket's order reference or code</p>
+            <input
+              style={styles.input}
+              type="text"
+              placeholder="e.g. FREE-1734... or transaction ref"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              autoFocus
+            />
+            <button
+              type="submit"
+              style={{ ...styles.btn, opacity: manualBusy || !manualCode.trim() ? 0.7 : 1 }}
+              disabled={manualBusy || !manualCode.trim()}
+            >
+              {manualBusy ? "Checking..." : "Check in"}
+            </button>
+          </form>
+        )}
 
         {/* Overlay result */}
         {scanResult && (
@@ -318,11 +382,13 @@ const CheckInPage = () => {
       </div>
 
       {/* Controls */}
-      <div style={styles.controls}>
-        <button style={styles.controlBtn} onClick={handleToggleTorch}>
-          {torchOn ? "🔦 Torch Off" : "🔦 Torch On"}
-        </button>
-      </div>
+      {scanMode === "camera" && (
+        <div style={styles.controls}>
+          <button style={styles.controlBtn} onClick={handleToggleTorch}>
+            {torchOn ? "🔦 Torch Off" : "🔦 Torch On"}
+          </button>
+        </div>
+      )}
 
       {/* Scan History */}
       {scanHistory.length > 0 && (
@@ -403,6 +469,42 @@ const styles = {
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
   },
   errorText: { color: "#dc2626", fontSize: "0.9rem", marginBottom: "0.75rem" },
+  modeToggleRow: {
+    display: "flex",
+    gap: "8px",
+    padding: "0 1rem",
+    marginBottom: "0.75rem",
+  },
+  modeToggleBtn: {
+    flex: 1,
+    padding: "0.65rem",
+    borderRadius: "10px",
+    border: "1px solid #dbe2ee",
+    background: "#fff",
+    color: "#4f6b57",
+    fontSize: "0.9rem",
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  modeToggleBtnActive: {
+    background: "linear-gradient(135deg, #10612B, #1F7A47)",
+    color: "#fff",
+    borderColor: "transparent",
+  },
+  manualEntryBox: {
+    display: "flex",
+    flexDirection: "column",
+    padding: "1.5rem",
+    background: "#ffffff",
+    borderRadius: "16px",
+    border: "1px solid #dcead8",
+  },
+  manualEntryLabel: {
+    color: "#4f6b57",
+    fontSize: "0.9rem",
+    marginBottom: "0.75rem",
+    textAlign: "center",
+  },
   btn: {
     width: "100%",
     padding: "0.9rem",
