@@ -7,12 +7,20 @@ body,
   overflow-x: hidden;
 }
 
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
 img,
 svg,
 canvas,
 video,
 iframe {
+  display: block;
   max-width: 100%;
+  height: auto;
 }
 
 @media (max-width: 1024px) {
@@ -44,6 +52,22 @@ iframe {
   .host-event-details-grid,
   .host-event-metrics,
   .checkout-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hm-event-grid,
+  .hm-how-grid,
+  .hm-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .hm-pricing-inner,
+  .why-grid,
+  .app-download-wrap {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-panel {
     grid-template-columns: 1fr !important;
   }
 }
@@ -193,7 +217,10 @@ iframe {
   .legal-footer-nav,
   .event-editor-hero,
   .event-editor-card-head,
-  .event-editor-actions {
+  .event-editor-actions,
+  .auth-footer,
+  .auth-brand,
+  .auth-hero {
     flex-direction: column !important;
     align-items: stretch !important;
   }
@@ -209,6 +236,16 @@ iframe {
   .auth-form button {
     margin-left: 0 !important;
     width: 100% !important;
+  }
+
+  .auth-grid {
+    width: 100% !important;
+    justify-items: stretch;
+  }
+
+  .auth-switch-button {
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   .register-container,
@@ -325,5 +362,31 @@ iframe {
   .hm-marquee-item {
     width: 150px;
     height: 112px;
+  }
+
+  .hm-hero,
+  .hm-events-section,
+  .hm-how-section,
+  .hm-pricing-section,
+  .hm-stats-section,
+  .hm-faq-section,
+  .hm-host-cta {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .hm-event-grid,
+  .hm-stats-grid,
+  .hm-how-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-media img,
+  .app-download-media img {
+    height: 150px !important;
+  }
+
+  .hero-media-main {
+    height: 150px !important;
   }
 }

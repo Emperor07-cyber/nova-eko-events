@@ -757,6 +757,36 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .hero-panel {
+    grid-template-columns: 1fr;
+    padding: 28px;
+    min-height: auto;
+  }
+
+  .hero-media {
+    max-width: 680px;
+    margin-inline: auto;
+  }
+
+  .hm-event-grid,
+  .hm-how-grid,
+  .hm-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .why-grid,
+  .app-download-wrap,
+  .home-footer-top {
+    grid-template-columns: 1fr;
+  }
+
+  .hm-pricing-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
 @media (max-width: 480px) {
   .hero-panel {
     padding: 16px;
@@ -765,6 +795,10 @@
 
   .hero-content h1 {
     font-size: 2rem;
+  }
+
+  .hero-proof {
+    gap: 5px;
   }
 
   .hero-media img,
@@ -790,6 +824,16 @@
   .home-footer-brand img {
     width: 38px;
     height: 38px;
+  }
+
+  .hm-event-grid,
+  .hm-stats-grid,
+  .hm-how-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-media-main {
+    height: 160px !important;
   }
 }
 
