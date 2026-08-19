@@ -59,11 +59,15 @@ const EventList = () => {
   }, []);
 
   const filtered = events.filter((e) => {
+    const normalizedSearch = search.trim().toLowerCase();
     const matchSearch =
-      e.title?.toLowerCase().includes(search.toLowerCase()) ||
-      e.location?.toLowerCase().includes(search.toLowerCase());
+      !normalizedSearch ||
+      e.title?.toLowerCase().includes(normalizedSearch) ||
+      e.location?.toLowerCase().includes(normalizedSearch);
     const matchCat = category === "All" || e.category === category;
-    return matchSearch && matchCat;
+    const isPrivate = (e.visibility || "public") === "private";
+    const visibilityAllowed = !isPrivate || normalizedSearch.length > 0;
+    return matchSearch && matchCat && visibilityAllowed;
   });
 
   return (
@@ -73,7 +77,7 @@ const EventList = () => {
         <div className="el-page-header-inner">
           <div className="el-page-title-wrap">
             <h1 className="el-page-title">Discover events</h1>
-            <p className="el-page-sub">{events.length} upcoming events in Lagos & beyond</p>
+            <p className="el-page-sub">{filtered.length} upcoming events in Lagos & beyond</p>
           </div>
 
           {/* Search */}
@@ -188,6 +192,9 @@ const EventList = () => {
                       className="el-card-img"
                       loading="lazy"
                     />
+                    {(event.visibility || "public") === "private" && search.trim() && (
+                      <span className="el-card-cat">Private</span>
+                    )}
                     {event.category && (
                       <span className="el-card-cat">{event.category}</span>
                     )}
@@ -227,6 +234,9 @@ const EventList = () => {
                       className="el-list-img"
                       loading="lazy"
                     />
+                    {(event.visibility || "public") === "private" && search.trim() && (
+                      <span className="el-card-cat">Private</span>
+                    )}
                   </div>
                   <div className="el-list-body">
                     <div className="el-list-top">

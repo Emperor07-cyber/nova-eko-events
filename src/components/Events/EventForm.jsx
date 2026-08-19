@@ -42,6 +42,7 @@ const EventForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    visibility: "public",
     date: "",
     dateUnknown: false,
     startTime: "",
@@ -445,6 +446,17 @@ const EventForm = () => {
                       min="1"
                       onChange={handleChange}
                     />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Event visibility</span>
+                    <select name="visibility" value={formData.visibility} onChange={handleChange}>
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                    <small className="event-editor-muted">
+                      Private events stay off the homepage but can still be opened with a direct link or found in search.
+                    </small>
                   </label>
 
                   <label className="event-editor-field">

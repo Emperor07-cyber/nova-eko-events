@@ -101,6 +101,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [openFaq, setOpenFaq] = useState(null);
+  const [activeOffer, setActiveOffer] = useState(0);
+  const [openOffer, setOpenOffer] = useState(0);
 
   useEffect(() => {
     const eventsRef = ref(database, "events");
@@ -115,6 +117,7 @@ const Home = () => {
       const now = new Date();
       const rows = Object.keys(data)
         .map((id) => ({ id, ...data[id] }))
+        .filter((event) => (event.visibility || "public") !== "private")
         .filter((event) => event.date === "TBA" || new Date(event.date) >= now)
         .sort((a, b) => {
           if (a.date === "TBA") return 1;
@@ -294,17 +297,79 @@ const Home = () => {
 
       <div className="card card-body stack offer-wrap">
         <h3 className="section-title offer-title">What does Ekotix offer?</h3>
-        <div className="offer-grid">
-          {OFFER_ITEMS.map((item) => (
-            <article key={item.title} className="offer-card">
-              <img src={item.image} alt={item.title} className="offer-image" />
-              <div className="offer-content">
-                <span className="offer-icon" aria-hidden="true">{item.icon}</span>
-                <strong>{item.title}</strong>
-                <p className="event-meta">{item.description}</p>
-              </div>
-            </article>
-          ))}
+        <div className="offer-desktop">
+          <div className="offer-tabs" role="tablist" aria-label="Ekotix offer categories">
+            {OFFER_ITEMS.map((item, index) => (
+              <button
+                key={item.title}
+                type="button"
+                className={`offer-tab ${activeOffer === index ? "offer-tab-active" : ""}`}
+                onClick={() => setActiveOffer(index)}
+                role="tab"
+                aria-selected={activeOffer === index}
+                aria-controls="offer-panel"
+                id={`offer-tab-${index}`}
+              >
+                <span className="offer-tab-icon" aria-hidden="true">{item.icon}</span>
+                <span className="offer-tab-text">{item.title}</span>
+              </button>
+            ))}
+          </div>
+
+          <article
+            className="offer-panel"
+            aria-live="polite"
+            role="tabpanel"
+            aria-labelledby={`offer-tab-${activeOffer}`}
+            id="offer-panel"
+          >
+            <img
+              src={OFFER_ITEMS[activeOffer].image}
+              alt={OFFER_ITEMS[activeOffer].title}
+              className="offer-panel-image"
+            />
+            <div className="offer-panel-content">
+              <span className="offer-icon" aria-hidden="true">{OFFER_ITEMS[activeOffer].icon}</span>
+              <strong>{OFFER_ITEMS[activeOffer].title}</strong>
+              <p className="event-meta">{OFFER_ITEMS[activeOffer].description}</p>
+            </div>
+          </article>
+        </div>
+
+        <div className="offer-mobile">
+          {OFFER_ITEMS.map((item, index) => {
+            const isOpen = openOffer === index;
+            return (
+              <article key={item.title} className={`offer-accordion ${isOpen ? "offer-accordion-open" : ""}`}>
+                <button
+                  type="button"
+                  className="offer-accordion-trigger"
+                  onClick={() => setOpenOffer(isOpen ? null : index)}
+                  aria-expanded={isOpen}
+                  aria-controls={`mobile-offer-panel-${index}`}
+                  id={`mobile-offer-trigger-${index}`}
+                >
+                  <span className="offer-accordion-heading">
+                    <span className="offer-icon" aria-hidden="true">{item.icon}</span>
+                    <span>{item.title}</span>
+                  </span>
+                  <span className="offer-accordion-toggle" aria-hidden="true">
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+                <div
+                  className="offer-accordion-body"
+                  id={`mobile-offer-panel-${index}`}
+                  role="region"
+                  aria-labelledby={`mobile-offer-trigger-${index}`}
+                  hidden={!isOpen}
+                >
+                    <img src={item.image} alt={item.title} className="offer-accordion-image" />
+                    <p className="event-meta">{item.description}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
         <p className="offer-more">And more.</p>
       </div>

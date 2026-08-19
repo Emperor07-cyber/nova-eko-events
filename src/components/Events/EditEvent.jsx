@@ -80,6 +80,7 @@ const EditEvent = () => {
           maxPerUser: event.maxPerUser ?? event.maxPurchaseLimit ?? 1,
           tickets: Array.isArray(event.tickets) ? event.tickets.map(normalizeTicket) : [],
           merch: Array.isArray(event.merch) ? event.merch.map(normalizeMerchItem) : [],
+          visibility: event.visibility || "public",
           eventUrl: event.eventUrl || "",
           emailBranding: normalizeEmailBranding(event.emailBranding || createDefaultEmailBranding()),
         });
@@ -482,6 +483,17 @@ const EditEvent = () => {
                       value={eventData.maxPerUser || 1}
                       onChange={handleChange}
                     />
+                  </label>
+
+                  <label className="event-editor-field">
+                    <span>Event visibility</span>
+                    <select name="visibility" value={eventData.visibility || "public"} onChange={handleChange}>
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                    <small className="event-editor-muted">
+                      Private events stay off the homepage but can still be opened with a direct link or found in search.
+                    </small>
                   </label>
 
                   <label className="event-editor-field">
