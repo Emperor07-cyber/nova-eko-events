@@ -50,7 +50,12 @@ try {
 } catch (err) {
   console.warn('firebase-admin init warning:', err.message);
 }
-
+app.get("/webhook/paystack", (req, res) => {
+  res.status(200).json({
+    ok: true,
+    secretConfigured: Boolean(process.env.PAYSTACK_SECRET_KEY),
+  });
+});
 // ✅ Webhook must use raw body — add BEFORE express.json()
 app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (req, res) => {
   const secret = process.env.PAYSTACK_SECRET_KEY;
