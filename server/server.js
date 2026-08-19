@@ -32,15 +32,29 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "http://localhost:5176",
+    "http://127.0.0.1:5176",
     "https://ekotixx.com",
     "https://www.ekotixx.com",
   ],
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 
 // initialize firebase-admin (will use application default credentials if available)
-try {
+try {app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5176",
+    "http://127.0.0.1:5176",
+    "https://ekotixx.com",
+    "https://www.ekotixx.com",
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: buildFirebaseCredential(),
