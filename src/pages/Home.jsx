@@ -32,61 +32,29 @@ const HERO_STATS = [
 ];
 const OFFER_ITEMS = [
   {
-    icon: "🎟️",
     image: "/images/whyekotixx.jpeg",
     title: "Host events effortlessly",
-    description:
-      "Create and launch events quickly while Ekotix handles ticket delivery, checkout, and attendee flow.",
   },
   {
-    icon: "🔗",
     image: "/images/Smartticket.jpeg",
     title: "Smart ticketing",
-    description:
-      "Share event links instantly and let guests buy tickets or RSVP with a simple, low-friction flow.",
   },
   {
-    icon: "⚡",
     image: "/images/quickpay.jpeg",
     title: "Quick pay at the gate",
-    description:
-      "Accept fast in-person payments and keep door entry moving with better speed and accuracy.",
   },
   {
-    icon: "📊",
     image: "/images/eventdashboard.jpeg",
     title: "Event dashboard",
-    description:
-      "Track sales, monitor engagement, manage ticket tiers, and stay on top of every event detail.",
   },
   {
-    icon: "🛍️",
     image: "/images/merch.jpeg",
     title: "Merch integration",
-    description:
-      "Attach merch to event pages so attendees can browse and purchase products during checkout.",
   },
-  // {
-  //   icon: "💳",
-  //   image: "/images/nova-6.jpg",
-  //   title: "Payment manager",
-  //   description:
-  //     "Get a clear view of transactions, payouts, and payment activity across events and merch.",
-  // },
   {
-    icon: "🛡️",
     image: "/images/checkin.jpeg",
     title: "Check-in and security",
-    description:
-      "Scan tickets, verify guests instantly, and improve on-ground control with real-time attendee data.",
   },
-  // {
-  //   icon: "👥",
-  //   image: "/images/l2.jpg",
-  //   title: "Team access controls",
-  //   description:
-  //     "Add collaborators, assign roles, and manage permissions to run events smoothly with your team.",
-  // },
 ];
 
 const formatDate = (dateStr) => {
@@ -101,8 +69,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [openFaq, setOpenFaq] = useState(null);
-  const [activeOffer, setActiveOffer] = useState(0);
-  const [openOffer, setOpenOffer] = useState(0);
 
   useEffect(() => {
     const eventsRef = ref(database, "events");
@@ -296,82 +262,14 @@ const Home = () => {
       </div>
 
       <div className="card card-body stack offer-wrap">
-        <h3 className="section-title offer-title">What does Ekotix offer?</h3>
-        <div className="offer-desktop">
-          <div className="offer-tabs" role="tablist" aria-label="Ekotix offer categories">
-            {OFFER_ITEMS.map((item, index) => (
-              <button
-                key={item.title}
-                type="button"
-                className={`offer-tab ${activeOffer === index ? "offer-tab-active" : ""}`}
-                onClick={() => setActiveOffer(index)}
-                role="tab"
-                aria-selected={activeOffer === index}
-                aria-controls="offer-panel"
-                id={`offer-tab-${index}`}
-              >
-                <span className="offer-tab-icon" aria-hidden="true">{item.icon}</span>
-                <span className="offer-tab-text">{item.title}</span>
-              </button>
-            ))}
-          </div>
-
-          <article
-            className="offer-panel"
-            aria-live="polite"
-            role="tabpanel"
-            aria-labelledby={`offer-tab-${activeOffer}`}
-            id="offer-panel"
-          >
-            <img
-              src={OFFER_ITEMS[activeOffer].image}
-              alt={OFFER_ITEMS[activeOffer].title}
-              className="offer-panel-image"
-            />
-            <div className="offer-panel-content">
-              <span className="offer-icon" aria-hidden="true">{OFFER_ITEMS[activeOffer].icon}</span>
-              <strong>{OFFER_ITEMS[activeOffer].title}</strong>
-              <p className="event-meta">{OFFER_ITEMS[activeOffer].description}</p>
-            </div>
-          </article>
+        <h3 className="section-title offer-title">What Ekotix offers</h3>
+        <div className="offer-gallery" aria-label="Ekotix offer gallery">
+          {OFFER_ITEMS.map((item) => (
+            <figure key={item.title} className="offer-gallery-card">
+              <img src={item.image} alt={item.title} className="offer-gallery-image" />
+            </figure>
+          ))}
         </div>
-
-        <div className="offer-mobile">
-          {OFFER_ITEMS.map((item, index) => {
-            const isOpen = openOffer === index;
-            return (
-              <article key={item.title} className={`offer-accordion ${isOpen ? "offer-accordion-open" : ""}`}>
-                <button
-                  type="button"
-                  className="offer-accordion-trigger"
-                  onClick={() => setOpenOffer(isOpen ? null : index)}
-                  aria-expanded={isOpen}
-                  aria-controls={`mobile-offer-panel-${index}`}
-                  id={`mobile-offer-trigger-${index}`}
-                >
-                  <span className="offer-accordion-heading">
-                    <span className="offer-icon" aria-hidden="true">{item.icon}</span>
-                    <span>{item.title}</span>
-                  </span>
-                  <span className="offer-accordion-toggle" aria-hidden="true">
-                    {isOpen ? "−" : "+"}
-                  </span>
-                </button>
-                <div
-                  className="offer-accordion-body"
-                  id={`mobile-offer-panel-${index}`}
-                  role="region"
-                  aria-labelledby={`mobile-offer-trigger-${index}`}
-                  hidden={!isOpen}
-                >
-                    <img src={item.image} alt={item.title} className="offer-accordion-image" />
-                    <p className="event-meta">{item.description}</p>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-        <p className="offer-more">And more.</p>
       </div>
 
       <div className="card card-body pricing-wrap">

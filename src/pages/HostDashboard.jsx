@@ -270,9 +270,15 @@ const HostDashboard = () => {
                 ) : (
                   events.map((event) => {
                     const eventTickets = tickets.filter((t) => t.eventId === event.id);
+                    const isPrivate = (event.visibility || "public") === "private";
                     return (
-                      <tr key={event.id}>
-                        <td data-label="Title">{event.title}</td>
+                      <tr key={event.id} className={isPrivate ? "host-event-row is-private" : "host-event-row"}>
+                        <td data-label="Title">
+                          <div className="host-event-title-cell">
+                            <span>{event.title}</span>
+                            {isPrivate ? <span className="host-event-visibility-badge">Private</span> : null}
+                          </div>
+                        </td>
                         <td data-label="Date">{event.date === "TBA" ? "To be announced" : event.date}</td>
                         <td data-label="Location">{event.location}</td>
                         <td data-label="Tickets Sold">

@@ -1551,6 +1551,32 @@ a.btn-withdraw {
   color: #94a3b8;
 }
 
+.host-event-row.is-private {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.06), rgba(255, 255, 255, 0) 52%);
+}
+
+.host-event-title-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.host-event-visibility-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.98), rgba(255, 255, 255, 0.98));
+  color: #b91c1c;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.08);
+}
+
 .host-events-revenue,
 .wallet-amount-cell {
   font-weight: 600;

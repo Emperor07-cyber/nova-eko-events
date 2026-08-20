@@ -353,190 +353,84 @@
 }
 
 .offer-wrap {
-  border: 1px solid #d8eed8;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #ffffff, #effcf1);
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
-  padding: 22px !important;
+  border: 1px solid #d7eadb;
+  border-radius: 18px;
+  background:
+    radial-gradient(520px 220px at 12% 0%, rgba(16, 97, 43, 0.08), transparent 60%),
+    linear-gradient(180deg, #ffffff 0%, #f6fbf7 100%);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
+  padding: 30px !important;
 }
 
 .offer-title {
-  margin-bottom: 2px;
+  margin: 0 0 20px;
+  font-size: clamp(1.45rem, 2.8vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #0f3d21;
+  text-transform: none;
+  text-align: center;
+  position: relative;
 }
 
-.offer-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  border: 1px solid #e3e8f4;
-  background: #fff;
-}
-
-.offer-card strong {
-  font-size: 1rem;
-  letter-spacing: -0.01em;
-}
-
-.offer-card .event-meta {
-  line-height: 1.55;
-}
-
-.offer-desktop {
-  display: grid;
-  gap: 16px;
-}
-
-.offer-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.offer-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+.offer-title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin: 12px auto 0;
   border-radius: 999px;
-  border: 1px solid #dbe5db;
-  background: #fff;
-  color: #334155;
-  padding: 11px 14px;
-  font-weight: 700;
-  font-size: 0.93rem;
-  cursor: pointer;
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  background: linear-gradient(90deg, #10612b, #2aa95f);
+  box-shadow: 0 8px 18px rgba(16, 97, 43, 0.18);
 }
 
-.offer-tab:hover {
-  transform: translateY(-1px);
-  border-color: #b9d8bf;
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06);
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.offer-tab-active {
-  background: linear-gradient(135deg, #10612B, #1d7c3d);
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(16, 97, 43, 0.18);
-}
-
-.offer-tab-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(16, 97, 43, 0.14);
-  flex-shrink: 0;
-}
-
-.offer-tab-active .offer-tab-icon {
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.offer-panel {
+.offer-gallery {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
-  gap: 18px;
-  align-items: center;
-  border: 1px solid #e5eaf5;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.offer-gallery-card {
+  margin: 0;
+  position: relative;
+  overflow: hidden;
   border-radius: 16px;
-  background: linear-gradient(180deg, #ffffff, #fbfcff);
-  padding: 16px;
+  border: 1px solid #d7eadb;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
 }
 
-.offer-panel-image {
+.offer-gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(16, 97, 43, 0.12);
+  pointer-events: none;
+}
+
+.offer-gallery-image {
   width: 100%;
-  min-height: 260px;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
   display: block;
-  border-radius: 14px;
-  border: 1px solid #e4e8f3;
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+  transition: transform 0.28s ease;
 }
 
-.offer-panel-content {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-}
-
-.offer-panel-content strong {
-  font-size: 1.2rem;
-  letter-spacing: -0.01em;
-}
-
-.offer-panel-content .event-meta {
-  line-height: 1.7;
-}
-
-.offer-mobile {
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.offer-accordion {
-  border: 1px solid #e5eaf5;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff, #fbfcff);
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-}
-
-.offer-accordion-trigger {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.offer-accordion-heading {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.offer-accordion-toggle {
-  font-size: 1.4rem;
-  line-height: 1;
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.offer-accordion-body {
-  padding: 0 16px 16px;
-  display: grid;
-  gap: 12px;
-}
-
-.offer-accordion-image {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid #e4e8f3;
-}
-
-.offer-more {
-  margin: 2px 0 0;
-  color: #64748b;
-  font-weight: 600;
+.offer-gallery-card:hover .offer-gallery-image {
+  transform: scale(1.03);
 }
 
 .pricing-wrap {
@@ -834,16 +728,8 @@
     min-width: 0;
   }
 
-  .offer-grid {
+  .offer-gallery {
     grid-template-columns: 1fr;
-  }
-
-  .offer-desktop {
-    display: none;
-  }
-
-  .offer-mobile {
-    display: flex;
   }
 
   .app-download-wrap {
@@ -905,6 +791,10 @@
     grid-template-columns: 1fr;
   }
 
+  .offer-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .hm-pricing-inner {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -931,11 +821,11 @@
   }
 
   .why-wrap,
-.offer-wrap,
-.faq-wrap,
-.home-footer,
-.app-download-wrap,
-.pricing-wrap {
+  .offer-wrap,
+  .faq-wrap,
+  .home-footer,
+  .app-download-wrap,
+  .pricing-wrap {
     padding: 16px !important;
   }
 
@@ -944,12 +834,8 @@
     padding: 12px;
   }
 
-  .offer-accordion-trigger {
-    padding: 12px 14px;
-  }
-
-  .offer-accordion-body {
-    padding: 0 14px 14px;
+  .offer-gallery {
+    gap: 12px;
   }
 
   .home-footer-brand img {
