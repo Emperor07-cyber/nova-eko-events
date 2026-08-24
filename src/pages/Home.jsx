@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { database } from "../firebase/firebaseConfig";
 import { ref, onValue } from "firebase/database";
 import { Link } from "react-router-dom";
+import { FiCreditCard, FiSearch, FiShield } from "react-icons/fi";
 import "./home-troop.css";
 
 const FAQ_ITEMS = [
@@ -24,7 +25,7 @@ const FAQ_ITEMS = [
 ];
 
 const CATEGORIES = ["All", "Nightlife", "Concert", "Festival", "Business", "Workshop", "Sports"];
-const HERO_IMAGES = ["/images/nova-1.jpg", "/images/nova-2.jpg", "/images/nova-3.jpg"];
+const HERO_IMAGES = ["/images/nova-1.jpg"];
 const HERO_STATS = [
   { value: "2K+", label: "Events hosted" },
   { value: "90K+", label: "Tickets issued" },
@@ -32,56 +33,56 @@ const HERO_STATS = [
 ];
 const OFFER_ITEMS = [
   {
-    icon: "🎟️",
+    icon: "=�ăn+�",
     image: "/images/whyekotixx.jpeg",
     title: "Host events effortlessly",
     description:
       "Create and launch events quickly while Ekotix handles ticket delivery, checkout, and attendee flow.",
   },
   {
-    icon: "🔗",
+    icon: "=���",
     image: "/images/Smartticket.jpeg",
     title: "Smart ticketing",
     description:
       "Share event links instantly and let guests buy tickets or RSVP with a simple, low-friction flow.",
   },
   {
-    icon: "⚡",
+    icon: "G��",
     image: "/images/quickpay.jpeg",
     title: "Quick pay at the gate",
     description:
       "Accept fast in-person payments and keep door entry moving with better speed and accuracy.",
   },
   {
-    icon: "📊",
+    icon: "=���",
     image: "/images/eventdashboard.jpeg",
     title: "Event dashboard",
     description:
       "Track sales, monitor engagement, manage ticket tiers, and stay on top of every event detail.",
   },
   {
-    icon: "🛍️",
+    icon: "=���n+�",
     image: "/images/merch.jpeg",
     title: "Merch integration",
     description:
       "Attach merch to event pages so attendees can browse and purchase products during checkout.",
   },
   // {
-  //   icon: "💳",
+  //   icon: "=�Ʀ",
   //   image: "/images/nova-6.jpg",
   //   title: "Payment manager",
   //   description:
   //     "Get a clear view of transactions, payouts, and payment activity across events and merch.",
   // },
   {
-    icon: "🛡️",
+    icon: "=���n+�",
     image: "/images/checkin.jpeg",
     title: "Check-in and security",
     description:
       "Scan tickets, verify guests instantly, and improve on-ground control with real-time attendee data.",
   },
   // {
-  //   icon: "👥",
+  //   icon: "=���",
   //   image: "/images/l2.jpg",
   //   title: "Team access controls",
   //   description:
@@ -150,7 +151,7 @@ const Home = () => {
   const getMinPrice = (tickets) => {
     if (!Array.isArray(tickets) || tickets.length === 0) return "Free";
     const prices = tickets.map((t) => Number(t.price)).filter((p) => p > 0);
-    return prices.length ? `₦${Math.min(...prices).toLocaleString()}` : "Free";
+    return prices.length ? `NGN ${Math.min(...prices).toLocaleString()}` : "Free";
   };
 
   return (
@@ -189,10 +190,10 @@ const Home = () => {
               className={index === 0 ? "hero-media-main" : ""}
             />
           ))}
-          <div className="hero-media-badge">
+          {/* <div className="hero-media-badge">
             <p>Featured this weekend</p>
-            <strong>Lagos • Abuja • Port Harcourt</strong>
-          </div>
+            <strong>Lagos | Abuja | Port Harcourt</strong>
+          </div> */}
         </div>
       </div>
 
@@ -216,7 +217,7 @@ const Home = () => {
           </h2>
           <p className="section-subtle">Curated picks from top hosts on Ekotix</p>
         </div>
-        {events.length > 9 ? <Link to="/eventlist" className="event-meta">View all →</Link> : null}
+        {events.length > 9 ? <Link to="/eventlist" className="event-meta">View all -&gt;</Link> : null}
       </div>
 
       {loading ? (
@@ -246,11 +247,11 @@ const Home = () => {
               <div className="card-body stack">
                 <strong>{event.title}</strong>
                 <span className="event-meta">
-                  {formatDate(event.date)} {event.startTime ? `• ${event.startTime}` : ""} • {event.location || "TBA"}
+                  {formatDate(event.date)} {event.startTime ? `at ${event.startTime}` : ""} | {event.location || "TBA"}
                 </span>
                 <div className="row">
                   <span>{getMinPrice(event.tickets)}</span>
-                  <span className="event-meta">Get tickets →</span>
+                  <span className="event-meta">Get tickets -&gt;</span>
                 </div>
               </div>
             </Link>
@@ -260,17 +261,17 @@ const Home = () => {
 
       <div className="grid grid-3 feature-grid">
         <div className="card card-body feature-card">
-          <span className="feature-icon">🔎</span>
+          <span className="feature-icon"><FiSearch aria-hidden="true" /></span>
           <strong>Discover events</strong>
           <span className="event-meta">Filter by category and location.</span>
         </div>
         <div className="card card-body feature-card">
-          <span className="feature-icon">⚡</span>
+          <span className="feature-icon"><FiCreditCard aria-hidden="true" /></span>
           <strong>Buy in seconds</strong>
           <span className="event-meta">Fast checkout with secure payment.</span>
         </div>
         <div className="card card-body feature-card">
-          <span className="feature-icon">✅</span>
+          <span className="feature-icon"><FiShield aria-hidden="true" /></span>
           <strong>QR ticket access</strong>
           <span className="event-meta">Door-ready digital tickets and check-in.</span>
         </div>
@@ -306,13 +307,13 @@ const Home = () => {
             </article>
           ))}
         </div>
-        <p className="offer-more">And more.</p>
+
       </div>
 
       <div className="card card-body pricing-wrap">
         <div>
           <strong className="pricing-title">Simple pricing</strong>
-          <p className="event-meta">Free events are free. Paid events apply 5% + ₦100 to buyer total.</p>
+          <p className="event-meta">Free events are free. Paid events apply 5% + #100 to buyer total.</p>
         </div>
         <Link to="/register" className="btn btn-primary">Start hosting</Link>
       </div>
@@ -358,7 +359,7 @@ const Home = () => {
           >
             <div className="row">
               <span>{item.q}</span>
-              <span>{openFaq === index ? "−" : "+"}</span>
+              <span>{openFaq === index ? "-" : "+"}</span>
             </div>
             {openFaq === index ? <p className="event-meta faq-answer">{item.a}</p> : null}
           </button>
