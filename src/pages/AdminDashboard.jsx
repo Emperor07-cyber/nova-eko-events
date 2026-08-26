@@ -284,8 +284,8 @@ const AdminDashboard = () => {
       });
 
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(result?.error || "Failed to resend ticket email.");
+      if (!response.ok || !result?.sent) {
+        throw new Error(result?.error || "Email delivery is disabled on this server.");
       }
 
       alert(`Email resent successfully to ${ticket.email}`);
@@ -320,9 +320,7 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      <section className="admin-kpi-grid admin-remote-overview">
-        <RemoteAdminOverview />
-      </section>
+      <RemoteAdminOverview />
 
       <section className="admin-main-grid admin-dashboard-main">
         <article className="admin-panel admin-panel-graph">

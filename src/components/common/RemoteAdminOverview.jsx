@@ -22,7 +22,7 @@ const RemoteAdminOverview = () => {
   const deltas = data.deltas || {};
 
   return (
-    <section className="admin-kpi-grid admin-remote-overview">
+    <section className="admin-kpi-grid admin-remote-overview" aria-label="Admin summary overview">
       <KPICard icon={FiCalendar} label="Total Events" value={stats.totalEvents} delta={deltas.totalEvents} colorClass="kpi-card-emerald" />
       <KPICard icon={FiCreditCard} label="Tickets Sold" value={stats.totalTicketsSold} delta={deltas.totalTicketsSold} colorClass="kpi-card-blue" />
       <KPICard icon={FiDollarSign} label="Total Revenue" value={formatNaira(stats.totalRevenue)} delta={deltas.totalRevenue} colorClass="kpi-card-amber" />

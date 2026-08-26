@@ -253,7 +253,7 @@ const TicketCheckout = () => {
             <div className="checkout-panel">
             <div className="checkout-heading">
               <div className="checkout-heading-brand">
-                <img src="/images/Logo1.jpg" alt="Ekotix logo" className="checkout-brand-logo" />
+                <img src="/images/Logo4.jpg" alt="Ekotix logo" className="checkout-brand-logo" />
                 <div>
                   <p className="kicker">Secure Checkout</p>
                   <h1>Purchase tickets</h1>

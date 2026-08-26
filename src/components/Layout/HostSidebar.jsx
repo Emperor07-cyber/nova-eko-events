@@ -46,7 +46,7 @@ const HostSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <img
-              src="/images/Logo1.jpg"
+              src="/images/Logo4.jpg"
               alt="Ekotix logo"
               className="sidebar-logo-img"
             />

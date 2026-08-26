@@ -53,7 +53,7 @@ input:focus, select:focus, textarea:focus {
 
 /* Buttons */
 button {
-  padding:8px 10px;
+  padding: 8px 10px;
   background-color: #14c02b;
   color: white;
   border: none;
@@ -61,12 +61,18 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 button:hover {
-  background-color: white;
-  color: #14c02b;
+  background-color: #14c02b;
+  color: white;
+}
+
+.admin-shell-content button,
+.admin-dashboard button,
+.admin-panel button {
+  margin-bottom: 0;
 }
 
 .checkout-page {

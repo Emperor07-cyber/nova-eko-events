@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "node --test src/firebase/firebaseRuntime.test.js src/Utils/adminAccess.test.js src/Utils/adminTransactionsTransform.test.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "smtp:check": "node scripts/verify-smtp.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
