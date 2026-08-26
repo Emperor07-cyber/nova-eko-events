@@ -56,7 +56,8 @@ const readEventBranding = (event = {}) => {
   return {
     brandName: branding.brandName || event.title || DEFAULT_BRAND_NAME,
     supportEmail: branding.supportEmail || event.hostEmail || DEFAULT_SUPPORT_EMAIL,
-    logoUrl: branding.logoUrl || event.image || DEFAULT_LOGO_URL,
+    logoUrl: branding.logoUrl || DEFAULT_LOGO_URL,
+    eventImageUrl: event.image || branding.heroImageUrl || branding.bannerUrl || "",
     primaryColor: branding.primaryColor || '#10612B',
     accentColor: branding.accentColor || '#1F7A47',
     footerNote: branding.footerNote || `Thanks for choosing ${branding.brandName || event.title || DEFAULT_BRAND_NAME}.`,
@@ -98,15 +99,22 @@ const buildReceiptHtml = ({ ticket, event, branding, resend = false }) => {
   const qrValue = ticket?.token || ticket?.transactionId || ticket?.id || '';
   const supportEmail = branding.supportEmail || DEFAULT_SUPPORT_EMAIL;
   const brandName = branding.brandName || DEFAULT_BRAND_NAME;
+  const headerImageUrl = branding.eventImageUrl || branding.logoUrl || DEFAULT_LOGO_URL;
 
   return `
     <div style="margin:0;padding:0;background:#f4f7f4;font-family:Arial,Helvetica,sans-serif;">
       <div style="max-width:680px;margin:0 auto;padding:24px;">
         <div style="background:#ffffff;border:1px solid #dbe7dd;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(16,97,43,0.08);">
-          <div style="background:linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor});padding:28px;color:#ffffff;text-align:center;">
-            <img src="${escapeHtml(branding.logoUrl)}" alt="${escapeHtml(brandName)}" style="width:72px;height:72px;object-fit:cover;border-radius:18px;background:#ffffff;margin-bottom:14px;" />
-            <h1 style="margin:0 0 8px;font-size:28px;line-height:1.2;">${escapeHtml(brandName)}</h1>
-            <p style="margin:0;font-size:16px;opacity:0.95;">${resend ? 'Ticket email resend' : 'Your ticket receipt'}</p>
+          <div style="background:linear-gradient(135deg, ${branding.primaryColor}, ${branding.accentColor});padding:0;color:#ffffff;text-align:center;">
+            <div style="padding:30px 30px 0;">
+              <div style="padding:14px;border-radius:28px;background:rgba(255,255,255,0.12);box-shadow:0 14px 30px rgba(16,97,43,0.16);">
+                <img src="${escapeHtml(headerImageUrl)}" alt="${escapeHtml(event?.title || brandName)}" style="width:100%;height:auto;display:block;border-radius:18px;background:#ffffff;" />
+              </div>
+              <div style="padding:22px 8px 30px;">
+                <h1 style="margin:0 0 8px;font-size:28px;line-height:1.2;">${escapeHtml(brandName)}</h1>
+                <p style="margin:0;font-size:16px;opacity:0.95;">${resend ? 'Ticket email resend' : 'Your ticket receipt'}</p>
+              </div>
+            </div>
           </div>
 
           <div style="padding:28px;">
