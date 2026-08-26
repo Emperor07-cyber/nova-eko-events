@@ -12,162 +12,11 @@
 /* Body */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f7f7f7;
-  /* color: #333; */
+  background:
+    radial-gradient(circle at top left, rgba(46, 224, 111, 0.08), transparent 24%),
+    linear-gradient(180deg, #031109 0%, #06150d 100%);
+  color: #f1fbf4;
   line-height: 1.6;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background:
-      radial-gradient(circle at top left, rgba(46, 224, 111, 0.08), transparent 24%),
-      linear-gradient(180deg, #031109 0%, #06150d 100%);
-    color: #f1fbf4;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    color: #f6fcf7;
-  }
-
-  p, li, small, label, span, td, th, input, select, textarea {
-    color: #e8f5eb;
-  }
-
-  a {
-    color: #6ff19c;
-  }
-
-  input, select, textarea {
-    background: rgba(8, 26, 16, 0.96);
-    border-color: rgba(95, 224, 128, 0.16);
-    color: #f6fcf7;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: #a5baaf;
-  }
-
-  button {
-    color: #ffffff;
-  }
-
-  .checkout-panel,
-  .order-summary-card,
-  .register-form,
-  .register-wrapper .card,
-  .auth-panel,
-  .legal-container,
-  .event-details,
-  .home-troop .event-card,
-  .home-troop .offer-card,
-  .home-troop .faq-item,
-  .home-troop .empty-events,
-  .home-troop .pricing-banner,
-  .home-troop .why-ekotix,
-  .admin-dashboard .chart-container,
-  .admin-dashboard .ticket-table-container,
-  .admin-dashboard .dashboard-card,
-  .admin-dashboard .stat-card,
-  .admin-dashboard .table-wrapper,
-  .card,
-  .pricing-card,
-  .event-card,
-  .pricing-section,
-  .faq-item,
-  .wallet-card,
-  .wallet-stat-card,
-  .stat-card,
-  .dashboard-card,
-  .chart-container,
-  .ticket-table-container,
-  .table-wrapper,
-  .card-body,
-  .pricing-banner,
-  .faq-item,
-  .quick-feature,
-  .why-ekotix,
-  .offer-card,
-  .wallet-card,
-  .wallet-stat-card,
-  .summary-card,
-  .summary-box,
-  .modal-content,
-  .qr-modal,
-  .event-modal,
-  .edit-event-container,
-  .dashboard-card,
-  .stat-card,
-  .chart-container,
-  .ticket-table-container,
-  .table-wrapper {
-    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
-    border-color: rgba(95, 224, 128, 0.12);
-    color: #f1fbf4;
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
-  }
-
-  .container,
-  .page,
-  .app-shell {
-    background: transparent;
-  }
-
-  .event-details p,
-  .event-details .description,
-  .legal-content p,
-  .legal-content li,
-  .admin-dashboard .dashboard-card p,
-  .admin-dashboard .stat-title,
-  .admin-dashboard .ticket-table td,
-  .admin-dashboard .ticket-table th,
-  .stat-title,
-  .ticket-table td,
-  .ticket-table th,
-  .dashboard-card p,
-  .dashboard-table td,
-  .dashboard-table th,
-  .wallet-stat-label,
-  .wallet-note-cell,
-  .field-note {
-    color: #e8f5eb;
-  }
-
-  .pricing-card svg,
-  .faq-item--open h3,
-  .ticket-price,
-  .wallet-card p,
-  .wallet-stat-value,
-  .download-btn,
-  .export-button,
-  .view-more-link,
-  .section-link {
-    color: #6ff19c;
-  }
-
-  .home-troop .home-kicker,
-  .home-troop .section-link,
-  .home-troop .event-card-footer,
-  .home-troop .event-price {
-    color: #8af3aa;
-  }
-
-  .spinner-overlay {
-    background-color: rgba(3, 17, 9, 0.85);
-  }
-
-  .home-troop .event-card,
-  .home-troop .offer-card,
-  .home-troop .faq-item,
-  .home-troop .empty-events,
-  .home-troop .pricing-banner,
-  .home-troop .why-ekotix,
-  .home-troop .quick-feature,
-  .home-troop .hero-split,
-  .home-troop .checkout-panel,
-  .home-troop .order-summary-card {
-    border-color: rgba(95, 224, 128, 0.12);
-  }
 }
 
 /* Container */
@@ -180,7 +29,7 @@ body {
 
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
-  color: #222;
+  color: #f6fcf7;
   margin-bottom: 15px;
 }
 
@@ -193,14 +42,16 @@ form {
 
 input, select, textarea {
   padding: 12px 14px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(95, 224, 128, 0.16);
   border-radius: 8px;
   font-size: 16px;
   transition: border 0.3s ease;
+  background: rgba(8, 26, 16, 0.96);
+  color: #f6fcf7;
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #007bff;
+  border-color: #2ee06f;
   outline: none;
 }
 
@@ -244,11 +95,22 @@ button:hover {
 
 .checkout-panel,
 .order-summary-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background:
+    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 28%),
+    rgba(7, 24, 15, 0.88);
+  border: 1px solid rgba(95, 224, 128, 0.14);
   border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
   padding: 26px;
+}
+
+::selection {
+  background: rgba(46, 224, 111, 0.42);
+  color: #ffffff;
+}
+
+html {
+  color-scheme: dark;
 }
 
 .checkout-heading {
@@ -265,8 +127,8 @@ button:hover {
   gap: 0.35rem;
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
-  background: #ecfdf5;
-  color: #166534;
+  background: rgba(46, 224, 111, 0.12);
+  color: #e7f7ea;
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -297,8 +159,8 @@ button:hover {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: rgba(16, 97, 43, 0.12);
-  color: #10612B;
+  background: rgba(46, 224, 111, 0.12);
+  color: #7ee0a0;
   font-size: 1.1rem;
 }
 
@@ -328,26 +190,36 @@ button:hover {
 
 .checkout-event-card,
 .checkout-merch-card {
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(95, 224, 128, 0.14);
 }
 
 .checkout-panel .checkout-section label,
 .checkout-panel .field-note {
-  color: #475569;
+  color: #d5e7d8;
 }
 
 .checkout-panel .field-note {
-  background: #f8fafc;
-  border: 1px solid #dbe4ee;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(95, 224, 128, 0.12);
   border-radius: 14px;
   padding: 0.8rem 0.95rem;
   margin-top: 0.65rem;
-  color: #334155;
+  color: #e7f7ea;
 }
 
 .checkout-panel input,
 .checkout-panel select {
-  border-color: #d1d5db;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(95, 224, 128, 0.18);
+  color: #f4fff5;
+}
+
+.checkout-panel input::placeholder {
+  color: #b9c9bf;
+}
+
+.checkout-panel select option {
+  color: #0f172a;
 }
 
 .checkout-panel h2,
@@ -377,6 +249,18 @@ button:hover {
 .checkout-heading-brand h1 {
   margin: 0;
   font-size: clamp(1.9rem, 2.3vw, 2.4rem);
+  color: #f4fff5;
+}
+
+.checkout-panel h2,
+.order-summary-card h3,
+.order-summary-card p,
+.order-summary-card span {
+  color: #f4fff5;
+}
+
+.order-summary-card .payment-label {
+  color: #d5e7d8;
 }
 
 .checkout-heading-brand .kicker {
@@ -385,8 +269,10 @@ button:hover {
 
 .checkout-card {
   margin-top: 1.75rem;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background:
+    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 30%),
+    rgba(7, 24, 15, 0.84);
+  border: 1px solid rgba(95, 224, 128, 0.14);
   border-radius: 20px;
   padding: 22px;
 }
@@ -396,7 +282,7 @@ button:hover {
 }
 
 .checkout-card p {
-  color: #475569;
+  color: #d5e7d8;
   line-height: 1.7;
 }
 
@@ -425,21 +311,30 @@ button:hover {
 
 .checkout-event-card {
   display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 1rem;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+  align-items: stretch;
   border-radius: 20px;
-  background: #f8fafc;
+  background:
+    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 34%),
+    rgba(7, 24, 15, 0.88);
   padding: 1rem;
   margin-bottom: 1.5rem;
+  border: 1px solid rgba(95, 224, 128, 0.14);
 }
 
 .checkout-event-card img {
   width: 100%;
-  min-height: 140px;
-  max-height: 140px;
-  object-fit: cover;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  min-height: 0;
+  object-fit: contain;
+  background: rgba(4, 20, 11, 0.92);
   border-radius: 18px;
+}
+
+.checkout-event-card > div {
+  padding: 0 0.25rem 0.2rem;
 }
 
 .checkout-section {
@@ -447,7 +342,7 @@ button:hover {
 }
 
 .order-summary-header {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(95, 224, 128, 0.12);
   padding-bottom: 1rem;
   margin-bottom: 1rem;
 }
@@ -463,7 +358,7 @@ button:hover {
 .order-total {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #111827;
+  color: #f4fff5;
 }
 
 .checkout-pay-btn {
@@ -499,9 +394,9 @@ button:hover {
 .quantity-btn {
   width: 44px;
   height: 44px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(95, 224, 128, 0.18);
+  color: #f4fff5;
   border-radius: 14px;
   cursor: pointer;
 }
@@ -509,6 +404,13 @@ button:hover {
 .qty-input {
   width: 80px;
   text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4fff5;
+  border-color: rgba(95, 224, 128, 0.18);
+}
+
+.qty-input::placeholder {
+  color: #b9c9bf;
 }
 
 .delivery-options label {
@@ -517,7 +419,7 @@ button:hover {
   gap: 0.75rem;
   margin-bottom: 0.75rem;
   cursor: pointer;
-  color: #1f2937;
+  color: #e7f7ea;
 }
 
 .delivery-options input {
@@ -525,16 +427,18 @@ button:hover {
 }
 
   .payment-methods {
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(95, 224, 128, 0.14);
     border-radius: 18px;
     padding: 18px;
     margin-top: 1.25rem;
-    background: #f8fafc;
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 30%),
+      rgba(7, 24, 15, 0.84);
   }
 
   .payment-label {
     margin: 0 0 0.85rem;
-    color: #475569;
+    color: #d5e7d8;
     font-weight: 700;
   }
 
@@ -550,11 +454,11 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(95, 224, 128, 0.12);
     border-radius: 14px;
     padding: 0.9rem 1rem;
-    color: #111827;
+    color: #f4fff5;
   }
 
   .payment-icon {
@@ -563,8 +467,8 @@ button:hover {
     display: grid;
     place-items: center;
     border-radius: 12px;
-    background: rgba(22, 101, 52, 0.12);
-    color: #166534;
+    background: rgba(46, 224, 111, 0.12);
+    color: #7ee0a0;
     flex-shrink: 0;
   }
 
@@ -610,7 +514,7 @@ button:hover {
   }
 
 .checkout-card p {
-  color: #475569;
+  color: #d5e7d8;
   line-height: 1.7;
 }
 
@@ -2707,8 +2611,10 @@ button:hover {
 
 .detail-hero-image {
   width: 100%;
-  max-height: 420px;
-  object-fit: cover;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: contain;
+  background: rgba(7, 24, 15, 0.92);
   border-radius: 22px;
   border: 1px solid rgba(95, 224, 128, 0.14);
 }
@@ -2789,7 +2695,7 @@ button:hover {
   }
 
   .detail-hero-image {
-    max-height: 300px;
+    aspect-ratio: 16 / 9;
     border-radius: 18px;
   }
 
@@ -3093,8 +2999,8 @@ button:hover {
   }
 
   .checkout-event-card img {
-    min-height: 180px;
-    max-height: 220px;
+    aspect-ratio: 16 / 9;
+    max-height: 280px;
   }
 
   .checkout-links-row .btn-primary,
