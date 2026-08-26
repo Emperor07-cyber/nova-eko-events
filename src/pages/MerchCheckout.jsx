@@ -172,7 +172,7 @@ const MerchCheckout = () => {
               </div>
             </div>
             <button className="btn-copy-link" onClick={() => navigate(`/event/${eventId}`)}>
-              <FiArrowLeft style={{ marginRight: 6 }} /> Back to shop
+              <FiArrowLeft style={{ marginRight: 6 }} /> Back to event
             </button>
           </div>
 

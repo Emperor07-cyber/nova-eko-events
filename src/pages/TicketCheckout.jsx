@@ -330,8 +330,8 @@ const TicketCheckout = () => {
                     ? `You can buy up to ${eventMaxPerUser} tickets in total for this event. `
                     : "There is no overall buyer limit for this event. "}
                   {ticketLimit
-                    ? `This ticket type also has its own cap of ${ticketLimit} per order.`
-                    : "This ticket type does not have a separate per-order limit."}
+                    ? `This ticket type also has a cap of ${ticketLimit} per order.`
+                    : "This ticket type does not have a separate cap."}
                 </p>
               </>
             )}

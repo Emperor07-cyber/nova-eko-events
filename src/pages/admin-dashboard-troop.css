@@ -311,6 +311,242 @@
   margin-bottom: 1rem;
 }
 
+.admin-panel {
+  padding: 1.15rem;
+}
+
+.admin-panel h2 {
+  letter-spacing: -0.02em;
+}
+
+.admin-panel p,
+.admin-panel td,
+.admin-panel th,
+.admin-panel span {
+  color: #5f6f7e;
+}
+
+.admin-chart-wrap {
+  padding: 0.4rem 0 0.1rem;
+}
+
+.admin-table-wrap {
+  border: 1px solid #dceee0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.admin-table th {
+  background: #f4fbf5;
+}
+
+.admin-table tbody tr:hover {
+  background: #f6fff8;
+}
+
+.admin-dashboard .admin-panel,
+.admin-dashboard .admin-kpi-card,
+.admin-dashboard .admin-finance-card {
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.06), transparent 28%),
+    linear-gradient(180deg, #ffffff, #fbfffc);
+}
+
+.admin-panel-chip {
+  background: #effcf2;
+  color: #166534;
+}
+
+.admin-icon-btn,
+.admin-inline-btn,
+.admin-page-btn {
+  background: #f4fbf5;
+  color: #166534;
+}
+
+.admin-icon-btn:hover,
+.admin-inline-btn:hover,
+.admin-page-btn:hover {
+  background: #e8f8ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-dashboard {
+    color: #eef7f0;
+  }
+
+  .admin-hero,
+  .admin-kpi-card,
+  .admin-finance-card,
+  .admin-panel,
+  .admin-modal {
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.14);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  }
+
+  .admin-hero {
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.1), transparent 25%),
+      linear-gradient(135deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+  }
+
+  .admin-hero h1,
+  .admin-panel h2,
+  .admin-modal h2,
+  .admin-hero strong,
+  .admin-kpi-card strong,
+  .admin-finance-card strong,
+  .admin-value {
+    color: #f4fff5 !important;
+  }
+
+  .admin-hero p,
+  .admin-finance-card p,
+  .admin-hero-stat small,
+  .admin-empty-state p,
+  .admin-event-item span,
+  .admin-table td,
+  .admin-processed-note,
+  .admin-panel p,
+  .admin-panel td,
+  .admin-panel th,
+  .admin-panel span,
+  .admin-table th {
+    color: #d5e7d8;
+  }
+
+  .admin-kicker,
+  .admin-panel-chip {
+    background: rgba(46, 224, 111, 0.12);
+    color: #eaf8ee;
+  }
+
+  .admin-hero-stat,
+  .admin-search {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .admin-table th,
+  .admin-table td {
+    border-bottom-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .admin-search input {
+    color: #f4fff5;
+  }
+
+  .tx-pill {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f4fff5;
+  }
+
+  .tx-pill.green {
+    background: rgba(16, 185, 129, 0.14);
+    color: #dcfce7;
+  }
+
+  .tx-pill.amber {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fde68a;
+  }
+
+  .tx-pill.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fecaca;
+  }
+
+  .admin-icon-btn,
+  .admin-inline-btn,
+  .admin-page-btn,
+  .admin-secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f4fff5;
+    border-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .admin-secondary-btn:hover,
+  .admin-icon-btn:hover,
+  .admin-inline-btn:hover,
+  .admin-page-btn:hover {
+    background: rgba(46, 224, 111, 0.1);
+  }
+
+  .chart-container,
+  .ticket-table-container {
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .ticket-table th {
+    background: rgba(255, 255, 255, 0.04);
+    color: #eaf8ee;
+  }
+
+  .ticket-table td {
+    color: #d5e7d8;
+    border-bottom-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .ticket-table tbody tr:hover {
+    background: rgba(46, 224, 111, 0.06);
+  }
+
+  .admin-table-wrap {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard {
+    gap: 0.85rem;
+  }
+
+  .admin-hero,
+  .admin-kpi-card,
+  .admin-finance-card,
+  .admin-panel {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .admin-main-grid,
+  .admin-kpi-grid,
+  .admin-finance-grid {
+    gap: 0.85rem;
+  }
+
+  .admin-panel-head,
+  .admin-modal-head {
+    gap: 0.75rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.65rem;
+  }
+
+  .admin-chart-wrap {
+    height: 240px;
+  }
+
+  .admin-table-wrap {
+    border-radius: 14px;
+  }
+
+  .admin-transactions-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tx-pills {
+    flex-wrap: wrap;
+  }
+}
+
 .admin-panel-head-wrap {
   flex-wrap: wrap;
 }

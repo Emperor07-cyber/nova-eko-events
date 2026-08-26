@@ -64,12 +64,12 @@ function Register() {
 
       <div className="auth-hero">
         <p className="kicker">Join Ekotix</p>
-        
-        <p className="auth-note">Buy tickets, host events, and manage everything in one place.</p>
+        <h1 className="auth-title">Create your account</h1>
+        <p className="auth-note">Buy tickets, host events, and keep everything in one place.</p>
         <div className="auth-badges">
-          <span className="auth-badge"><span className="auth-badge-icon">🛒</span>Buyer account</span>
-          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host tools</span>
-          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Premium checkout</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🛒</span>Buy tickets</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host events</span>
+          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Fast checkout</span>
         </div>
       </div>
 
@@ -111,7 +111,7 @@ function Register() {
 
         {role === "host" ? (
           <p className="event-meta">
-            You&apos;ll add and verify your payout bank details in the next step.
+            You&apos;ll add and verify payout details in the next step.
           </p>
         ) : null}
 
@@ -123,13 +123,13 @@ function Register() {
       {emailInUse ? (
         <div className="card card-body stack">
           <p style={{ color: "var(--danger)" }}>This email is already registered.</p>
-          <Link to="/login" className="btn btn-outline auth-switch-button">Login instead</Link>
+          <Link to="/login" className="btn btn-outline auth-switch-button">Sign in instead</Link>
         </div>
       ) : null}
 
       <div className="auth-footer">
         <span className="event-meta">Already have an account?</span>
-        <Link to="/login" className="btn btn-primary auth-switch-button">Login</Link>
+        <Link to="/login" className="btn btn-primary auth-switch-button">Sign in</Link>
       </div>
     </div>
   );

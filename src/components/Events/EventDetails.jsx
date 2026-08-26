@@ -125,15 +125,15 @@ const EventDetails = () => {
           </div>
         </div>
         <div className="detail-stats">
-          <strong>Ready to purchase</strong>
+          <strong>Ready to book</strong>
           <span>{tickets.length} ticket type{tickets.length === 1 ? "" : "s"} available</span>
           <div className="checkout-links-row">
             <button className="btn-primary" onClick={() => navigate(`/checkout/tickets/${event.id}`)}>
-              Checkout tickets
+              Buy tickets
             </button>
             {merch.length > 0 && (
               <button className="btn-copy-link" onClick={() => navigate(`/checkout/merch/${event.id}`)}>
-                Checkout merch
+                Buy merch
               </button>
             )}
           </div>
@@ -187,14 +187,14 @@ const EventDetails = () => {
 
       <div className="checkout-card">
         <h2>Buy tickets or merch</h2>
-        <p>Use the dedicated checkout pages for faster, secure payment processing.</p>
+        <p>Use the dedicated checkout pages for a faster, secure payment flow.</p>
         <div className="checkout-links-row">
           <button className="btn-primary" onClick={() => navigate(`/checkout/tickets/${eventId}`)}>
-            Checkout tickets
+            Buy tickets
           </button>
           {merch.length > 0 && (
             <button className="btn-copy-link" onClick={() => navigate(`/checkout/merch/${eventId}`)}>
-              Checkout merch
+              Buy merch
             </button>
           )}
         </div>

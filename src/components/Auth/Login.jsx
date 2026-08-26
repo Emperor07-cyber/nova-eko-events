@@ -116,7 +116,6 @@ function Login() {
         <img src="/images/Logo4.jpg" alt="Ekotix logo" className="auth-logo" />
         <div className="auth-brand-copy">
           <strong className="auth-brand-name">Ekotix</strong>
-          
         </div>
       </div>
 
@@ -157,7 +156,7 @@ function Login() {
       </form>
 
       <button className="btn btn-ghost auth-switch-button" type="button" onClick={handleForgotPassword}>
-        Forgot Password?
+        Forgot password?
       </button>
 
       <hr className="auth-divider" />
@@ -169,12 +168,12 @@ function Login() {
           <path fill="#4A90E2" d="M6.46 13.94A5.95 5.95 0 0 1 6.15 12c0-.68.11-1.35.31-1.94l-3.39-2.62A9.98 9.98 0 0 0 2 12c0 1.61.39 3.13 1.07 4.56l3.39-2.62z" />
           <path fill="#FBBC05" d="M12 5.96c1.47 0 2.79.5 3.83 1.48l2.87-2.87C16.95 2.94 14.7 2 12 2 8.07 2 4.72 4.15 3.07 7.44l3.39 2.62C7.24 7.69 9.43 5.96 12 5.96z" />
         </svg>
-        <span>Sign in with Google</span>
+        <span>Continue with Google</span>
       </button>
 
       <div className="auth-footer">
         <span className="event-meta">Don&apos;t have an account?</span>
-        <Link to="/register" className="btn btn-primary auth-switch-button">Sign Up</Link>
+        <Link to="/register" className="btn btn-primary auth-switch-button">Create account</Link>
       </div>
     </div>
   );

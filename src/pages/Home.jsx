@@ -15,15 +15,15 @@ import "./home-troop.css";
 const FAQ_ITEMS = [
   {
     q: "How do I create an event?",
-    a: "Register as a host, complete your setup, create your event, add ticket types, and publish it when you're ready.",
+    a: "Register as a host, finish your setup, create the event, add ticket types, and publish when you're ready.",
   },
   {
     q: "How do I buy tickets?",
-    a: "Open an event, choose your preferred ticket type, enter your details, and complete your payment securely.",
+    a: "Open an event, choose a ticket type, enter your details, and complete payment securely.",
   },
   {
     q: "Can I get a refund?",
-    a: "Refund policies are managed by individual event organizers. Please check the event details or contact the organizer.",
+    a: "Refund policies are managed by each event organizer. Check the event details or contact the organizer.",
   },
   {
     q: "How do I contact support?",
@@ -46,13 +46,13 @@ const OFFER_ITEMS = [
     image: "/images/whyekotixx.jpeg",
     title: "Host events effortlessly",
     description:
-      "Set up your event page in minutes and start selling tickets right away.",
+      "Set up your event page in minutes and start selling tickets quickly.",
   },
   {
     image: "/images/Smartticket.jpeg",
     title: "Smart ticketing",
     description:
-      "Share event links instantly and let guests buy tickets or RSVP with a simple and seamless flow.",
+      "Share event links instantly and let guests buy tickets or RSVP with a simple flow.",
   },
   {
     image: "/images/quickpay.jpeg",
@@ -70,13 +70,13 @@ const OFFER_ITEMS = [
     image: "/images/merch.jpeg",
     title: "Merch integration",
     description:
-      "Attach merchandise to your event pages so attendees can browse and purchase with ease.",
+      "Attach merchandise to your event pages so attendees can browse and purchase easily.",
   },
   {
     image: "/images/checkin.jpeg",
     title: "Check-in and security",
     description:
-      "Scan tickets, verify guests instantly, and manage attendance with real-time data.",
+      "Scan tickets, verify guests instantly, and manage attendance with live data.",
   },
 ];
 
@@ -298,7 +298,7 @@ const Home = () => {
             </h2>
 
             <p>
-              Discover experiences created by amazing hosts.
+              Browse events created by trusted hosts.
             </p>
           </div>
 
@@ -488,7 +488,7 @@ const Home = () => {
             <h2>What does Ekotix offer?</h2>
 
             <p>
-              Practical tools that keep the setup simple and the front end polished.
+              Practical tools that keep setup simple and the front end polished.
             </p>
           </div>
         </div>

@@ -408,26 +408,32 @@
   width: 100%;
   height: 250px;
   overflow: hidden;
-  background: #edf2ee;
+  background:
+    radial-gradient(circle at center, rgba(46, 224, 111, 0.08), transparent 58%),
+    #edf2ee;
 }
 
 @media (prefers-color-scheme: dark) {
   .event-card-image,
   .offer-card-image,
   .why-ekotix-image {
-    background: rgba(255, 255, 255, 0.03);
+    background:
+      radial-gradient(circle at center, rgba(46, 224, 111, 0.08), transparent 58%),
+      rgba(255, 255, 255, 0.03);
   }
 }
 
 .event-card-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  padding: 10px;
   transition: transform 0.35s ease;
 }
 
 .event-card:hover .event-card-image img {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .event-price {
@@ -837,7 +843,7 @@
 }
 
 .offer-card-content {
-  padding: 22px;
+  padding: 20px 20px 22px;
 }
 
 .offer-card-content h3 {
@@ -977,6 +983,38 @@
   margin: 0;
   color: #737d75;
   line-height: 1.75;
+}
+
+@media (prefers-color-scheme: dark) {
+  .offer-card {
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .offer-card-content h3 {
+    color: #f5fff6;
+  }
+
+  .offer-card-content p {
+    color: #d6e8db;
+  }
+
+  .faq-item {
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .faq-question {
+    color: #f5fff6;
+  }
+
+  .faq-answer p {
+    color: #d6e8db;
+  }
+
+  .pricing-banner > div > p:last-child {
+    color: #d6e8db;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1149,6 +1187,23 @@
   .faq-answer {
     padding: 0 17px 18px;
   }
+
+  .offer-card-content {
+    padding: 18px;
+  }
+
+  .offer-card-content h3 {
+    font-size: 1rem;
+  }
+
+  .offer-card-content p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .faq-question {
+    font-size: 0.95rem;
+  }
 }
 
 /* ========================================
@@ -1175,6 +1230,14 @@
 
   .why-ekotix-image {
     min-height: 250px;
+  }
+
+  .faq-question {
+    padding: 16px 14px;
+  }
+
+  .faq-answer {
+    padding: 0 14px 16px;
   }
 
   .home-btn {
