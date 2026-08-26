@@ -216,13 +216,12 @@ const Home = () => {
 
           <h1>
             Find events
-            <span> worth your time.</span>
+            <span> that feel worth the trip.</span>
           </h1>
 
           <p className="home-hero-description">
-            Discover nightlife, concerts, workshops, festivals,
-            and unforgettable experiences. Find your next event
-            and get your tickets in seconds.
+            Discover nightlife, concerts, workshops, and festivals.
+            Browse quickly, pick what fits your plans, and get your tickets in seconds.
           </p>
 
           <div className="home-proof">
@@ -406,7 +405,7 @@ const Home = () => {
           <div>
             <strong>Discover events</strong>
             <p>
-              Explore events by category and experience.
+              Browse events by vibe, venue, or city.
             </p>
           </div>
         </div>
@@ -419,7 +418,7 @@ const Home = () => {
           <div>
             <strong>Buy in seconds</strong>
             <p>
-              Enjoy a simple and secure checkout experience.
+              Move from event page to payment with fewer taps.
             </p>
           </div>
         </div>
@@ -432,7 +431,7 @@ const Home = () => {
           <div>
             <strong>QR ticket access</strong>
             <p>
-              Get instant digital tickets ready for entry.
+              Keep QR tickets ready when you arrive.
             </p>
           </div>
         </div>
@@ -458,15 +457,14 @@ const Home = () => {
           </h2>
 
           <p>
-            Ekotix is an all-in-one event platform designed to
-            help organizers host, manage, and monetize events
-            with ease.
+            Ekotix gives organizers a simple place to publish, sell,
+            and manage events without the usual clutter.
           </p>
 
           <p>
             From intimate gatherings to large-scale experiences,
-            you get practical tools to manage ticket sales,
-            attendees, check-ins, and more.
+            you get practical tools for ticket sales, attendees,
+            check-ins, and merch.
           </p>
 
           <Link
@@ -490,8 +488,7 @@ const Home = () => {
             <h2>What does Ekotix offer?</h2>
 
             <p>
-              Powerful tools to help you create better event
-              experiences.
+              Practical tools that keep the setup simple and the front end polished.
             </p>
           </div>
         </div>

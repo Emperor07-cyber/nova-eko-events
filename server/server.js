@@ -133,6 +133,17 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       }
 
       const eventRecord = await loadEventById(eventId);
+      const matchedTicket = Array.isArray(eventRecord?.tickets)
+        ? eventRecord.tickets.find((ticket) => ticket.type === ticketType)
+        : null;
+      const ticketLimit = Number(matchedTicket?.limit);
+      const hasTicketLimit = Number.isFinite(ticketLimit) && ticketLimit > 0;
+
+      if (hasTicketLimit && quantity > ticketLimit) {
+        console.warn(
+          `⚠️ Ticket quantity ${quantity} exceeds ticket tier limit ${ticketLimit} for event ${eventId} (${email}).`
+        );
+      }
 
       // Defense-in-depth: the checkout UI already calls /tickets/check-limit
       // before showing the Pay button, but that's client-triggered and can
@@ -166,6 +177,9 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         savedBy: "webhook",
         ...(overLimit
           ? { status: "flagged_over_limit", flaggedReason: `Exceeds max ${maxPerUser} tickets per person` }
+          : {}),
+        ...(hasTicketLimit && quantity > ticketLimit
+          ? { ticketTierLimit: ticketLimit, ticketTierLimitExceeded: true }
           : {}),
       };
 

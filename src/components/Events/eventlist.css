@@ -18,12 +18,13 @@
 .el-page-title {
   font-size: clamp(1.6rem, 3.2vw, 2rem);
   margin: 0 0 4px;
-  color: var(--text);
+  color: #f4fff5;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
 }
 
 .el-page-sub {
   margin: 0;
-  color: var(--muted);
+  color: #d4e8d8;
 }
 
 .el-search-wrap {
@@ -136,7 +137,7 @@
 }
 
 .el-results-count {
-  color: var(--muted);
+  color: #d4e8d8;
   font-size: 0.85rem;
   margin: 0 0 10px;
 }
@@ -244,6 +245,37 @@
 
 .el-card-arrow {
   color: var(--muted);
+}
+
+.el-page-header,
+.el-filters-bar {
+  backdrop-filter: blur(14px);
+}
+
+.el-page-header {
+  background: linear-gradient(180deg, rgba(8, 27, 16, 0.94), rgba(5, 18, 11, 0.88));
+  border-color: rgba(95, 224, 128, 0.16);
+}
+
+.el-page-title-wrap {
+  min-width: min(520px, 100%);
+}
+
+.el-search {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.el-filters-bar {
+  background: rgba(7, 24, 15, 0.88);
+  border-color: rgba(95, 224, 128, 0.14);
+}
+
+.el-cat {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.el-view-btn {
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .el-list {

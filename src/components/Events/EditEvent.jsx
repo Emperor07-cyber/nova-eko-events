@@ -479,7 +479,7 @@ const EditEvent = () => {
                   </label>
 
                   <label className="event-editor-field">
-                    <span>Max tickets per user</span>
+                    <span>Event-wide max per buyer</span>
                     <input
                       name="maxPerUser"
                       type="number"
@@ -487,6 +487,9 @@ const EditEvent = () => {
                       value={eventData.maxPerUser || 1}
                       onChange={handleChange}
                     />
+                    <small className="event-editor-muted">
+                      This caps the total number of tickets one buyer can purchase across the entire event.
+                    </small>
                   </label>
 
                   <label className="event-editor-field">
@@ -581,7 +584,7 @@ const EditEvent = () => {
                         </label>
 
                         <label className="event-editor-field">
-                          <span>Limit</span>
+                          <span>Per-ticket-tier limit</span>
                           <input
                             type="number"
                             min="0"
@@ -589,6 +592,9 @@ const EditEvent = () => {
                             onChange={(event) => handleTicketChange(index, "limit", event.target.value)}
                             placeholder="Unlimited"
                           />
+                          <small className="event-editor-muted">
+                            Optional. Limits how many tickets a buyer can buy from this specific tier in one order.
+                          </small>
                         </label>
                       </div>
 

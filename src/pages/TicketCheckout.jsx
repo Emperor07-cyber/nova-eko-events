@@ -61,9 +61,9 @@ const TicketCheckout = () => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  // Checks the buyer's per-event purchase limit server-side before we let
-  // them pay, so the "max tickets per person" set by the host is actually
-  // enforced instead of only capping quantity within a single order.
+  // Checks both the event-wide buyer cap and the selected ticket tier limit
+  // server-side before we let them pay, so checkout stays aligned with the
+  // host's rules instead of only capping quantity within a single order.
   useEffect(() => {
     const isValidEmail = /\S+@\S+\.\S+/.test(userData.email);
     if (!eventId || !isValidEmail || !ticketQuantity) {
@@ -94,8 +94,8 @@ const TicketCheckout = () => {
           result.allowed
             ? ""
             : result.remaining === 0
-              ? "You've already reached the maximum number of tickets allowed for this event."
-              : `You can only buy ${result.remaining} more ticket(s) for this event (limit ${result.maxPerUser} per person).`
+              ? "You’ve reached the buying limit for this event."
+              : `You can still buy ${result.remaining} more ticket(s) for this event.`
         );
       } catch (error) {
         if (!cancelled) {
@@ -114,7 +114,10 @@ const TicketCheckout = () => {
   const tickets = Array.isArray(event?.tickets) ? event.tickets : [];
   const selectedTicketDetails = tickets.find((ticket) => ticket.type === selectedTicket);
   const ticketPrice = Number(selectedTicketDetails?.price || 0);
-  const ticketLimit = Math.max(Number(selectedTicketDetails?.limit || 1), 1);
+  const eventMaxPerUser = Number(event?.maxPerUser ?? event?.maxPurchaseLimit);
+  const ticketLimitValue = Number(selectedTicketDetails?.limit);
+  const ticketLimit = Number.isFinite(ticketLimitValue) && ticketLimitValue > 0 ? ticketLimitValue : null;
+  const effectiveTicketLimit = ticketLimit ?? eventMaxPerUser ?? null;
   const baseAmount = ticketPrice * ticketQuantity;
   const platformFee = baseAmount > 0 ? Math.round(baseAmount * 0.05) + 100 : 0;
   const totalAmount = baseAmount + platformFee;
@@ -127,7 +130,7 @@ const TicketCheckout = () => {
     userData.name.trim().length >= 2 &&
     isValidEmail &&
     ticketQuantity >= 1 &&
-    ticketQuantity <= ticketLimit &&
+    (effectiveTicketLimit == null || ticketQuantity <= effectiveTicketLimit) &&
     totalAmount > 0 &&
     !!PAYSTACK_PUBLIC_KEY &&
     !sending &&
@@ -137,7 +140,7 @@ const TicketCheckout = () => {
     userData.name.trim().length >= 2 &&
     isValidEmail &&
     ticketQuantity >= 1 &&
-    ticketQuantity <= ticketLimit &&
+    (effectiveTicketLimit == null || ticketQuantity <= effectiveTicketLimit) &&
     !sending &&
     limitInfo?.allowed !== false;
 
@@ -299,17 +302,37 @@ const TicketCheckout = () => {
                     className="input qty-input"
                     type="number"
                     min="1"
-                    max={ticketLimit}
+                    max={effectiveTicketLimit ?? undefined}
                     value={ticketQuantity}
-                    onChange={(e) => setTicketQuantity(Math.max(1, Math.min(ticketLimit, Number(e.target.value))))}
+                    onChange={(e) =>
+                      setTicketQuantity(
+                        Math.max(
+                          1,
+                          effectiveTicketLimit == null
+                            ? Number(e.target.value) || 1
+                            : Math.min(effectiveTicketLimit, Number(e.target.value) || 1)
+                        )
+                      )
+                    }
                   />
                   <button
                     type="button"
                     className="quantity-btn"
-                    onClick={() => setTicketQuantity((qty) => Math.min(ticketLimit, qty + 1))}
+                    onClick={() =>
+                      setTicketQuantity((qty) =>
+                        effectiveTicketLimit == null ? qty + 1 : Math.min(effectiveTicketLimit, qty + 1)
+                      )
+                    }
                   >+</button>
                 </div>
-                <p className="field-note">Max {ticketLimit} tickets per order.</p>
+                <p className="field-note">
+                  {eventMaxPerUser
+                    ? `You can buy up to ${eventMaxPerUser} tickets in total for this event. `
+                    : "There is no overall buyer limit for this event. "}
+                  {ticketLimit
+                    ? `This ticket type also has its own cap of ${ticketLimit} per order.`
+                    : "This ticket type does not have a separate per-order limit."}
+                </p>
               </>
             )}
           </div>

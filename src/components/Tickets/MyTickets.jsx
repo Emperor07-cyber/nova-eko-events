@@ -69,26 +69,38 @@ const MyTickets = () => {
   };
 
   return (
-    <div>
-      <h2>🎟️ My Tickets</h2>
+    <div className="my-tickets-page">
+      <div className="my-tickets-header">
+        <p className="my-tickets-kicker">Your library</p>
+        <h2>My tickets</h2>
+        <p>Review your purchases, open QR tickets, and keep your entry details ready.</p>
+      </div>
       {tickets.length === 0 ? (
-        <p>No tickets found.</p>
+        <div className="my-tickets-empty">
+          <h3>No tickets yet</h3>
+          <p>Once you buy a ticket, it will appear here for quick access and check-in.</p>
+        </div>
       ) : (
-        tickets.map((ticket, index) => (
-          <div key={index} className="ticket-card">
-            <h4>{ticket.ticketType}</h4>
-            <p>Quantity: {ticket.quantity}</p>
-            <p>Event ID: {ticket.eventId}</p>
-            <button
-              onClick={() => {
-                setSelectedTicket(ticket);
-                setModalOpen(true);
-              }}
-            >
-              View Ticket
-            </button>
-          </div>
-        ))
+        <div className="ticket-grid">
+          {tickets.map((ticket, index) => (
+            <div key={index} className="ticket-card ticket-card--compact">
+              <div className="ticket-card-top">
+                <h3>{ticket.ticketType || "Ticket"}</h3>
+                <span className="ticket-pill">Qty {ticket.quantity || 1}</span>
+              </div>
+              <p className="ticket-card-meta">Event ID: {ticket.eventId}</p>
+              <button
+                className="btn btn-primary ticket-view-btn"
+                onClick={() => {
+                  setSelectedTicket(ticket);
+                  setModalOpen(true);
+                }}
+              >
+                View ticket
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
       {selectedTicket && (
@@ -99,7 +111,7 @@ const MyTickets = () => {
           overlayClassName="qr-overlay"
         >
           <div id="qr-ticket-print" className="qr-content">
-            <h2>🎫 Your Ticket</h2>
+            <h2>Your ticket</h2>
             <QRCode value={JSON.stringify(selectedTicket)} size={180} />
             <p><strong>Name:</strong> {selectedTicket.name}</p>
             <p><strong>Email:</strong> {selectedTicket.email}</p>
@@ -109,9 +121,9 @@ const MyTickets = () => {
             <p><strong>Transaction ID:</strong> {selectedTicket.transactionId}</p>
           </div>
           <div className="modal-buttons">
-            <button onClick={handlePrint}>🖨️ Print Ticket</button>
-            <button onClick={handleDownloadPDF}>⬇️ Download PDF</button>
-            <button onClick={handleDownloadImage}>🖼️ Download Image</button>
+            <button onClick={handlePrint}>Print</button>
+            <button onClick={handleDownloadPDF}>Download PDF</button>
+            <button onClick={handleDownloadImage}>Download image</button>
             <button onClick={() => setModalOpen(false)}>Close</button>
           </div>
         </Modal>

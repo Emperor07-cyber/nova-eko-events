@@ -122,12 +122,12 @@ function Login() {
 
       <div className="auth-hero">
         <p className="kicker">Welcome back</p>
-        
-        <p className="auth-note">Access tickets, hosting tools, and your Ekotix dashboard.</p>
+        <h1 className="auth-title">Sign in to continue</h1>
+        <p className="auth-note">Buy tickets, check your orders, or open your host dashboard.</p>
         <div className="auth-badges">
-          <span className="auth-badge"><span className="auth-badge-icon">🔒</span>Secure session</span>
-          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Fast checkout</span>
-          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host access</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🔒</span>Secure sign-in</span>
+          <span className="auth-badge"><span className="auth-badge-icon">⚡</span>Quick checkout</span>
+          <span className="auth-badge"><span className="auth-badge-icon">🏠</span>Host dashboard</span>
         </div>
       </div>
 

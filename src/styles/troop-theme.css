@@ -516,7 +516,7 @@ a.btn-withdraw {
   padding: 28px;
   background:
     radial-gradient(520px 140px at 90% -20%, rgba(16, 97, 43, 0.1), transparent 60%),
-  background: linear-gradient(180deg, #f7fbf7, #eef7ec);
+    linear-gradient(180deg, #f7fbf7, #eef7ec);
   box-shadow: 0 22px 48px rgba(16, 97, 43, 0.12);
 }
 
@@ -524,6 +524,23 @@ a.btn-withdraw {
   display: grid;
   gap: 10px;
   margin-bottom: 14px;
+}
+
+.auth-hero .kicker,
+.auth-hero .auth-title,
+.auth-hero .auth-note {
+  color: #f3fff6;
+}
+
+.auth-hero .kicker {
+  opacity: 0.92;
+}
+
+.auth-hero .auth-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
 
 .auth-badges {
@@ -552,7 +569,7 @@ a.btn-withdraw {
 
 .auth-note {
   margin: 0;
-  color: var(--muted);
+  color: #d8eadf;
   line-height: 1.6;
 }
 
@@ -587,11 +604,6 @@ a.btn-withdraw {
 .auth-brand-tag {
   color: #475569;
   font-size: 0.94rem;
-}
-
-.auth-title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 2.75rem);
 }
 
 .auth-footer {
@@ -650,6 +662,79 @@ a.btn-withdraw {
   background: #fef2f2;
   border-color: rgba(185, 28, 28, 0.18);
   color: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .auth-hero,
+  .auth-brand,
+  .auth-footer,
+  .auth-title,
+  .auth-brand-name,
+  .auth-note,
+  .auth-brand-tag,
+  .event-meta {
+    color: #f6fcf7;
+  }
+
+  .auth-note,
+  .auth-brand-tag,
+  .event-meta {
+    color: #d8eadf;
+  }
+
+  .auth-panel {
+    background:
+      radial-gradient(520px 140px at 90% -20%, rgba(46, 224, 111, 0.1), transparent 60%),
+      linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.28);
+    border-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .auth-badge {
+    background: rgba(46, 224, 111, 0.1);
+    border-color: rgba(95, 224, 128, 0.18);
+    color: #f4fff7;
+  }
+
+  .auth-logo {
+    background: #071d11;
+    border-color: rgba(95, 224, 128, 0.18);
+  }
+
+  .auth-form {
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .auth-feedback-success {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.26);
+    color: #dcfce7;
+  }
+
+  .auth-feedback-warning {
+    background: rgba(180, 83, 9, 0.18);
+    border-color: rgba(180, 83, 9, 0.24);
+    color: #fff3cd;
+  }
+
+  .auth-feedback-error {
+    background: rgba(185, 28, 28, 0.16);
+    border-color: rgba(185, 28, 28, 0.24);
+    color: #fee2e2;
+  }
+
+  .btn-outline,
+  .btn-outline:visited,
+  .btn-ghost,
+  .auth-switch-button {
+    color: #f6fcf7;
+  }
+
+  .btn-ghost:hover,
+  .btn-outline:hover {
+    background: rgba(46, 224, 111, 0.08);
+  }
 }
 
 .auth-divider {

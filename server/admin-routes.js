@@ -47,6 +47,11 @@ const getMaxPerUser = (event) => {
   return Number.isFinite(raw) && raw > 0 ? raw : null;
 };
 
+const getTicketLimit = (ticket) => {
+  const raw = Number(ticket?.limit);
+  return Number.isFinite(raw) && raw > 0 ? raw : null;
+};
+
 // Validates a scanner's access code against an event's single legacy
 // scannerCode (shared code, backward-compatible) or a named scanner account
 // under event.scanners/{id}. Returns who scanned it in, for attribution.
@@ -435,8 +440,8 @@ function registerRoutes(app) {
         return res.status(400).json({ error: "This ticket type is not free. Use the paid checkout flow." });
       }
 
-      const perOrderLimit = Math.max(Number(matchedTicket.limit || 1), 1);
-      if (qty > perOrderLimit) {
+      const perOrderLimit = getTicketLimit(matchedTicket);
+      if (perOrderLimit && qty > perOrderLimit) {
         return res.status(400).json({ error: `Max ${perOrderLimit} tickets per order for this ticket type.` });
       }
 
