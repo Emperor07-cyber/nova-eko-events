@@ -137,8 +137,8 @@ const AdminTicketsLedger = () => {
       });
       const result = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        throw new Error(result?.error || 'Failed to resend ticket email.');
+      if (!response.ok || !result?.sent) {
+        throw new Error(result?.error || 'Email delivery is disabled on this server.');
       }
 
       setFeedback({ type: 'success', message: `Ticket email resent to ${ticket.email}.` });

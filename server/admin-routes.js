@@ -105,6 +105,21 @@ async function verifyAdminMiddleware(req, res, next) {
     next();
   } catch (err) {
     console.error("verifyAdminMiddleware error", err);
+
+    const message = err?.message || "";
+    const isAdminConfigProblem =
+      message.includes("Failed to determine project ID") ||
+      message.includes("app/invalid-credential") ||
+      message.includes("Could not load the default credentials") ||
+      message.includes("Failed to initialize Firebase Admin");
+
+    if (isAdminConfigProblem) {
+      return res.status(503).json({
+        error:
+          "Firebase Admin is not configured on this server. Add FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, and FIREBASE_DATABASE_URL, then restart the backend.",
+      });
+    }
+
     res.status(401).json({ error: "Invalid token" });
   }
 }
@@ -775,9 +790,16 @@ function registerRoutes(app) {
         resend: true,
       });
 
+      if (!emailResult.sent) {
+        return res.status(503).json({
+          error: emailResult.reason || "Email delivery is disabled: SMTP is not configured.",
+          sent: false,
+        });
+      }
+
       await databaseRef.ref(`tickets/${ticketId}`).update({
-        emailStatus: emailResult.sent ? "resent" : "skipped",
-        emailSentAt: emailResult.sent ? Date.now() : ticket.emailSentAt || null,
+        emailStatus: "resent",
+        emailSentAt: Date.now(),
         emailBrandName:
           emailResult.brandName || ticket.emailBrandName || event?.emailBranding?.brandName || event?.title || "Ekotix",
       });

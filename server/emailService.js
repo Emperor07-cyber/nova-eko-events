@@ -5,18 +5,44 @@ const DEFAULT_BRAND_NAME = process.env.EMAIL_DEFAULT_BRAND_NAME || 'Ekotix';
 const DEFAULT_SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'Ekotix234@gmail.com';
 const DEFAULT_LOGO_URL = process.env.EMAIL_DEFAULT_LOGO_URL || 'https://www.ekotixx.com/images/Logo1.jpg';
 
+const stripInlineSpaces = (value) => String(value ?? '').trim().replace(/\s+/g, '');
+
+const parseFromAddress = (rawValue) => {
+  const value = String(rawValue || '').trim();
+  if (!value) return null;
+
+  const explicitAddressMatch = value.match(/<\s*([^>]+)\s*>/i);
+  if (explicitAddressMatch) {
+    const email = explicitAddressMatch[1].trim();
+    const nameMatch = value.slice(0, value.indexOf('<')).trim();
+    const name = nameMatch ? nameMatch.replace(/^"|"$/g, '').trim() : '';
+    return name ? `"${name}" <${email}>` : email;
+  }
+
+  const emailOnlyMatch = value.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if (emailOnlyMatch) {
+    return emailOnlyMatch[0].trim();
+  }
+
+  return value;
+};
+
 const createTransporter = () => {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  const smtpHost = stripInlineSpaces(process.env.SMTP_HOST);
+  const smtpUser = stripInlineSpaces(process.env.SMTP_USER);
+  const smtpPass = stripInlineSpaces(process.env.SMTP_PASS);
+
+  if (!smtpHost || !smtpUser || !smtpPass) {
     return null;
   }
 
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: smtpHost,
     port: Number(process.env.SMTP_PORT || 587),
     secure: String(process.env.SMTP_SECURE || '').toLowerCase() === 'true' || Number(process.env.SMTP_PORT || 587) === 465,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
   });
 };
@@ -39,7 +65,7 @@ const readEventBranding = (event = {}) => {
 
 const getFromAddress = (brand) => {
   if (process.env.EMAIL_FROM) {
-    return process.env.EMAIL_FROM;
+    return parseFromAddress(process.env.EMAIL_FROM);
   }
 
   return `"${brand.brandName}" <${process.env.SMTP_USER || DEFAULT_SUPPORT_EMAIL}>`;
