@@ -44,7 +44,7 @@ const Footer = () => {
         <div className="footer-container">
           <div className="footer-brand">
             <div className="footer-brand-mark">
-              <img src="/images/Logo1.jpg" alt="Ekotix logo" />
+              <img src="/images/Logo4.jpg" alt="Ekotix logo" />
             </div>
             <div className="footer-brand-copy">
               <strong>Ekotix</strong>

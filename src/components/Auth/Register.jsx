@@ -55,7 +55,7 @@ function Register() {
   return (
     <div className="auth-grid">
       <div className="auth-brand">
-        <img src="/images/Logo1.jpg" alt="Ekotix logo" className="auth-logo" />
+        <img src="/images/Logo4.jpg" alt="Ekotix logo" className="auth-logo" />
         <div className="auth-brand-copy">
           <strong className="auth-brand-name">Ekotix</strong>
           

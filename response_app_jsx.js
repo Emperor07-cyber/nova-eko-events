@@ -74,7 +74,7 @@ function SiteHeader({ links, navId }) {
                     className: "brand",
                     children: [
                         /*#__PURE__*/ _jsxDEV("img", {
-                            src: "/images/Logo1.jpg",
+                            src: "/images/Logo4.jpg",
                             alt: "Ekotix logo",
                             className: "brand-logo"
                         }, void 0, false, {

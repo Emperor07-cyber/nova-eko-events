@@ -50,7 +50,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <div className="admin-sidebar-header">
           <div className="admin-sidebar-brand">
             <img
-              src="/images/Logo1.jpg"
+              src="/images/Logo4.jpg"
               alt="Ekotix logo"
               className="admin-sidebar-logo"
             />

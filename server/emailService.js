@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 
 const DEFAULT_BRAND_NAME = process.env.EMAIL_DEFAULT_BRAND_NAME || 'Ekotix';
 const DEFAULT_SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'Ekotix234@gmail.com';
-const DEFAULT_LOGO_URL = process.env.EMAIL_DEFAULT_LOGO_URL || 'https://www.ekotixx.com/images/Logo1.jpg';
+const DEFAULT_LOGO_URL = process.env.EMAIL_DEFAULT_LOGO_URL || 'https://www.ekotixx.com/images/Logo4.jpg';
 
 const stripInlineSpaces = (value) => String(value ?? '').trim().replace(/\s+/g, '');
 
