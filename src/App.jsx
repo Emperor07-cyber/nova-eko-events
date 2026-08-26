@@ -140,6 +140,28 @@ function AdminShellLayout() {
 }
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return undefined;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateTheme = (event) => setIsDarkMode(event.matches);
+
+    setIsDarkMode(mediaQuery.matches);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateTheme);
+      return () => mediaQuery.removeEventListener("change", updateTheme);
+    }
+
+    mediaQuery.addListener(updateTheme);
+    return () => mediaQuery.removeListener(updateTheme);
+  }, []);
+
   return (
     <>
       <Routes>
@@ -274,7 +296,11 @@ function App() {
         </Route>
       </Routes>
 
-      <ToastContainer position="top-center" autoClose={3000} theme="light" />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        theme={isDarkMode ? "dark" : "light"}
+      />
     </>
   );
 }

@@ -14,6 +14,16 @@
   color: #17201a;
 }
 
+@media (prefers-color-scheme: dark) {
+  .home-troop {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.08), transparent 28%),
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.05), transparent 24%),
+      linear-gradient(180deg, #031109 0%, #06150d 100%);
+    color: #eef7f0;
+  }
+}
+
 /* ========================================
    GLOBAL
 ======================================== */
@@ -59,12 +69,34 @@
   letter-spacing: -0.04em;
 }
 
+@media (prefers-color-scheme: dark) {
+  .section-heading h2,
+  .why-ekotix h2,
+  .pricing-banner h2,
+  .faq-section h2 {
+    color: #f1fbf4;
+  }
+}
+
 .section-heading p:not(.home-kicker) {
   max-width: 600px;
   margin: 10px 0 0;
   color: #6b756e;
   font-size: 1rem;
   line-height: 1.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .section-heading p:not(.home-kicker),
+  .why-ekotix-content > p:not(.home-kicker),
+  .pricing-banner > div > p:last-child,
+  .faq-answer p,
+  .event-details,
+  .event-location,
+  .quick-feature p,
+  .offer-card-content p {
+    color: #d9eadf;
+  }
 }
 
 .section-heading-center {
@@ -134,6 +166,19 @@
   border: 1px solid #d7e4da;
 }
 
+@media (prefers-color-scheme: dark) {
+  .home-btn-secondary {
+    background: rgba(8, 26, 16, 0.96);
+    color: #eef7f0;
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .home-btn-secondary:hover {
+    background: rgba(12, 36, 22, 0.96);
+    border-color: rgba(95, 224, 128, 0.22);
+  }
+}
+
 .home-btn-secondary:hover {
   background: #f5faf6;
   border-color: #a9c8b0;
@@ -145,9 +190,7 @@
 
 .home-hero {
   min-height: 560px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.95fr);
-  gap: 48px;
+  display: flex;
   align-items: center;
   padding: 48px;
   border-radius: 28px;
@@ -160,6 +203,17 @@
     ),
     #f7fbf8;
   border: 1px solid #e3ece5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-hero {
+    border-color: rgba(95, 224, 128, 0.14);
+    background:
+      radial-gradient(circle at 15% 15%, rgba(46, 224, 111, 0.14), transparent 28%),
+      radial-gradient(circle at 85% 12%, rgba(46, 224, 111, 0.06), transparent 22%),
+      linear-gradient(180deg, rgba(7, 23, 14, 0.98), rgba(5, 18, 11, 0.98));
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  }
 }
 
 .home-hero-content {
@@ -175,6 +229,12 @@
   letter-spacing: -0.055em;
 }
 
+@media (prefers-color-scheme: dark) {
+  .home-hero h1 {
+    color: #f3fbf5;
+  }
+}
+
 .home-hero h1 span {
   color: #10612b;
 }
@@ -185,6 +245,12 @@
   color: #637067;
   font-size: 1.08rem;
   line-height: 1.75;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-hero-description {
+    color: #a7b9ae;
+  }
 }
 
 .home-proof {
@@ -206,6 +272,14 @@
   font-weight: 700;
 }
 
+@media (prefers-color-scheme: dark) {
+  .home-proof span {
+    background: rgba(46, 224, 111, 0.08);
+    color: #dff8e7;
+    border: 1px solid rgba(95, 224, 128, 0.12);
+  }
+}
+
 .home-proof svg {
   font-size: 0.9rem;
 }
@@ -216,79 +290,6 @@
   gap: 12px;
 }
 
-.home-stats {
-  max-width: 520px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-top: 42px;
-  padding-top: 28px;
-  border-top: 1px solid #dfe9e1;
-}
-
-.home-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.home-stat strong {
-  color: #152018;
-  font-size: 1.35rem;
-}
-
-.home-stat span {
-  color: #778178;
-  font-size: 0.84rem;
-}
-
-.home-hero-image {
-  position: relative;
-  height: 100%;
-  min-height: 460px;
-  overflow: hidden;
-  border-radius: 22px;
-  background: #dfe9e1;
-}
-
-.home-hero-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.home-hero-image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0) 45%,
-    rgba(0, 0, 0, 0.55) 100%
-  );
-}
-
-.home-hero-image-badge {
-  position: absolute;
-  left: 24px;
-  bottom: 24px;
-  right: 24px;
-  color: #ffffff;
-}
-
-.home-hero-image-badge span {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.8;
-}
-
-.home-hero-image-badge strong {
-  font-size: 1.2rem;
-}
-
 /* ========================================
    CATEGORIES
 ======================================== */
@@ -296,6 +297,12 @@
 .home-categories {
   margin-top: -54px;
   padding: 0 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-categories {
+    margin-top: -38px;
+  }
 }
 
 .category-scroll {
@@ -317,6 +324,27 @@
   font-size: 0.9rem;
   font-weight: 600;
   transition: all 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .category-chip {
+    background: rgba(8, 26, 16, 0.96);
+    border-color: rgba(95, 224, 128, 0.12);
+    color: #c7d6cd;
+  }
+
+  .category-chip:hover {
+    background: rgba(12, 36, 22, 0.98);
+    border-color: rgba(95, 224, 128, 0.2);
+    color: #f3fbf5;
+  }
+
+  .category-chip-active {
+    background: linear-gradient(135deg, #10612b, #1f7a47);
+    border-color: rgba(95, 224, 128, 0.2);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(16, 97, 43, 0.35);
+  }
 }
 
 .category-chip:hover {
@@ -357,6 +385,18 @@
     border-color 0.25s ease;
 }
 
+@media (prefers-color-scheme: dark) {
+  .event-card,
+  .offer-card,
+  .faq-item,
+  .empty-events,
+  .why-ekotix {
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+  }
+}
+
 .event-card:hover {
   transform: translateY(-5px);
   border-color: #c7d9cb;
@@ -369,6 +409,14 @@
   height: 250px;
   overflow: hidden;
   background: #edf2ee;
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-card-image,
+  .offer-card-image,
+  .why-ekotix-image {
+    background: rgba(255, 255, 255, 0.03);
+  }
 }
 
 .event-card-image img {
@@ -409,12 +457,81 @@
   line-height: 1.35;
 }
 
+@media (prefers-color-scheme: dark) {
+  .event-card-content h3,
+  .offer-card-content h3,
+  .quick-feature strong,
+  .faq-question,
+  .empty-events h3 {
+    color: #f2fbf4;
+  }
+
+  .quick-feature strong {
+    color: #ffffff;
+  }
+
+  .event-details,
+  .event-location,
+  .quick-feature p,
+  .offer-card-content p,
+  .why-ekotix-content > p:not(.home-kicker),
+  .pricing-banner > div > p:last-child,
+  .faq-answer p {
+    color: #e8f5eb;
+  }
+
+  .event-details,
+  .event-location {
+    color: #f2fff5;
+  }
+
+  .event-card-footer {
+    color: #7ff0a2;
+  }
+
+  .event-card-footer span,
+  .section-link,
+  .home-kicker {
+    color: #8af3aa;
+  }
+
+  .event-card-content h3 {
+    color: #ffffff;
+  }
+
+  .event-price {
+    color: #0a351d;
+    background: #dff9e8;
+    border: 1px solid rgba(46, 224, 111, 0.28);
+  }
+
+  .quick-feature p {
+    color: #ffffff;
+    opacity: 1;
+  }
+
+  .quick-feature-icon {
+    background: rgba(238, 247, 240, 0.95);
+    color: #1f7a47;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+
 .event-details,
 .event-location {
   margin: 0;
   color: #768078;
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-details,
+  .event-location {
+    font-size: 0.96rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
 }
 
 .event-location {
@@ -432,6 +549,32 @@
   font-weight: 700;
 }
 
+@media (prefers-color-scheme: dark) {
+  .event-card-footer,
+  .section-link,
+  .home-kicker,
+  .event-price,
+  .hm-card-price {
+    color: #2ee06f;
+  }
+
+  .event-price {
+    background: rgba(8, 26, 16, 0.92);
+    border: 1px solid rgba(95, 224, 128, 0.14);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-card-content {
+    gap: 0.45rem;
+  }
+
+  .event-card-footer {
+    padding-top: 16px;
+    border-top: 1px solid rgba(95, 224, 128, 0.12);
+  }
+}
+
 /* ========================================
    SKELETON
 ======================================== */
@@ -447,6 +590,18 @@
   );
   background-size: 800px 100%;
   animation: shimmer 1.3s infinite linear;
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(9, 29, 18, 0.95) 25%,
+      rgba(12, 36, 22, 0.95) 50%,
+      rgba(9, 29, 18, 0.95) 75%
+    );
+    background-size: 800px 100%;
+  }
 }
 
 @keyframes shimmer {
@@ -471,6 +626,13 @@
   border: 1px solid #e3eae4;
   border-radius: 20px;
   background: #fafcfb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .empty-events {
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+  }
 }
 
 .empty-events-icon {
@@ -509,6 +671,17 @@
   border-bottom: 1px solid #e7ece8;
 }
 
+@media (prefers-color-scheme: dark) {
+  .quick-features {
+    border-top-color: rgba(95, 224, 128, 0.12);
+    border-bottom-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .quick-feature:not(:last-child) {
+    border-right-color: rgba(95, 224, 128, 0.12);
+  }
+}
+
 .quick-feature {
   display: flex;
   align-items: center;
@@ -539,11 +712,27 @@
   color: #1a251d;
 }
 
+@media (prefers-color-scheme: dark) {
+  .quick-feature strong {
+    color: #ffffff;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+  }
+}
+
 .quick-feature p {
   margin: 0;
   color: #778178;
   font-size: 0.88rem;
   line-height: 1.55;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quick-feature p {
+    color: #f4fff6;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
 }
 
 /* ========================================
@@ -558,6 +747,15 @@
   padding: 32px;
   border-radius: 28px;
   background: #f6faf7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .why-ekotix {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.08), transparent 26%),
+      linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border: 1px solid rgba(95, 224, 128, 0.12);
+  }
 }
 
 .why-ekotix-image {
@@ -655,6 +853,12 @@
   line-height: 1.7;
 }
 
+@media (prefers-color-scheme: dark) {
+  .offer-card-content p {
+    color: #f1fbf4;
+  }
+}
+
 /* ========================================
    PRICING
 ======================================== */
@@ -674,6 +878,15 @@
     ),
     #edf7ef;
   border: 1px solid #dcebe0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pricing-banner {
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 28%),
+      linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+  }
 }
 
 .pricing-banner h2 {
@@ -715,6 +928,12 @@
   border-color: #b8d3be;
 }
 
+@media (prefers-color-scheme: dark) {
+  .faq-item-open {
+    border-color: rgba(95, 224, 128, 0.24);
+  }
+}
+
 .faq-question {
   width: 100%;
   min-height: 68px;
@@ -738,6 +957,14 @@
   transition: transform 0.2s ease;
 }
 
+@media (prefers-color-scheme: dark) {
+  .faq-question svg,
+  .quick-feature-icon,
+  .empty-events-icon {
+    color: #2ee06f;
+  }
+}
+
 .faq-item-open .faq-question svg {
   transform: rotate(180deg);
 }
@@ -752,6 +979,16 @@
   line-height: 1.75;
 }
 
+@media (prefers-color-scheme: dark) {
+  .home-kicker {
+    color: #46e67c;
+  }
+
+  .section-link:hover {
+    color: #6ff19c;
+  }
+}
+
 /* ========================================
    TABLET
 ======================================== */
@@ -762,15 +999,7 @@
   }
 
   .home-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .home-hero-content {
     max-width: 760px;
-  }
-
-  .home-hero-image {
-    min-height: 420px;
   }
 
   .events-grid,
@@ -823,33 +1052,6 @@
 
   .home-hero-actions .home-btn {
     width: 100%;
-  }
-
-  .home-stats {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-top: 30px;
-  }
-
-  .home-stat {
-    padding-bottom: 14px;
-    border-bottom: 1px solid #e2eae3;
-  }
-
-  .home-stat:last-child {
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-
-  .home-hero-image {
-    min-height: 300px;
-    border-radius: 18px;
-  }
-
-  .home-hero-image-badge {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
   }
 
   .home-categories {
@@ -965,10 +1167,6 @@
 
   .home-hero h1 {
     font-size: 2.65rem;
-  }
-
-  .home-hero-image {
-    min-height: 250px;
   }
 
   .event-card-image {

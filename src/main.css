@@ -17,6 +17,159 @@ body {
   line-height: 1.6;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.08), transparent 24%),
+      linear-gradient(180deg, #031109 0%, #06150d 100%);
+    color: #f1fbf4;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: #f6fcf7;
+  }
+
+  p, li, small, label, span, td, th, input, select, textarea {
+    color: #e8f5eb;
+  }
+
+  a {
+    color: #6ff19c;
+  }
+
+  input, select, textarea {
+    background: rgba(8, 26, 16, 0.96);
+    border-color: rgba(95, 224, 128, 0.16);
+    color: #f6fcf7;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #a5baaf;
+  }
+
+  button {
+    color: #ffffff;
+  }
+
+  .checkout-panel,
+  .order-summary-card,
+  .register-form,
+  .register-wrapper .card,
+  .auth-panel,
+  .legal-container,
+  .event-details,
+  .home-troop .event-card,
+  .home-troop .offer-card,
+  .home-troop .faq-item,
+  .home-troop .empty-events,
+  .home-troop .pricing-banner,
+  .home-troop .why-ekotix,
+  .admin-dashboard .chart-container,
+  .admin-dashboard .ticket-table-container,
+  .admin-dashboard .dashboard-card,
+  .admin-dashboard .stat-card,
+  .admin-dashboard .table-wrapper,
+  .card,
+  .pricing-card,
+  .event-card,
+  .pricing-section,
+  .faq-item,
+  .wallet-card,
+  .wallet-stat-card,
+  .stat-card,
+  .dashboard-card,
+  .chart-container,
+  .ticket-table-container,
+  .table-wrapper,
+  .card-body,
+  .pricing-banner,
+  .faq-item,
+  .quick-feature,
+  .why-ekotix,
+  .offer-card,
+  .wallet-card,
+  .wallet-stat-card,
+  .summary-card,
+  .summary-box,
+  .modal-content,
+  .qr-modal,
+  .event-modal,
+  .edit-event-container,
+  .dashboard-card,
+  .stat-card,
+  .chart-container,
+  .ticket-table-container,
+  .table-wrapper {
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+    color: #f1fbf4;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+  }
+
+  .container,
+  .page,
+  .app-shell {
+    background: transparent;
+  }
+
+  .event-details p,
+  .event-details .description,
+  .legal-content p,
+  .legal-content li,
+  .admin-dashboard .dashboard-card p,
+  .admin-dashboard .stat-title,
+  .admin-dashboard .ticket-table td,
+  .admin-dashboard .ticket-table th,
+  .stat-title,
+  .ticket-table td,
+  .ticket-table th,
+  .dashboard-card p,
+  .dashboard-table td,
+  .dashboard-table th,
+  .wallet-stat-label,
+  .wallet-note-cell,
+  .field-note {
+    color: #e8f5eb;
+  }
+
+  .pricing-card svg,
+  .faq-item--open h3,
+  .ticket-price,
+  .wallet-card p,
+  .wallet-stat-value,
+  .download-btn,
+  .export-button,
+  .view-more-link,
+  .section-link {
+    color: #6ff19c;
+  }
+
+  .home-troop .home-kicker,
+  .home-troop .section-link,
+  .home-troop .event-card-footer,
+  .home-troop .event-price {
+    color: #8af3aa;
+  }
+
+  .spinner-overlay {
+    background-color: rgba(3, 17, 9, 0.85);
+  }
+
+  .home-troop .event-card,
+  .home-troop .offer-card,
+  .home-troop .faq-item,
+  .home-troop .empty-events,
+  .home-troop .pricing-banner,
+  .home-troop .why-ekotix,
+  .home-troop .quick-feature,
+  .home-troop .hero-split,
+  .home-troop .checkout-panel,
+  .home-troop .order-summary-card {
+    border-color: rgba(95, 224, 128, 0.12);
+  }
+}
+
 /* Container */
 .container {
   width: 90%;

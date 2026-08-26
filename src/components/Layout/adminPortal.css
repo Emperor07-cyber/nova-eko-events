@@ -19,6 +19,23 @@
   --admin-font-display: "Syne", "Segoe UI", sans-serif;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --admin-shell-bg: #031109;
+    --admin-sidebar-bg: #020d08;
+    --admin-sidebar-surface: rgba(255, 255, 255, 0.05);
+    --admin-sidebar-border: rgba(95, 224, 128, 0.14);
+    --admin-sidebar-text: rgba(240, 249, 243, 0.84);
+    --admin-sidebar-muted: rgba(220, 233, 224, 0.58);
+    --admin-sidebar-active: #2ee06f;
+    --admin-shell-surface: #0b2115;
+    --admin-shell-border: rgba(95, 224, 128, 0.12);
+    --admin-shell-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+    --admin-shell-text: #eef7f0;
+    --admin-shell-muted: #9fb4a8;
+  }
+}
+
 .admin-shell-layout {
   min-height: 100vh;
   display: flex;
@@ -354,6 +371,72 @@
   border: 1px solid var(--admin-shell-border);
   color: var(--admin-shell-text);
   box-shadow: var(--admin-shell-shadow);
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-shell-layout,
+  .admin-shell-main {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.1), transparent 24%),
+      linear-gradient(180deg, #031109, #04150c);
+  }
+
+  .admin-topbar {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.14), transparent 24%),
+      linear-gradient(180deg, rgba(11, 33, 21, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.14);
+  }
+
+  .admin-sidebar {
+    background:
+      radial-gradient(circle at top left, rgba(46, 224, 111, 0.2), transparent 20%),
+      linear-gradient(180deg, #06150d, #020905);
+  }
+
+  .admin-sidebar-close-btn,
+  .admin-sidebar-toggle-btn {
+    background: rgba(9, 29, 18, 0.95);
+    border-color: rgba(95, 224, 128, 0.16);
+    color: #eef7f0;
+  }
+
+  .admin-sidebar-link:hover {
+    background: rgba(46, 224, 111, 0.1);
+  }
+
+  .admin-sidebar-link.active {
+    background: rgba(46, 224, 111, 0.16);
+    box-shadow: inset 4px 0 0 rgba(46, 224, 111, 0.95);
+  }
+
+  .admin-sidebar-user,
+  .admin-sidebar-highlight {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(95, 224, 128, 0.1);
+  }
+
+  .admin-shell-content .card,
+  .admin-shell-content .dashboard-card,
+  .admin-shell-content .stat-card,
+  .admin-shell-content .chart-container,
+  .admin-shell-content .table-wrapper,
+  .admin-shell-content .ticket-table-container,
+  .admin-shell-content .admin-panel,
+  .admin-shell-content .section-card {
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+    color: #eef7f0;
+  }
+
+  .admin-shell-content p,
+  .admin-shell-content li,
+  .admin-shell-content td,
+  .admin-shell-content th,
+  .admin-shell-content label,
+  .admin-shell-content span {
+    color: #e8f5eb;
+  }
 }
 
 @media (min-width: 1025px) {

@@ -41,12 +41,6 @@ const CATEGORIES = [
   "Sports",
 ];
 
-const HERO_STATS = [
-  { value: "2K+", label: "Events hosted" },
-  { value: "90K+", label: "Tickets issued" },
-  { value: "24/7", label: "Buyer support" },
-];
-
 const OFFER_ITEMS = [
   {
     image: "/images/whyekotixx.jpeg",
@@ -265,31 +259,6 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="home-stats">
-            {HERO_STATS.map((item) => (
-              <div
-                key={item.label}
-                className="home-stat"
-              >
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="home-hero-image">
-          <img
-            src="/images/nova-1.jpg"
-            alt="Ekotix events"
-          />
-
-          <div className="home-hero-image-overlay" />
-
-          <div className="home-hero-image-badge">
-            <span>Discover</span>
-            <strong>Events happening near you</strong>
-          </div>
         </div>
       </section>
 
