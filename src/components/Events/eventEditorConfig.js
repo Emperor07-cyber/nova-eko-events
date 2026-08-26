@@ -81,6 +81,7 @@ export const extractSlug = (eventUrl = "") => {
 export const createEmptyTicket = () => ({
   type: "",
   price: "",
+  isFree: false,
   perks: [],
   limit: "",
 });
@@ -88,6 +89,7 @@ export const createEmptyTicket = () => ({
 export const createDefaultTicket = () => ({
   type: "Regular",
   price: "",
+  isFree: false,
   perks: [],
   limit: "",
 });
@@ -104,6 +106,7 @@ export const createDefaultEmailBranding = () => ({
 export const normalizeTicket = (ticket = {}) => ({
   type: ticket.type || "",
   price: ticket.price ?? "",
+  isFree: Boolean(ticket.isFree) || Number(ticket.price) === 0,
   perks: Array.isArray(ticket.perks) ? ticket.perks : [],
   limit: ticket.limit ?? "",
 });

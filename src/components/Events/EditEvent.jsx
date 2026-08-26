@@ -182,9 +182,12 @@ const EditEvent = () => {
   const handleTicketChange = (index, field, value) => {
     setEventData((prev) => {
       const updatedTickets = [...prev.tickets];
+      const isFreeField = field === "isFree";
       updatedTickets[index] = {
         ...updatedTickets[index],
         [field]: value,
+        ...(isFreeField && value ? { price: "0" } : {}),
+        ...(isFreeField && !value ? { price: "" } : {}),
       };
 
       return { ...prev, tickets: updatedTickets };
@@ -280,7 +283,8 @@ const EditEvent = () => {
 
   const normalizedTickets = eventData.tickets.map((ticket) => ({
     ...ticket,
-    price: ticket.price === "" ? "" : Number(ticket.price || 0),
+    price: ticket.isFree ? 0 : ticket.price === "" ? "" : Number(ticket.price || 0),
+    isFree: Boolean(ticket.isFree) || Number(ticket.price) === 0,
     limit: ticket.limit === "" ? "" : Number(ticket.limit || 0),
     perks: ticket.perks.filter((perk) => perk.trim()),
   }));
@@ -559,9 +563,20 @@ const EditEvent = () => {
                           <input
                             type="number"
                             min="0"
-                            value={ticket.price || ""}
+                            value={ticket.isFree ? 0 : ticket.price || ""}
+                            disabled={ticket.isFree}
                             onChange={(event) => handleTicketChange(index, "price", event.target.value)}
                             placeholder="0"
+                          />
+                        </label>
+
+                        <label className="event-editor-field">
+                          <span>Free ticket</span>
+                          <input
+                            type="checkbox"
+                            checked={Boolean(ticket.isFree)}
+                            onChange={(event) => handleTicketChange(index, "isFree", event.target.checked)}
+                            style={{ width: "18px", height: "18px", alignSelf: "flex-start", marginTop: "10px" }}
                           />
                         </label>
 
