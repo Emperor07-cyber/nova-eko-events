@@ -2,6 +2,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { Routes, Route, Link, Outlet, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Analytics } from "@vercel/analytics/react";
 
 import Register from "./components/Auth/Register";
 import Login from "./components/Auth/Login";
@@ -279,6 +280,7 @@ function App() {
         autoClose={3000}
         theme="dark"
       />
+      <Analytics />
     </>
   );
 }
