@@ -352,11 +352,11 @@ const HostEventDetails = () => {
             </div>
           </section>
 
-          <section className="host-event-card host-event-chart-card">
+         <section className="host-event-card host-event-chart-card">
             <div className="host-event-card-header">
               <div>
-                <h2>Revenue overview</h2>
-                <p>Live ticket revenue from this event.</p>
+                <h2>Sales overview</h2>
+                <p>Live ticket volume from this event.</p>
               </div>
             </div>
             <div className="chart-wrapper host-event-chart-wrapper">
@@ -364,13 +364,15 @@ const HostEventDetails = () => {
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={salesByDay} margin={{ left: -16, right: 0, top: 10, bottom: 0 }}>
                     <XAxis dataKey="day" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
-                    <Tooltip formatter={(value) => `₦${Number(value).toLocaleString()}`} />
-                    <Bar dataKey="revenue" fill="#14c02b" radius={[6, 6, 0, 0]} />
+                    {/* allowDecimals={false} prevents the Y-axis from showing fractions of tickets */}
+                    <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <Tooltip formatter={(value) => [`${value} tickets`, "Volume"]} />
+                    {/* Changed dataKey to "sold" */}
+                    <Bar dataKey="sold" fill="#14c02b" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="empty-chart-state">No revenue yet. Ticket sales will appear here once your event receives orders.</div>
+                <div className="empty-chart-state">No tickets sold yet. Ticket volume will appear here once your event receives orders.</div>
               )}
             </div>
           </section>
