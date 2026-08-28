@@ -195,11 +195,11 @@ const HostEventDetails = () => {
         month: "short",
         day: "numeric",
       });
-      if (!acc[day]) acc[day] = { day, revenue: 0 };
-      acc[day].revenue += Number(ticket.totalPaid || 0);
+      if (!acc[day]) acc[day] = { day, sold: 0 };
+      acc[day].sold += Number(ticket.quantity || 1);
       return acc;
     }, {})
-  );
+  ).sort((a, b) => new Date(`${a.day} 2026`) - new Date(`${b.day} 2026`));
 
   const ticketTypeMap = tickets.reduce((acc, ticket) => {
     const type = ticket.ticketType || "General";
