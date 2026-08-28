@@ -125,6 +125,10 @@ const buildReceiptHtml = ({ ticket, event, branding, resend = false }) => {
 
             <div style="display:block;text-align:center;margin:24px 0;">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrValue)}" alt="Ticket QR code" style="width:200px;height:200px;border:8px solid #eef6ef;border-radius:18px;" />
+              ${ticket?.token ? `
+              <p style="margin:16px 0 0;color:#64748b;font-size:13px;">Can't scan the QR code? Give this code to check-in staff:</p>
+              <p style="margin:6px 0 0;color:#10612B;font-size:26px;font-weight:800;letter-spacing:0.12em;">${escapeHtml(ticket.token)}</p>
+              ` : ''}
               <p style="margin:12px 0 0;color:#64748b;font-size:13px;">Order reference: ${escapeHtml(ticket?.transactionId || ticket?.id || '')}</p>
             </div>
 

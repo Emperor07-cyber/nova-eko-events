@@ -15,6 +15,7 @@
     },
     "tickets": {
       ".read": "auth != null",
+      ".indexOn": ["token"],
       ".write": false
     },
     "merchOrders": {

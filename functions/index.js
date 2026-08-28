@@ -9,7 +9,7 @@ try {
 }
 
 // separate admin functions appended from adminFunctions.js
-require('./adminFunctions');
+Object.assign(exports, require('./adminFunctions'));
 
 exports.getBanks = functions.https.onRequest(async (req, res) => {
   try {

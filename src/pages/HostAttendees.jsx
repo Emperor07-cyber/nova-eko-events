@@ -9,6 +9,7 @@ const HostAttendees = () => {
   const [user] = useAuthState(auth);
   const [events, setEvents] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [expandedEventId, setExpandedEventId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -120,20 +121,71 @@ const HostAttendees = () => {
                 </td>
               </tr>
             ) : (
-              attendanceSummary.map(({ event, totalTickets, attendees, checkedInCount, revenue }) => (
-                <tr key={event.id}>
-                  <td data-label="Event">{event.title}</td>
-                  <td data-label="Tickets Sold">{totalTickets}</td>
-                  <td data-label="Unique Attendees">{attendees}</td>
-                  <td data-label="Checked In">{checkedInCount}</td>
-                  <td data-label="Revenue">₦{revenue.toLocaleString()}</td>
-                  <td data-label="Action">
-                    <button className="btn-copy-link" onClick={() => navigate(`/event/edit/${event.id}`)}>
-                      Manage
-                    </button>
-                  </td>
-                </tr>
-              ))
+              attendanceSummary.map(({ event, totalTickets, attendees, checkedInCount, revenue }) => {
+                const isExpanded = expandedEventId === event.id;
+                const eventTickets = tickets.filter((ticket) => ticket.eventId === event.id);
+                return (
+                  <React.Fragment key={event.id}>
+                    <tr>
+                      <td data-label="Event">{event.title}</td>
+                      <td data-label="Tickets Sold">{totalTickets}</td>
+                      <td data-label="Unique Attendees">{attendees}</td>
+                      <td data-label="Checked In">{checkedInCount}</td>
+                      <td data-label="Revenue">₦{revenue.toLocaleString()}</td>
+                      <td data-label="Action">
+                        <button
+                          className="btn-copy-link"
+                          onClick={() => setExpandedEventId(isExpanded ? null : event.id)}
+                          style={{ marginRight: 8 }}
+                        >
+                          {isExpanded ? "Hide Buyers" : "View Buyers"}
+                        </button>
+                        <button className="btn-copy-link" onClick={() => navigate(`/event/edit/${event.id}`)}>
+                          Manage
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: 0 }}>
+                          <div className="table-wrapper" style={{ margin: "8px 0 16px" }}>
+                            <table className="host-table host-table-stacked">
+                              <thead>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Email</th>
+                                  <th>Ticket Type</th>
+                                  <th>Quantity</th>
+                                  <th>Amount Paid</th>
+                                  <th>Checked In</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {eventTickets.length === 0 ? (
+                                  <tr>
+                                    <td colSpan={6} className="table-empty">No buyers yet for this event.</td>
+                                  </tr>
+                                ) : (
+                                  eventTickets.map((ticket) => (
+                                    <tr key={ticket.id}>
+                                      <td data-label="Name">{ticket.name || "—"}</td>
+                                      <td data-label="Email">{ticket.email || "—"}</td>
+                                      <td data-label="Ticket Type">{ticket.ticketType || "—"}</td>
+                                      <td data-label="Quantity">{ticket.quantity || 1}</td>
+                                      <td data-label="Amount Paid">₦{Number(ticket.totalPaid || 0).toLocaleString()}</td>
+                                      <td data-label="Checked In">{ticket.checkedIn ? "Yes" : "No"}</td>
+                                    </tr>
+                                  ))
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </React.Fragment>
+                );
+              })
             )}
           </tbody>
         </table>

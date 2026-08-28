@@ -339,15 +339,22 @@ const CheckInPage = () => {
           <div id="qr-reader" style={styles.qrReader} ref={scannerRef} />
         ) : (
           <form style={styles.manualEntryBox} onSubmit={handleManualSubmit}>
-            <p style={styles.manualEntryLabel}>Enter the ticket's order reference or code</p>
+            <p style={styles.manualEntryLabel}>Enter the 7-character ticket code</p>
             <input
-              style={styles.input}
+              style={styles.codeInput}
               type="text"
-              placeholder="e.g. FREE-1734... or transaction ref"
+              inputMode="text"
+              autoCapitalize="characters"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
+              maxLength={7}
+              placeholder="ABC23XY"
               value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
+              onChange={(e) => setManualCode(e.target.value.toUpperCase().slice(0, 7))}
               autoFocus
             />
+            <p style={styles.manualEntryHint}>Order reference or old-style codes still work too.</p>
             <button
               type="submit"
               style={{ ...styles.btn, opacity: manualBusy || !manualCode.trim() ? 0.7 : 1 }}
@@ -469,6 +476,29 @@ const styles = {
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
   },
   errorText: { color: "#fca5a5", fontSize: "0.9rem", marginBottom: "0.75rem" },
+  codeInput: {
+    width: "100%",
+    padding: "0.9rem 1rem",
+    borderRadius: "12px",
+    border: "1px solid #dbe2ee",
+    background: "#fff",
+    color: "#111827",
+    fontSize: "1.75rem",
+    fontWeight: 700,
+    fontFamily: "monospace",
+    textAlign: "center",
+    letterSpacing: "0.3em",
+    boxSizing: "border-box",
+    marginBottom: "0.5rem",
+    outline: "none",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
+  },
+  manualEntryHint: {
+    color: "#a8c9b1",
+    fontSize: "0.78rem",
+    textAlign: "center",
+    marginBottom: "0.75rem",
+  },
   modeToggleRow: {
     display: "flex",
     gap: "8px",

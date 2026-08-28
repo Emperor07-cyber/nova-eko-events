@@ -26,6 +26,7 @@ const buildFirebaseCredential = () => {
 };
 const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
 const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
+const { generateUniqueTicketCode } = require('./ticketCode');
 
 const app = express();
 
@@ -157,6 +158,11 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         overLimit = alreadyBought + quantity > maxPerUser;
       }
 
+      // Short, human-typeable code (7 chars) for manual check-in, separate
+      // from the long Firebase push key and Paystack reference — see
+      // server/ticketCode.js.
+      const ticketCode = await generateUniqueTicketCode(admin.database());
+
       const ticketData = {
         name,
         email,
@@ -173,6 +179,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         deliveryFee,
         totalCharged: totalAmount,
         transactionId: reference,
+        token: ticketCode,
         timestamp: Date.now(),
         savedBy: "webhook",
         ...(overLimit

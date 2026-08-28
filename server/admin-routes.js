@@ -1,6 +1,7 @@
 const axios = require("axios");
 const admin = require("firebase-admin");
 const { loadEventById, sendTicketReceiptEmail } = require("./emailService");
+const { generateUniqueTicketCode } = require("./ticketCode");
 
 // See server.js for why this can't just be admin.credential.applicationDefault()
 // on Render — that only resolves automatically on real GCP infrastructure.
@@ -225,6 +226,103 @@ module.exports.getExistingTicketQuantity = getExistingTicketQuantity;
 module.exports.getMaxPerUser = getMaxPerUser;
 
 function registerRoutes(app) {
+  // Validates a scanner access code and returns event-level ticket counts.
+  // Used to populate the check-in screen without the client needing direct
+  // read access to the `tickets` node (which requires Firebase Auth, and
+  // scanner staff authenticate via access code, not Firebase Auth).
+  app.get("/checkin/summary", async (req, res) => {
+    try {
+      const { eventId, accessCode } = req.query || {};
+      if (!eventId || !accessCode) {
+        return res.status(400).json({ error: "Missing eventId or accessCode" });
+      }
+
+      const eventSnap = await db().ref(`events/${eventId}`).once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Invalid Access Code." });
+      }
+
+      const event = eventSnap.val() || {};
+      const scannerAccess = resolveScannerAccess(event, accessCode);
+      if (!scannerAccess) {
+        return res.status(403).json({ error: "Invalid Access Code." });
+      }
+
+      const ticketsSnap = await db().ref("tickets").once("value");
+      const allTickets = Object.values(ticketsSnap.val() || {});
+      const eventTickets = allTickets.filter((t) => String(t.eventId || "") === String(eventId));
+      const totalTickets = eventTickets.reduce((sum, t) => sum + (t.quantity || 1), 0);
+      const checkedInCount = eventTickets
+        .filter((t) => t.checkedIn)
+        .reduce((sum, t) => sum + (t.quantity || 1), 0);
+
+      res.json({
+        eventId,
+        eventData: event,
+        totalTickets,
+        checkedInCount,
+        scannerName: scannerAccess.scannerName,
+      });
+    } catch (err) {
+      console.error("checkin/summary error", err);
+      res.status(500).json({ error: "Something went wrong. Try again." });
+    }
+  });
+
+  // Looks up a ticket by QR token, transaction reference, or ticket id
+  // (whichever the scanned value or manually-typed code matches) and
+  // returns its status WITHOUT checking it in. Server-side because the
+  // scanner client has no Firebase Auth session and can't read `tickets`
+  // directly. The actual check-in write still goes through /checkin/ticket.
+  app.post("/checkin/lookup", async (req, res) => {
+    try {
+      const { eventId, accessCode, rawValue } = req.body || {};
+      if (!eventId || !accessCode || !rawValue) {
+        return res.status(400).json({ error: "Missing lookup data" });
+      }
+
+      const eventSnap = await db().ref(`events/${eventId}`).once("value");
+      if (!eventSnap.exists()) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+
+      const event = eventSnap.val() || {};
+      const scannerAccess = resolveScannerAccess(event, accessCode);
+      if (!scannerAccess) {
+        return res.status(403).json({ error: "Invalid access code" });
+      }
+
+      const ticketsSnap = await db().ref("tickets").once("value");
+      const allTickets = Object.entries(ticketsSnap.val() || {}).map(([id, t]) => ({ id, ...t }));
+      const needle = String(rawValue).trim();
+      const ticket = allTickets.find(
+        (t) => t.token === needle || t.transactionId === needle || t.id === needle
+      );
+
+      if (!ticket) {
+        return res.status(404).json({ error: "Invalid Ticket" });
+      }
+
+      if (String(ticket.eventId || "") !== String(eventId)) {
+        return res.status(400).json({ error: "Ticket is for a different event" });
+      }
+
+      if (ticket.checkedIn) {
+        return res.status(409).json({
+          error: "Ticket already checked in",
+          alreadyCheckedIn: true,
+          checkedInAt: ticket.checkedInAt || null,
+          ticket,
+        });
+      }
+
+      res.json({ ticket });
+    } catch (err) {
+      console.error("checkin/lookup error", err);
+      res.status(500).json({ error: "Error verifying ticket" });
+    }
+  });
+
   app.post("/checkin/ticket", async (req, res) => {
     try {
       const { ticketId, eventId, accessCode } = req.body || {};
@@ -455,6 +553,10 @@ function registerRoutes(app) {
         }
       }
 
+      // Short, human-typeable code (7 chars) for manual check-in — see
+      // server/ticketCode.js.
+      const ticketCode = await generateUniqueTicketCode(db());
+
       const ticketData = {
         name,
         email,
@@ -471,6 +573,7 @@ function registerRoutes(app) {
         deliveryFee: 0,
         totalCharged: 0,
         transactionId: `FREE-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        token: ticketCode,
         timestamp: Date.now(),
         savedBy: "free-claim",
       };

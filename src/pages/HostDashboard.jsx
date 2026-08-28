@@ -15,6 +15,7 @@ const HostDashboard = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [buyersEventId, setBuyersEventId] = useState(null);
   const navigate = useNavigate();
 
   // ── Withdrawals listener ──
@@ -309,6 +310,12 @@ const HostDashboard = () => {
                           )}
                         </td>
                         <td className="action-btns" data-label="Actions">
+                          <button
+                            className="btn-copy-link"
+                            onClick={() => setBuyersEventId(buyersEventId === event.id ? null : event.id)}
+                          >
+                            {buyersEventId === event.id ? "Hide Buyers" : "View Buyers"}
+                          </button>
                           <button className="btn-edit" onClick={() => navigate(`/event/edit/${event.id}`)}>Edit</button>
                           <button className="btn-delete" onClick={() => handleDelete(event.id)}>Delete</button>
                         </td>
@@ -319,7 +326,52 @@ const HostDashboard = () => {
               </tbody>
             </table>
           </div>
-          <CSVLink data={tickets} filename="host-tickets.csv" className="btn-csv">
+
+          {buyersEventId ? (
+            <div className="host-dash-panel" style={{ marginTop: 16 }}>
+              <div className="section-header">
+                <h3 className="section-title">
+                  Buyers — {events.find((e) => e.id === buyersEventId)?.title || "Event"}
+                </h3>
+              </div>
+              <div className="table-wrapper">
+                <table className="host-table host-table-stacked">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Ticket Type</th>
+                      <th>Quantity</th>
+                      <th>Amount Paid</th>
+                      <th>Checked In</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tickets.filter((t) => t.eventId === buyersEventId).length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="table-empty">No buyers yet for this event.</td>
+                      </tr>
+                    ) : (
+                      tickets
+                        .filter((t) => t.eventId === buyersEventId)
+                        .map((ticket) => (
+                          <tr key={ticket.id}>
+                            <td data-label="Name">{ticket.name || "—"}</td>
+                            <td data-label="Email">{ticket.email || "—"}</td>
+                            <td data-label="Ticket Type">{ticket.ticketType || "—"}</td>
+                            <td data-label="Quantity">{ticket.quantity || 1}</td>
+                            <td data-label="Amount Paid">{formatNaira(ticket.totalPaid)}</td>
+                            <td data-label="Checked In">{ticket.checkedIn ? "Yes" : "No"}</td>
+                          </tr>
+                        ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+
+          <CSVLink data={tickets} filename="host-tickets.csv" className="btn-csv" style={{ marginTop: 16, display: "inline-block" }}>
             Download CSV
           </CSVLink>
         </section>
