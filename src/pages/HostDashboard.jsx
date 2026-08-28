@@ -82,10 +82,13 @@ const HostDashboard = () => {
     tickets.reduce((acc, ticket) => {
       const date = new Date(ticket.timestamp || Date.now()).toLocaleDateString();
       acc[date] = acc[date] || { date, total: 0 };
-      acc[date].total += ticket.totalPaid || 0;
+      
+      // Summing up the ticket quantity (defaulting to 1 if missing)
+      acc[date].total += (ticket.quantity || 1); 
+      
       return acc;
     }, {})
-  );
+  ).sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort chronologically
 
   const handleDelete = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event and all its tickets?")) {

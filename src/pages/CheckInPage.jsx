@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ref, get } from "firebase/database";
+import { ref, get, query, orderByChild, equalTo, runTransaction, serverTimestamp } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { Html5Qrcode } from "html5-qrcode";
-import { apiUrl } from "../Utils/apiBase";
+import { getAuth, signInAnonymously, signOut } from "firebase/auth";
 
 const CheckInPage = () => {
-  const [step, setStep] = useState("login"); // login | scanning | result
+  const [step, setStep] = useState("login");
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [eventData, setEventData] = useState(null);
   const [eventId, setEventId] = useState(null);
-  const [scanResult, setScanResult] = useState(null); // null | success | error
+  const [scanResult, setScanResult] = useState(null); 
   const [scanMessage, setScanMessage] = useState("");
   const [attendeeInfo, setAttendeeInfo] = useState(null);
   const [checkedInCount, setCheckedInCount] = useState(0);
@@ -18,14 +18,20 @@ const CheckInPage = () => {
   const [torchOn, setTorchOn] = useState(false);
   const [scanHistory, setScanHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [scanMode, setScanMode] = useState("camera"); // camera | manual
+  const [scanMode, setScanMode] = useState("camera"); 
   const [manualCode, setManualCode] = useState("");
   const [manualBusy, setManualBusy] = useState(false);
+  
   const scannerRef = useRef(null);
   const html5QrRef = useRef(null);
   const resultTimeoutRef = useRef(null);
 
-  // Play sound
+  useEffect(() => {
+    return () => {
+      if (resultTimeoutRef.current) clearTimeout(resultTimeoutRef.current);
+    };
+  }, []);
+
   const playSound = (type) => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -51,14 +57,13 @@ const CheckInPage = () => {
     } catch (e) {}
   };
 
-  // Vibrate
   const vibrate = (type) => {
     if (!navigator.vibrate) return;
     if (type === "success") navigator.vibrate([100, 50, 100]);
     else navigator.vibrate([300, 100, 300]);
   };
 
-  // Validate access code
+  // Client-Side Validation & Anonymous Auth
   const handleStartScanner = async () => {
     if (!accessCode.trim()) {
       setCodeError("Please enter an access code.");
@@ -66,16 +71,25 @@ const CheckInPage = () => {
     }
     setLoading(true);
     setCodeError("");
+
     try {
+      // 1. Log in anonymously to bypass Firebase rules
+      const auth = getAuth();
+      await signInAnonymously(auth);
+
+      // 2. Validate the code directly against the database
       const eventsRef = ref(database, "events");
       const snapshot = await get(eventsRef);
+      
       if (!snapshot.exists()) {
         setCodeError("Invalid Access Code.");
         setLoading(false);
         return;
       }
+      
       const events = snapshot.val();
       const enteredCode = accessCode.trim().toUpperCase();
+      
       const match = Object.entries(events).find(([, ev]) => {
         if (ev.scannerCode?.toUpperCase() === enteredCode) return true;
         const scanners = ev.scanners || {};
@@ -83,37 +97,48 @@ const CheckInPage = () => {
           (scanner) => scanner.active !== false && scanner.code?.toUpperCase() === enteredCode
         );
       });
+
       if (!match) {
         setCodeError("Invalid Access Code.");
+        await signOut(auth); // Log out if code fails
         setLoading(false);
         return;
       }
+
       const [id, ev] = match;
       setEventId(id);
       setEventData(ev);
-      // Count tickets
-      const ticketsSnap = await get(ref(database, "tickets"));
+
+      // 3. Fetch Event Tickets safely
+      const ticketsQuery = query(ref(database, "tickets"), orderByChild("eventId"), equalTo(id));
+      const ticketsSnap = await get(ticketsQuery);
+      
       if (ticketsSnap.exists()) {
-        const allTickets = Object.entries(ticketsSnap.val())
-          .map(([tid, t]) => ({ id: tid, ...t }))
-          .filter((t) => t.eventId === id);
+        const allTickets = Object.values(ticketsSnap.val());
         const totalQty = allTickets.reduce((sum, t) => sum + (t.quantity || 1), 0);
         const checkedIn = allTickets.filter((t) => t.checkedIn).reduce((sum, t) => sum + (t.quantity || 1), 0);
         setTotalTickets(totalQty);
         setCheckedInCount(checkedIn);
+      } else {
+        setTotalTickets(0);
+        setCheckedInCount(0);
       }
+      
       setStep("scanning");
-      setLoading(false);
     } catch (err) {
+      console.error(err);
       setCodeError("Something went wrong. Try again.");
+    } finally {
       setLoading(false);
     }
   };
 
-  // Start QR scanner (camera mode only)
   useEffect(() => {
     if (step !== "scanning" || scanMode !== "camera") return;
+    
     const startScanner = async () => {
+      if (!document.getElementById("qr-reader")) return;
+      
       try {
         html5QrRef.current = new Html5Qrcode("qr-reader");
         await html5QrRef.current.start(
@@ -126,25 +151,30 @@ const CheckInPage = () => {
         console.error("Camera error:", err);
       }
     };
-    setTimeout(startScanner, 500);
+    
+    startScanner();
+    
     return () => {
+      // BULLETPROOF CLEANUP: Prevents the crash if scanner isn't ready
       if (html5QrRef.current) {
-        html5QrRef.current.stop().catch(() => {});
+        try {
+          html5QrRef.current.stop().catch(() => {});
+        } catch (error) {
+          // Scanner wasn't running yet, safely ignore the library's error
+        }
         html5QrRef.current = null;
       }
     };
   }, [step, scanMode]);
 
-  // Handle QR scan result
   const handleScan = async (decodedText) => {
-    if (scanResult) return; // prevent double scan
+    if (scanResult) return;
     if (html5QrRef.current) {
       await html5QrRef.current.pause();
     }
     await lookupAndCheckIn(decodedText, { resumeCamera: true });
   };
 
-  // Handle manual ticket code entry
   const handleManualSubmit = async (e) => {
     e?.preventDefault?.();
     if (!manualCode.trim() || manualBusy) return;
@@ -154,14 +184,12 @@ const CheckInPage = () => {
     setManualBusy(false);
   };
 
-  // Shared lookup + check-in logic used by both camera scans and manual
-  // code entry, so both input methods hit the exact same validation path.
+  // Client-Side Firebase Transaction for safe Check-In
   const lookupAndCheckIn = async (rawValue, { resumeCamera }) => {
     try {
-      // Find ticket by token, transaction reference, or ticket id — covers
-      // whichever value the QR encodes (see emailService.js) and whichever
-      // value a staffer might read off the order-reference line and type in.
-      const ticketsSnap = await get(ref(database, "tickets"));
+      const ticketsQuery = query(ref(database, "tickets"), orderByChild("eventId"), equalTo(eventId));
+      const ticketsSnap = await get(ticketsQuery);
+      
       if (!ticketsSnap.exists()) {
         showResult("error", "Invalid Ticket", null, resumeCamera);
         return;
@@ -178,46 +206,42 @@ const CheckInPage = () => {
         return;
       }
 
-      if (ticket.eventId !== eventId) {
-        showResult("error", "Ticket is for a different event", null, resumeCamera);
-        return;
-      }
+      // Execute atomic transaction directly from React
+      const ticketRef = ref(database, `tickets/${ticket.id}`);
+      const transactionResult = await runTransaction(ticketRef, (currentData) => {
+        // If ticket doesn't exist, abort
+        if (currentData === null) return currentData;
+        
+        // If already checked in by someone else, abort transaction
+        if (currentData.checkedIn === true) {
+          return; // Returning undefined aborts the transaction
+        }
 
-      if (ticket.checkedIn) {
-        showResult("already", `Already checked in at ${new Date(ticket.checkedInAt).toLocaleTimeString()}`, ticket, resumeCamera);
-        return;
-      }
-
-      const response = await fetch(apiUrl("/checkin/ticket"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ticketId: ticket.id,
-          eventId,
-          accessCode,
-        }),
+        // Apply check-in
+        currentData.checkedIn = true;
+        currentData.checkedInAt = serverTimestamp();
+        return currentData;
       });
 
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        if (response.status === 409 || result?.alreadyCheckedIn) {
-          showResult("already", `Already checked in at ${result?.checkedInAt ? new Date(result.checkedInAt).toLocaleTimeString() : "earlier"}`, ticket, resumeCamera);
-          return;
-        }
-        throw new Error(result?.error || "Error verifying ticket");
+      // If transaction was aborted, it means they are already checked in
+      if (!transactionResult.committed) {
+        // Fetch latest state to get the exact time it was used
+        const freshSnap = await get(ticketRef);
+        const freshData = freshSnap.val();
+        showResult("already", `Already checked in at ${freshData?.checkedInAt ? new Date(freshData.checkedInAt).toLocaleTimeString() : "earlier"}`, ticket, resumeCamera);
+        return;
       }
 
+      // Transaction successful
       setCheckedInCount((c) => c + (ticket.quantity || 1));
       showResult("success", "Check-in Successful!", ticket, resumeCamera);
 
-      // Add to history
       setScanHistory((prev) => [
         { name: ticket.name, type: ticket.ticketType, time: new Date().toLocaleTimeString(), status: "success" },
         ...prev.slice(0, 19),
       ]);
     } catch (err) {
+      console.error(err);
       showResult("error", "Error verifying ticket", null, resumeCamera);
     }
   };
@@ -229,8 +253,8 @@ const CheckInPage = () => {
     playSound(type === "success" ? "success" : "error");
     vibrate(type === "success" ? "success" : "error");
 
-    // Auto-dismiss after 3 seconds; only resume the camera feed if this
-    // result came from a camera scan (manual entries have no feed to resume).
+    if (resultTimeoutRef.current) clearTimeout(resultTimeoutRef.current);
+    
     resultTimeoutRef.current = setTimeout(async () => {
       setScanResult(null);
       setScanMessage("");
@@ -251,11 +275,24 @@ const CheckInPage = () => {
     } catch (e) {}
   };
 
-  const handleExit = async () => {
+const handleExit = async () => {
+    if (resultTimeoutRef.current) clearTimeout(resultTimeoutRef.current);
+    
+    // BULLETPROOF TEARDOWN
     if (html5QrRef.current) {
-      await html5QrRef.current.stop().catch(() => {});
+      try {
+        await html5QrRef.current.stop().catch(() => {});
+      } catch (error) {
+        // Safely ignore if it wasn't fully running
+      }
       html5QrRef.current = null;
     }
+    
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+    } catch (e) {}
+
     setStep("login");
     setEventData(null);
     setEventId(null);
@@ -266,7 +303,6 @@ const CheckInPage = () => {
     setManualCode("");
   };
 
-  // ── LOGIN SCREEN ──
   if (step === "login") {
     return (
       <div style={styles.page}>
@@ -305,10 +341,8 @@ const CheckInPage = () => {
     );
   }
 
-  // ── SCANNING SCREEN ──
   return (
     <div style={styles.scanPage}>
-      {/* Header */}
       <div style={styles.scanHeader}>
         <div>
           <p style={styles.eventName}>{eventData?.title}</p>
@@ -317,7 +351,6 @@ const CheckInPage = () => {
         <button style={styles.exitBtn} onClick={handleExit}>Exit</button>
       </div>
 
-      {/* Mode toggle */}
       <div style={styles.modeToggleRow}>
         <button
           style={{ ...styles.modeToggleBtn, ...(scanMode === "camera" ? styles.modeToggleBtnActive : {}) }}
@@ -333,7 +366,6 @@ const CheckInPage = () => {
         </button>
       </div>
 
-      {/* Scanner */}
       <div style={styles.scannerWrapper}>
         {scanMode === "camera" ? (
           <div id="qr-reader" style={styles.qrReader} ref={scannerRef} />
@@ -365,7 +397,6 @@ const CheckInPage = () => {
           </form>
         )}
 
-        {/* Overlay result */}
         {scanResult && (
           <div style={{
             ...styles.resultOverlay,
@@ -388,7 +419,6 @@ const CheckInPage = () => {
         )}
       </div>
 
-      {/* Controls */}
       {scanMode === "camera" && (
         <div style={styles.controls}>
           <button style={styles.controlBtn} onClick={handleToggleTorch}>
@@ -397,7 +427,6 @@ const CheckInPage = () => {
         </div>
       )}
 
-      {/* Scan History */}
       {scanHistory.length > 0 && (
         <div style={styles.historySection}>
           <p style={styles.historyTitle}>Recent Scans</p>
@@ -414,193 +443,32 @@ const CheckInPage = () => {
 };
 
 const styles = {
-  page: {
-    minHeight: "100vh",
-    background:
-      "radial-gradient(800px 220px at 50% 0%, rgba(16, 97, 43, 0.08), transparent 55%), linear-gradient(180deg, #f7fbf7 0%, #eff7ee 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1rem",
-  },
-  loginCard: {
-    background: "#ffffff",
-    borderRadius: "18px",
-    padding: "2rem",
-    width: "100%",
-    maxWidth: "430px",
-    textAlign: "center",
-    border: "1px solid #dcead8",
-    boxShadow: "0 18px 40px rgba(16, 97, 43, 0.08)",
-  },
-  heroBadge: {
-    display: "inline-flex",
-    marginBottom: "0.65rem",
-    padding: "5px 10px",
-    borderRadius: "999px",
-    background: "#e7f6eb",
-    color: "#10612B",
-    fontSize: "0.75rem",
-    fontWeight: 700,
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-  },
+  page: { minHeight: "100vh", background: "radial-gradient(800px 220px at 50% 0%, rgba(16, 97, 43, 0.08), transparent 55%), linear-gradient(180deg, #f7fbf7 0%, #eff7ee 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" },
+  loginCard: { background: "var(--surface)", padding: "2rem", width: "100%", maxWidth: "430px", textAlign: "center", border: "1px solid #dcead8", boxShadow: "0 18px 40px rgba(16, 97, 43, 0.08)" },
+  heroBadge: { display: "inline-flex", marginBottom: "0.65rem", padding: "5px 10px", borderRadius: "999px", background: "#e7f6eb", color: "#10612B", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" },
   logo: { fontSize: "2.4rem", marginBottom: "0.25rem" },
-  title: { color: "#111827", fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.4rem" },
+  title: { color: "var(--text-primary)", fontWeight: 800, margin: "0 0 0.4rem" },
   subtitle: { color: "#4f6b57", fontSize: "0.95rem", marginBottom: "1rem", lineHeight: 1.6 },
   badgeRow: { display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginBottom: "1rem" },
-  badge: {
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "5px 10px",
-    borderRadius: "999px",
-    border: "1px solid #d6eedb",
-    background: "#fff",
-    color: "#2b6b4d",
-    fontSize: "0.78rem",
-    fontWeight: 600,
-  },
-  input: {
-    width: "100%",
-    padding: "0.85rem 1rem",
-    borderRadius: "12px",
-    border: "1px solid #dbe2ee",
-    background: "#fff",
-    color: "#111827",
-    fontSize: "1rem",
-    textAlign: "center",
-    letterSpacing: "0.12em",
-    boxSizing: "border-box",
-    marginBottom: "0.75rem",
-    outline: "none",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-  },
+  badge: { display: "inline-flex", alignItems: "center", padding: "5px 10px", borderRadius: "999px", border: "1px solid #d6eedb", background: "var(--surface)", color: "#2b6b4d", fontSize: "0.78rem", fontWeight: 600 },
+  input: { width: "100%", padding: "0.85rem 1rem", borderRadius: "12px", border: "1px solid #dbe2ee", background: "var(--surface)", color: "var(--text-primary)", textAlign: "center", letterSpacing: "0.12em", boxSizing: "border-box", marginBottom: "0.75rem", outline: "none", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)" },
   errorText: { color: "#fca5a5", fontSize: "0.9rem", marginBottom: "0.75rem" },
-  codeInput: {
-    width: "100%",
-    padding: "0.9rem 1rem",
-    borderRadius: "12px",
-    border: "1px solid #dbe2ee",
-    background: "#fff",
-    color: "#111827",
-    fontSize: "1.75rem",
-    fontWeight: 700,
-    fontFamily: "monospace",
-    textAlign: "center",
-    letterSpacing: "0.3em",
-    boxSizing: "border-box",
-    marginBottom: "0.5rem",
-    outline: "none",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-  },
-  manualEntryHint: {
-    color: "#a8c9b1",
-    fontSize: "0.78rem",
-    textAlign: "center",
-    marginBottom: "0.75rem",
-  },
-  modeToggleRow: {
-    display: "flex",
-    gap: "8px",
-    padding: "0 1rem",
-    marginBottom: "0.75rem",
-  },
-  modeToggleBtn: {
-    flex: 1,
-    padding: "0.65rem",
-    borderRadius: "10px",
-    border: "1px solid rgba(95, 224, 128, 0.14)",
-    background: "rgba(255,255,255,0.04)",
-    color: "#d9eadf",
-    fontSize: "0.9rem",
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-  modeToggleBtnActive: {
-    background: "linear-gradient(135deg, #10612B, #1F7A47)",
-    color: "#fff",
-    borderColor: "transparent",
-  },
-  manualEntryBox: {
-    display: "flex",
-    flexDirection: "column",
-    padding: "1.5rem",
-    background: "rgba(255,255,255,0.04)",
-    borderRadius: "16px",
-    border: "1px solid rgba(95, 224, 128, 0.14)",
-  },
-  manualEntryLabel: {
-    color: "#cde7d4",
-    fontSize: "0.9rem",
-    marginBottom: "0.75rem",
-    textAlign: "center",
-  },
-  btn: {
-    width: "100%",
-    padding: "0.9rem",
-    background: "linear-gradient(135deg, #10612B, #1F7A47)",
-    color: "#fff",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "1rem",
-    fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 10px 22px rgba(16, 97, 43, 0.24)",
-  },
-  scanPage: {
-    minHeight: "100vh",
-    background:
-      "radial-gradient(800px 220px at 50% 0%, rgba(46, 224, 111, 0.1), transparent 55%), linear-gradient(180deg, #04140b 0%, #081b10 100%)",
-    color: "#f4fff5",
-    padding: "1rem",
-  },
-  scanHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "1rem 1.25rem",
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(95, 224, 128, 0.14)",
-    borderRadius: "16px",
-    boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)",
-    marginBottom: "1rem",
-  },
+  codeInput: { width: "100%", padding: "0.9rem 1rem", borderRadius: "12px", border: "1px solid #dbe2ee", background: "var(--surface)", color: "var(--text-primary)", fontWeight: 700, fontFamily: "monospace", textAlign: "center", letterSpacing: "0.3em", boxSizing: "border-box", marginBottom: "0.5rem", outline: "none", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)" },
+  manualEntryHint: { color: "#a8c9b1", fontSize: "0.78rem", textAlign: "center", marginBottom: "0.75rem" },
+  modeToggleRow: { display: "flex", gap: "8px", padding: "0 1rem", marginBottom: "0.75rem" },
+  modeToggleBtn: { flex: 1, padding: "0.65rem", borderRadius: "10px", border: "1px solid rgba(95, 224, 128, 0.14)", background: "rgba(255,255,255,0.04)", color: "#d9eadf", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer" },
+  modeToggleBtnActive: { background: "linear-gradient(135deg, #10612B, #1F7A47)", color: "#fff", border: "1px solid transparent" },
+  manualEntryBox: { display: "flex", flexDirection: "column", padding: "1.5rem", background: "rgba(255,255,255,0.04)", borderRadius: "16px", border: "1px solid rgba(95, 224, 128, 0.14)" },
+  manualEntryLabel: { color: "#cde7d4", fontSize: "0.9rem", marginBottom: "0.75rem", textAlign: "center" },
+  btn: { width: "100%", padding: "0.9rem", background: "linear-gradient(135deg, #10612B, #1F7A47)", color: "#fff", border: "none", borderRadius: "12px", fontSize: "1rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 22px rgba(16, 97, 43, 0.24)" },
+  scanPage: { minHeight: "100vh", background: "radial-gradient(800px 220px at 50% 0%, rgba(46, 224, 111, 0.1), transparent 55%), linear-gradient(180deg, #04140b 0%, #081b10 100%)", color: "#f4fff5", padding: "1rem" },
+  scanHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.25rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(95, 224, 128, 0.14)", borderRadius: "16px", boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)", marginBottom: "1rem" },
   eventName: { color: "#f4fff5", fontWeight: 800, fontSize: "1.05rem", margin: 0 },
   scanCount: { color: "#cde7d4", fontSize: "0.85rem", margin: "4px 0 0", fontWeight: 600 },
-  exitBtn: {
-    background: "rgba(255,255,255,0.04)",
-    color: "#f4fff5",
-    border: "1px solid rgba(95, 224, 128, 0.14)",
-    borderRadius: "10px",
-    padding: "8px 14px",
-    cursor: "pointer",
-    fontWeight: 700,
-  },
-  scannerWrapper: {
-    position: "relative",
-    width: "100%",
-    maxWidth: "760px",
-    margin: "0 auto",
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(95, 224, 128, 0.14)",
-    borderRadius: "18px",
-    padding: "1rem",
-    boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)",
-  },
+  exitBtn: { background: "rgba(255,255,255,0.04)", color: "#f4fff5", border: "1px solid rgba(95, 224, 128, 0.14)", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700 },
+  scannerWrapper: { position: "relative", width: "100%", maxWidth: "760px", margin: "0 auto", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(95, 224, 128, 0.14)", borderRadius: "18px", padding: "1rem", boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)" },
   qrReader: { width: "100%" },
-  resultOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-    padding: "2rem",
-  },
+  resultOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 10, padding: "2rem" },
   resultIcon: { fontSize: "4rem", marginBottom: "0.5rem" },
   resultTitle: { color: "#fff", fontSize: "1.5rem", fontWeight: 800, margin: "0 0 1rem", textAlign: "center" },
   attendeeBox: { background: "rgba(255,255,255,0.1)", borderRadius: "12px", padding: "1rem 2rem", marginBottom: "0.75rem", textAlign: "center" },
@@ -611,7 +479,7 @@ const styles = {
   controlBtn: { background: "rgba(255,255,255,0.04)", color: "#f4fff5", border: "1px solid rgba(95, 224, 128, 0.14)", borderRadius: "10px", padding: "8px 16px", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 },
   historySection: { padding: "0 1.25rem 1.25rem" },
   historyTitle: { color: "#cde7d4", fontSize: "0.85rem", marginBottom: "0.5rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" },
-  historyItem: { display: "flex", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: "1px solid rgba(95, 224, 128, 0.12)", color: "#f4fff5", fontSize: "0.9rem" },
+  historyItem: { display: "flex", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: "1px solid rgba(95, 224, 128, 0.12)", color: "#f4fff5", fontSize: "0.9rem" }
 };
 
 export default CheckInPage;
