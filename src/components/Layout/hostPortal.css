@@ -2292,6 +2292,19 @@ a.btn-withdraw {
   color: #8b99a8;
 }
 
+/* Restores visibility to all event detail card headers */
+.host-event-card h2,
+.host-event-card-header h2,
+.host-event-detail-page h2,
+.host-event-detail-page h1 {
+  color: var(--text-primary) !important;
+}
+
+.host-event-description-card p,
+.host-event-card-header p {
+  color: var(--text-secondary);
+}
+
 @media (prefers-color-scheme: dark) {
   .host-layout {
     background:
