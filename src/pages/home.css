@@ -1,5 +1,29 @@
 /* ── Home Page Styles ── */
 
+:root {
+  --home-bg: #ffffff;
+  --home-surface: #ffffff;
+  --home-surface-2: #f8fafc;
+  --home-text: #0f172a;
+  --home-muted: #64748b;
+  --home-line: #e2e8f0;
+  --home-brand: #10612b;
+  --home-brand-contrast: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --home-bg: #031109;
+    --home-surface: #081a10;
+    --home-surface-2: #0b2115;
+    --home-text: #eef7f0;
+    --home-muted: #a8b8ae;
+    --home-line: rgba(95, 224, 128, 0.16);
+    --home-brand: #2ee06f;
+    --home-brand-contrast: #031109;
+  }
+}
+
 /* Shared inner wrapper */
 .hm-inner {
   max-width: 1100px;
@@ -9,8 +33,8 @@
 
 /* ── Hero ── */
 .hm-hero {
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
+  background: var(--home-surface);
+  border-bottom: 1px solid var(--home-line);
   padding: 5rem 1.5rem 0;
   overflow: hidden;
 }
@@ -26,20 +50,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #f0fdf4;
-  color: #166534;
+  background: color-mix(in srgb, var(--home-brand) 10%, var(--home-surface) 90%);
+  color: var(--home-brand);
   font-size: 0.8rem;
   font-weight: 500;
   padding: 5px 14px;
   border-radius: 20px;
   margin-bottom: 1.5rem;
-  border: 1px solid #bbf7d0;
+  border: 1px solid color-mix(in srgb, var(--home-brand) 22%, var(--home-line) 78%);
 }
 
 .hm-dot {
   width: 7px;
   height: 7px;
-  background: #16a34a;
+  background: var(--home-brand);
   border-radius: 50%;
   display: inline-block;
 }
@@ -47,7 +71,7 @@
 .hm-hero-h1 {
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--home-text);
   line-height: 1.12;
   letter-spacing: -0.03em;
   margin-bottom: 1.25rem;
@@ -55,7 +79,7 @@
 
 .hm-hero-sub {
   font-size: 1rem;
-  color: #64748b;
+  color: var(--home-muted);
   line-height: 1.7;
   max-width: 520px;
   margin: 0 auto 2rem;
@@ -70,8 +94,8 @@
 
 /* Buttons */
 .hm-btn-primary {
-  background: #0f172a;
-  color: #fff;
+  background: var(--home-text);
+  color: var(--home-brand-contrast);
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -84,14 +108,14 @@
 }
 
 .hm-btn-primary:hover {
-  background: #1e293b;
-  color: #fff;
+  background: color-mix(in srgb, var(--home-text) 88%, #000 12%);
+  color: var(--home-brand-contrast);
 }
 
 .hm-btn-ghost {
   background: transparent;
-  color: #0f172a;
-  border: 1px solid #e2e8f0;
+  color: var(--home-text);
+  border: 1px solid var(--home-line);
   border-radius: 8px;
   padding: 12px 24px;
   font-size: 0.9rem;
@@ -103,9 +127,9 @@
 }
 
 .hm-btn-ghost:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-  color: #0f172a;
+  border-color: color-mix(in srgb, var(--home-line) 70%, var(--home-text) 30%);
+  background: var(--home-surface-2);
+  color: var(--home-text);
 }
 
 /* ── Marquee Strip ── */
@@ -129,12 +153,12 @@
 
 .hm-marquee-wrap::before {
   left: 0;
-  background: linear-gradient(to right, #fff, transparent);
+  background: linear-gradient(to right, var(--home-bg), transparent);
 }
 
 .hm-marquee-wrap::after {
   right: 0;
-  background: linear-gradient(to left, #fff, transparent);
+  background: linear-gradient(to left, var(--home-bg), transparent);
 }
 
 .hm-marquee-inner {
@@ -166,8 +190,8 @@
 /* ── Categories ── */
 .hm-cats-section {
   padding: 2rem 0 0.5rem;
-  background: #fff;
-  border-bottom: 1px solid #f1f5f9;
+  background: var(--home-surface);
+  border-bottom: 1px solid var(--home-line);
 }
 
 .hm-cats {
@@ -178,38 +202,38 @@
 }
 
 .hm-cat {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--home-surface-2);
+  border: 1px solid var(--home-line);
   border-radius: 20px;
   padding: 6px 16px;
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--home-muted);
   cursor: pointer;
   transition: all 0.18s;
   font-weight: 500;
 }
 
 .hm-cat:hover {
-  border-color: #cbd5e1;
-  color: #334155;
-  background: #f1f5f9;
+  border-color: color-mix(in srgb, var(--home-line) 75%, var(--home-text) 25%);
+  color: var(--home-text);
+  background: color-mix(in srgb, var(--home-surface-2) 82%, var(--home-text) 18%);
 }
 
 .hm-cat--active {
-  background: #0f172a;
-  color: #fff;
-  border-color: #0f172a;
+  background: var(--home-text);
+  color: var(--home-brand-contrast);
+  border-color: var(--home-text);
 }
 
 .hm-cat--active:hover {
-  background: #1e293b;
-  color: #fff;
+  background: color-mix(in srgb, var(--home-text) 88%, #000 12%);
+  color: var(--home-brand-contrast);
 }
 
 /* ── Events Section ── */
 .hm-events-section {
   padding: 3rem 0 4rem;
-  background: #fff;
+  background: var(--home-surface);
 }
 
 .hm-section-header {
@@ -222,12 +246,12 @@
 .hm-section-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--home-text);
 }
 
 .hm-see-all {
   font-size: 0.85rem;
-  color: #16a34a;
+  color: var(--home-brand);
   font-weight: 500;
   text-decoration: none;
 }

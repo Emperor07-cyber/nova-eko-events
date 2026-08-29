@@ -44,6 +44,8 @@ export const sanitizeSlug = (value = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+export const createSlugFromTitle = (title = "") => sanitizeSlug(title);
+
 export const isReservedSlug = (slug = "") =>
   RESERVED_SLUGS.includes(sanitizeSlug(slug));
 

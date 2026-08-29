@@ -1,7 +1,7 @@
 .admin-dashboard {
   display: grid;
   gap: 1rem;
-  color: #0f172a;
+  color: var(--admin-shell-text, #0f172a);
 }
 
 .admin-dashboard,
@@ -14,9 +14,9 @@
 .admin-finance-card,
 .admin-panel,
 .admin-modal {
-  border: 1px solid #dceee0;
+  border: 1px solid var(--admin-shell-border, #dceee0);
   border-radius: 24px;
-  background: linear-gradient(180deg, #ffffff, #fbfffc);
+  background: linear-gradient(180deg, var(--admin-shell-surface, #ffffff), color-mix(in srgb, var(--admin-shell-surface, #ffffff) 92%, #fbfffc 8%));
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 }
 
@@ -28,7 +28,7 @@
   align-items: center;
   background:
     radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 25%),
-    linear-gradient(135deg, #ffffff, #f5fff6);
+    linear-gradient(135deg, var(--admin-shell-surface, #ffffff), color-mix(in srgb, var(--admin-shell-surface, #ffffff) 92%, #f5fff6 8%));
 }
 
 .admin-hero-copy {
@@ -41,8 +41,8 @@
   width: fit-content;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: #ebfbef;
-  color: #15803d;
+  background: color-mix(in srgb, var(--admin-shell-surface, #ffffff) 88%, #ebfbef 12%);
+  color: var(--admin-accent, #15803d);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -53,7 +53,7 @@
 .admin-panel h2,
 .admin-modal h2 {
   margin: 0;
-  color: #0f172a;
+  color: var(--admin-shell-text, #0f172a);
 }
 
 .admin-hero h1 {
@@ -68,7 +68,7 @@
 .admin-event-item span,
 .admin-table td,
 .admin-processed-note {
-  color: #64748b;
+  color: var(--admin-shell-muted, #64748b);
 }
 
 .admin-hero-actions,
@@ -111,9 +111,9 @@
 }
 
 .admin-secondary-btn {
-  background: #f4fbf5;
-  border: 1px solid #d7eadb;
-  color: #166534;
+  background: var(--admin-shell-surface, #f4fbf5);
+  border: 1px solid var(--admin-shell-border, #d7eadb);
+  color: var(--admin-accent, #166534);
 }
 
 .admin-primary-btn:hover,
@@ -131,9 +131,9 @@
 
 .admin-hero-stat {
   padding: 1rem 1.1rem;
-  border: 1px solid #dceee0;
+  border: 1px solid var(--admin-shell-border, #dceee0);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--admin-shell-surface, rgba(255, 255, 255, 0.98));
   display: grid;
   gap: 0.2rem;
 }
@@ -153,7 +153,7 @@
 
 .admin-hero-stat span,
 .admin-kpi-card p {
-  color: #5f6f7e;
+  color: var(--admin-shell-muted, #5f6f7e);
   font-size: 0.88rem;
 }
 
@@ -161,7 +161,7 @@
 .admin-kpi-card strong,
 .admin-finance-card strong {
   font-size: 1.6rem;
-  color: #0f172a;
+  color: var(--admin-shell-text, #0f172a);
 }
 
 .admin-kpi-grid,

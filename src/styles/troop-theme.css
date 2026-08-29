@@ -9,6 +9,8 @@
   --brand-2: #1F7A47;
   --ok: #10612B;
   --danger: #ef4444;
+  --text-inverse: #ffffff;
+  --overlay: rgba(255, 255, 255, 0.94);
   --radius: 14px;
   --radius-sm: 10px;
   --container: 1180px;
@@ -29,6 +31,8 @@
     --brand-2: #18a84e;
     --ok: #2ee06f;
     --danger: #f87171;
+    --text-inverse: #031109;
+    --overlay: rgba(5, 18, 11, 0.94);
     --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 14px 36px rgba(0, 0, 0, 0.32);
     --shadow-lg: 0 24px 54px rgba(0, 0, 0, 0.42);
@@ -49,7 +53,7 @@ html {
 
 ::selection {
   background: rgba(46, 224, 111, 0.28);
-  color: #f8fff9;
+  color: var(--text-inverse);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -59,7 +63,7 @@ html {
 
   ::selection {
     background: rgba(46, 224, 111, 0.42);
-    color: #ffffff;
+    color: var(--text-inverse);
   }
 }
 
@@ -80,10 +84,10 @@ html {
   top: 0;
   z-index: 20;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e8ebf2;
+  border-bottom: 1px solid var(--line);
   background:
     radial-gradient(460px 100px at 10% -30%, rgba(20, 192, 43, 0.18), transparent 60%),
-    rgba(255, 255, 255, 0.94);
+    var(--overlay);
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
@@ -117,7 +121,7 @@ html {
   padding: 3px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 6px 16px rgba(16, 185, 129, 0.18);
 }
 
@@ -143,8 +147,8 @@ html {
 
 .nav a:hover {
   color: var(--text);
-  border-color: #dfe4f2;
-  background: #fff;
+  border-color: var(--line);
+  background: var(--surface);
 }
 
 .nav-toggle {
@@ -425,7 +429,7 @@ html {
   height: 44px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--surface);
   color: var(--text);
   padding: 0 12px;
   outline: none;
@@ -516,7 +520,7 @@ a.btn-withdraw {
   padding: 28px;
   background:
     radial-gradient(520px 140px at 90% -20%, rgba(16, 97, 43, 0.1), transparent 60%),
-    linear-gradient(180deg, #f7fbf7, #eef7ec);
+  linear-gradient(180deg, #f7fbf7, #eef7ec);
   box-shadow: 0 22px 48px rgba(16, 97, 43, 0.12);
 }
 
@@ -529,7 +533,7 @@ a.btn-withdraw {
 .auth-hero .kicker,
 .auth-hero .auth-title,
 .auth-hero .auth-note {
-  color: #f3fff6;
+  color: var(--text);
 }
 
 .auth-hero .kicker {
@@ -556,7 +560,7 @@ a.btn-withdraw {
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid rgba(16, 97, 43, 0.18);
-  background: #ecf8ed;
+  background: var(--surface-2);
   color: #10612B;
   font-size: 0.85rem;
   font-weight: 700;
@@ -569,7 +573,7 @@ a.btn-withdraw {
 
 .auth-note {
   margin: 0;
-  color: #d8eadf;
+  color: var(--muted);
   line-height: 1.6;
 }
 
@@ -587,7 +591,7 @@ a.btn-withdraw {
   padding: 8px;
   border-radius: 16px;
   border: 1px solid rgba(16, 97, 43, 0.16);
-  background: #fff;
+  background: var(--surface);
 }
 
 .auth-brand-copy {
@@ -602,7 +606,7 @@ a.btn-withdraw {
 }
 
 .auth-brand-tag {
-  color: #475569;
+  color: var(--muted);
   font-size: 0.94rem;
 }
 
@@ -632,10 +636,10 @@ a.btn-withdraw {
 
 .auth-form {
   padding: 24px;
-  background: #ffffff;
-  border: 1px solid rgba(16, 97, 43, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 18px;
-  box-shadow: 0 18px 32px rgba(16, 97, 43, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .auth-feedback {
@@ -673,13 +677,13 @@ a.btn-withdraw {
   .auth-note,
   .auth-brand-tag,
   .event-meta {
-    color: #f6fcf7;
+    color: var(--text);
   }
 
   .auth-note,
   .auth-brand-tag,
   .event-meta {
-    color: #d8eadf;
+    color: var(--muted);
   }
 
   .auth-panel {
@@ -697,13 +701,13 @@ a.btn-withdraw {
   }
 
   .auth-logo {
-    background: #071d11;
+    background: var(--surface);
     border-color: rgba(95, 224, 128, 0.18);
   }
 
   .auth-form {
-    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
-    border-color: rgba(95, 224, 128, 0.14);
+    background: var(--surface);
+    border-color: var(--line);
   }
 
   .auth-feedback-success {
@@ -938,7 +942,8 @@ a.btn-withdraw {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 14px;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .merch-section h3 {
@@ -958,7 +963,8 @@ a.btn-withdraw {
   display: flex;
   gap: 8px;
   align-items: center;
-  background: #fcfdff;
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .merch-card img {

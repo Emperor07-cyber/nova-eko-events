@@ -77,6 +77,15 @@ const HostDashboard = () => {
   const totalAttendees = new Set(tickets.map((t) => t.email)).size;
   const totalTicketsSold = tickets.reduce((sum, t) => sum + (t.quantity || 1), 0);
   const formatNaira = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
+  const chartTickColor = "var(--text-secondary)";
+  const chartGridColor = "var(--border)";
+  const chartTooltipStyle = {
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    color: "var(--text-primary)",
+    boxShadow: "var(--shadow)",
+  };
 
   const salesData = Object.values(
     tickets.reduce((acc, ticket) => {
@@ -384,9 +393,9 @@ const HostDashboard = () => {
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={salesData}>
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <XAxis dataKey="date" tick={{ fill: chartTickColor, fontSize: 12 }} axisLine={{ stroke: chartGridColor }} tickLine={{ stroke: chartGridColor }} />
+                <YAxis tick={{ fill: chartTickColor, fontSize: 12 }} axisLine={{ stroke: chartGridColor }} tickLine={{ stroke: chartGridColor }} />
+                <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "rgba(16, 97, 43, 0.08)" }} />
                 <Bar dataKey="total" fill="#14c02b" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

@@ -222,6 +222,15 @@ const HostEventDetails = () => {
     : `/${event.eventUrl?.replace(/^\/+/, "") || `event/${event.id}`}`;
 
   const eventStatus = event.status || "Live";
+  const chartTickColor = "var(--text-secondary)";
+  const chartGridColor = "var(--border)";
+  const chartTooltipStyle = {
+    background: "var(--surface)",
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    color: "var(--text-primary)",
+    boxShadow: "var(--shadow)",
+  };
 
   return (
     <HostLayout>
@@ -363,10 +372,10 @@ const HostEventDetails = () => {
               {salesByDay.length > 0 ? (
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={salesByDay} margin={{ left: -16, right: 0, top: 10, bottom: 0 }}>
-                    <XAxis dataKey="day" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <XAxis dataKey="day" tick={{ fill: chartTickColor, fontSize: 12 }} axisLine={{ stroke: chartGridColor }} tickLine={{ stroke: chartGridColor }} />
                     {/* allowDecimals={false} prevents the Y-axis from showing fractions of tickets */}
-                    <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                    <Tooltip formatter={(value) => [`${value} tickets`, "Volume"]} />
+                    <YAxis tick={{ fill: chartTickColor, fontSize: 12 }} axisLine={{ stroke: chartGridColor }} tickLine={{ stroke: chartGridColor }} allowDecimals={false} />
+                    <Tooltip contentStyle={chartTooltipStyle} cursor={{ fill: "rgba(16, 97, 43, 0.08)" }} formatter={(value) => [`${value} tickets`, "Volume"]} />
                     {/* Changed dataKey to "sold" */}
                     <Bar dataKey="sold" fill="#14c02b" radius={[6, 6, 0, 0]} />
                   </BarChart>

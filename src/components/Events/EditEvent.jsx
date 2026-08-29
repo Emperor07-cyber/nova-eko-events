@@ -22,6 +22,7 @@ import {
   buildEventUrl,
   checkSlugAvailability,
   createDefaultEmailBranding,
+  createSlugFromTitle,
   createEmptyMerchItem,
   createEmptyTicket,
   EVENT_CATEGORIES,
@@ -118,6 +119,16 @@ const EditEvent = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     updateField(name, value);
+    if (name === "title") {
+      setEventData((prev) => {
+        const currentSlug = getEventUrlDisplayValue(prev.eventUrl);
+        if (currentSlug && currentSlug !== createSlugFromTitle(prev.title)) {
+          return prev;
+        }
+        const nextSlug = createSlugFromTitle(value);
+        return nextSlug ? { ...prev, eventUrl: buildEventUrl(nextSlug) } : prev;
+      });
+    }
   };
 
   const handleDateToggle = (checked) => {

@@ -23,6 +23,7 @@ import {
   buildEventUrl,
   checkSlugAvailability,
   createDefaultEmailBranding,
+  createSlugFromTitle,
   createDefaultTicket,
   createEmptyMerchItem,
   createEmptyTicket,
@@ -72,6 +73,16 @@ const EventForm = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     updateField(name, value);
+    if (name === "title") {
+      setFormData((prev) => {
+        const currentSlug = getEventUrlDisplayValue(prev.eventUrl);
+        if (currentSlug && currentSlug !== createSlugFromTitle(prev.title)) {
+          return prev;
+        }
+        const nextSlug = createSlugFromTitle(value);
+        return nextSlug ? { ...prev, eventUrl: buildEventUrl(nextSlug) } : prev;
+      });
+    }
   };
 
   const handleDateToggle = (checked) => {
@@ -261,16 +272,15 @@ const EventForm = () => {
     setError("");
 
     try {
-      if (finalEventUrl) {
-        const { available, reason } = await checkSlugAvailability(database, getEventUrlDisplayValue(finalEventUrl));
-        if (!available) {
-          setError(
-            reason === "reserved"
-              ? "That event URL is reserved by the platform. Please choose another."
-              : "That event URL is already taken by another event. Please choose another."
-          );
-          return;
-        }
+      const requestedSlug = getEventUrlDisplayValue(finalEventUrl) || createSlugFromTitle(formData.title);
+      const { available, reason, slug } = await checkSlugAvailability(database, requestedSlug);
+      if (!available) {
+        setError(
+          reason === "reserved"
+            ? "That event URL is reserved by the platform. Please choose another."
+            : "That event URL is already taken by another event. Please choose another."
+        );
+        return;
       }
 
       const maxPerUser = Number(formData.maxPerUser || 1);
@@ -279,7 +289,7 @@ const EventForm = () => {
         date: formData.dateUnknown ? "TBA" : formData.date,
         maxPerUser,
         maxPurchaseLimit: maxPerUser,
-        eventUrl: finalEventUrl,
+        eventUrl: buildEventUrl(slug || requestedSlug),
         tickets: normalizedTickets,
         merch: normalizedMerch,
         emailBranding: normalizedBranding,

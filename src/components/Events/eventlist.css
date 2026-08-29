@@ -20,12 +20,12 @@
 .el-page-title {
   font-size: clamp(1.6rem, 3.2vw, 2rem);
   margin: 0 0 4px;
-  color: #f4fff5;
+  color: var(--text);
 }
 
 .el-page-sub {
   margin: 0;
-  color: #cde7d4;
+  color: var(--muted);
 }
 
 .el-search-wrap {
@@ -49,8 +49,8 @@
   height: 42px;
   border-radius: 999px;
   border: 1px solid rgba(95, 224, 128, 0.18);
-  background: rgba(255, 255, 255, 0.95);
-  color: #111827;
+  background: var(--surface);
+  color: var(--text);
   padding: 0 40px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
@@ -102,8 +102,8 @@
   border-radius: 999px;
   padding: 0 14px;
   border: 1px solid rgba(95, 224, 128, 0.14);
-  background: rgba(255, 255, 255, 0.94);
-  color: #475569;
+  background: var(--surface);
+  color: var(--muted);
   cursor: pointer;
   white-space: nowrap;
   margin: 0;
@@ -126,8 +126,8 @@
   height: 34px;
   border-radius: 10px;
   border: 1px solid rgba(95, 224, 128, 0.14);
-  background: rgba(255, 255, 255, 0.94);
-  color: #64748b;
+  background: var(--surface);
+  color: var(--muted);
   cursor: pointer;
   margin: 0;
   padding: 0;
@@ -135,7 +135,7 @@
 
 .el-view-btn--active {
   color: #fff;
-  background: linear-gradient(135deg, #5b46d8, #7c3aed);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
 }
 
 .el-results-count {
@@ -196,14 +196,14 @@
 .el-card-cat {
   left: 10px;
   top: 10px;
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(15, 23, 42, 0.82);
   color: #fff;
 }
 
 .el-card-price-badge {
   right: 10px;
   bottom: 10px;
-  background: rgba(124, 92, 255, 0.9);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
 }
 

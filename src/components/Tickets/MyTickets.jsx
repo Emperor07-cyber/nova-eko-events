@@ -88,7 +88,7 @@ const MyTickets = () => {
                 <h3>{ticket.ticketType || "Ticket"}</h3>
                 <span className="ticket-pill">Qty {ticket.quantity || 1}</span>
               </div>
-              <p className="ticket-card-meta">Event ID: {ticket.eventId}</p>
+              <p className="ticket-card-meta">{ticket.eventTitle || ticket.eventId}</p>
               <button
                 className="btn btn-primary ticket-view-btn"
                 onClick={() => {
@@ -115,7 +115,7 @@ const MyTickets = () => {
             <QRCode value={JSON.stringify(selectedTicket)} size={180} />
             <p><strong>Name:</strong> {selectedTicket.name}</p>
             <p><strong>Email:</strong> {selectedTicket.email}</p>
-            <p><strong>Event ID:</strong> {selectedTicket.eventId}</p>
+            <p><strong>Event:</strong> {selectedTicket.eventTitle || selectedTicket.eventId}</p>
             <p><strong>Ticket Type:</strong> {selectedTicket.ticketType}</p>
             <p><strong>Quantity:</strong> {selectedTicket.quantity}</p>
             <p><strong>Transaction ID:</strong> {selectedTicket.transactionId}</p>

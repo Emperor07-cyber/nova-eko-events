@@ -89,6 +89,7 @@ const EventDetails = () => {
   const tickets = Array.isArray(event?.tickets) ? event.tickets : [];
   const merch = Array.isArray(event?.merch) ? event.merch : [];
   const mapUrl = getEventMapUrl(event || {});
+  const fullLocation = formatEventLocation(event?.location);
 
   if (loading) {
     return (
@@ -121,8 +122,14 @@ const EventDetails = () => {
           <div className="detail-meta-grid">
             <span className="detail-pill">📅 {formatEventDate(event.date)}</span>
             <span className="detail-pill">🕐 {formatEventTime(event.startTime)}</span>
-            <span className="detail-pill">📍 {formatEventLocation(event.location)}</span>
+            <span className="detail-pill detail-pill-location">📍 Venue</span>
           </div>
+          {fullLocation && (
+            <div className="detail-location-box">
+              <span className="detail-location-label">Event address</span>
+              <p className="detail-location-full">{fullLocation}</p>
+            </div>
+          )}
         </div>
         <div className="detail-stats">
           <strong>Ready to book</strong>

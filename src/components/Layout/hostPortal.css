@@ -64,6 +64,54 @@
     --text-secondary: #a8b8ae;
     --text-muted:     #7f9286;
   }
+
+  .host-dash-codes-panel {
+    background: linear-gradient(180deg, rgba(8, 26, 16, 0.96), rgba(11, 33, 21, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+  }
+
+  .scanner-code-card,
+  .host-dash-panel,
+  .host-dash-insight,
+  .host-event-topbar,
+  .host-event-hero-info,
+  .host-metric-card,
+  .host-event-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .host-dash-panel .host-table td,
+  .host-dash-panel .host-table th,
+  .host-event-hero-info p,
+  .host-event-subtitle,
+  .host-dash-insight span,
+  .host-scanner-status,
+  .host-event-visibility-badge {
+    color: var(--text-secondary);
+  }
+
+  .host-scanner-code {
+    background: rgba(16, 97, 43, 0.18);
+    color: #8df2ae;
+    border-color: rgba(95, 224, 128, 0.2);
+  }
+
+  .host-scanner-row,
+  .host-scanner-add-row .input {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border);
+  }
+
+  .host-event-row.is-private {
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0) 52%);
+  }
+
+  .host-event-visibility-badge {
+    background: rgba(127, 29, 29, 0.18);
+    border-color: rgba(248, 113, 113, 0.28);
+  }
 }
 
 /* ── Layout Shell ────────────────────────── */
@@ -1302,7 +1350,7 @@ a.btn-withdraw {
   padding: 20px;
   background:
     radial-gradient(460px 120px at 90% -20%, rgba(16, 97, 43, 0.18), transparent 60%),
-    linear-gradient(180deg, #ffffff, #f8fff8);
+    linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #f8fff8 6%));
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
 }
 
@@ -1327,10 +1375,10 @@ a.btn-withdraw {
 }
 
 .host-dash-balance-card {
-  border: 1px solid #d8ecd4;
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
-  background: #fff;
+  background: var(--surface);
   display: grid;
   align-content: center;
   gap: 8px;
@@ -1339,7 +1387,7 @@ a.btn-withdraw {
 .host-dash-balance-card p {
   margin: 0;
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .host-dash-balance-card .wallet-amount {
@@ -1350,16 +1398,16 @@ a.btn-withdraw {
 }
 
 .host-kpis .summary-card {
-  border: 1px solid #dfeee0;
-  background: linear-gradient(180deg, #ffffff, #f9fff9);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #f9fff9 6%));
 }
 
 .host-kpis .summary-icon {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid #d4ecd7;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   color: #0b8f1f;
   display: inline-flex;
   align-items: center;
@@ -1390,7 +1438,7 @@ a.btn-withdraw {
 }
 
 .host-kpis .summary-value {
-  color: #0f172a;
+  color: var(--text-primary);
   font-family: var(--font-body);
   letter-spacing: 0;
 }
@@ -1405,7 +1453,7 @@ a.btn-withdraw {
 .host-dash-panel {
   border-radius: 16px;
   padding: 12px;
-  background: linear-gradient(180deg, #ffffff, #fbfffb);
+  background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #fbfffb 6%));
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
 }
 
@@ -1434,9 +1482,9 @@ a.btn-withdraw {
 }
 
 .host-dash-insight {
-  border: 1px solid #dceddf;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
   padding: 10px;
   display: grid;
   gap: 4px;
@@ -1444,24 +1492,24 @@ a.btn-withdraw {
 
 .host-dash-insight span {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .host-dash-insight strong {
   font-size: 0.95rem;
-  color: #0f172a;
+  color: var(--text-primary);
   font-family: var(--font-body);
 }
 
 .host-dash-panel .host-table th {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: #5d687a;
+  color: var(--text-secondary);
 }
 
 .host-dash-panel .host-table td {
   font-size: 0.86rem;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .host-dash-panel .action-btns {
@@ -1556,8 +1604,8 @@ a.btn-withdraw {
 }
 
 .host-dash-hero-actions .btn-copy-link:hover {
-  background: #e6f4e4;
-  border-color: rgba(16, 97, 43, 0.2);
+  background: var(--surface-2);
+  border-color: var(--border);
   color: var(--green-dark);
 }
 
@@ -2309,25 +2357,25 @@ a.btn-withdraw {
   .host-layout {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.1), transparent 24%),
-      linear-gradient(180deg, #031109, #04150c);
+      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, #04150c 12%));
   }
 
   .host-main {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.06), transparent 26%),
-      linear-gradient(180deg, #031109, #04150c);
+      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, #04150c 12%));
   }
 
   .host-sidebar {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.16), transparent 24%),
-      linear-gradient(180deg, #06150d, #020905);
+      linear-gradient(180deg, var(--sidebar-bg), color-mix(in srgb, var(--sidebar-bg) 88%, #020905 12%));
     color: var(--text-primary);
   }
 
   .sidebar-header,
   .sidebar-footer {
-    border-color: rgba(95, 224, 128, 0.12);
+    border-color: var(--border);
   }
 
   .sidebar-logo {
@@ -2339,34 +2387,34 @@ a.btn-withdraw {
   }
 
   .sidebar-close-btn:hover {
-    background: rgba(46, 224, 111, 0.08);
-    color: #ffffff;
+    background: var(--sidebar-hover);
+    color: var(--text-primary);
   }
 
   .sidebar-link:hover {
-    background: rgba(46, 224, 111, 0.08);
-    color: #ffffff;
+    background: var(--sidebar-hover);
+    color: var(--text-primary) !important;
   }
 
   .sidebar-link.active {
-    background: rgba(46, 224, 111, 0.14);
-    color: #ffffff;
+    background: var(--sidebar-active);
+    color: var(--text-primary) !important;
   }
 
   .host-sidebar .sidebar-link .sidebar-icon {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(95, 224, 128, 0.12);
-    color: #dcfce7;
+    background: var(--sidebar-hover);
+    border-color: var(--border);
+    color: var(--text-primary);
   }
 
   .host-sidebar .sidebar-link:hover .sidebar-icon {
-    background: rgba(46, 224, 111, 0.16);
+    background: var(--sidebar-active);
   }
 
   .sidebar-toggle-btn {
-    background: rgba(8, 26, 16, 0.96);
-    border-color: rgba(95, 224, 128, 0.14);
-    color: #eef7f0;
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-primary);
   }
 
   .host-content .section-header,
@@ -2380,9 +2428,9 @@ a.btn-withdraw {
   .host-content .dashboard-card,
   .host-content .chart-container,
   .host-content .table-wrapper {
-    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
-    border-color: rgba(95, 224, 128, 0.12);
-    color: #eef7f0;
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 88%, #05120b 12%));
+    border-color: var(--border);
+    color: var(--text-primary);
   }
 
   .host-content p,
@@ -2391,7 +2439,122 @@ a.btn-withdraw {
   .host-content th,
   .host-content label,
   .host-content span {
-    color: #e8f5eb;
+    color: var(--text-primary);
+  }
+
+  .host-dash-hero,
+  .host-dash-balance-card,
+  .host-kpis .summary-card,
+  .host-dash-panel,
+  .host-dash-insight,
+  .scanner-code-card,
+  .host-event-topbar,
+  .host-event-hero-info,
+  .host-metric-card,
+  .host-event-card,
+  .table-wrapper,
+  .chart-wrapper {
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 90%, #05120b 10%)) !important;
+    border-color: var(--border) !important;
+    box-shadow: var(--shadow-sm) !important;
+  }
+
+  .host-dash-hero h1,
+  .host-dash-hero p,
+  .host-dash-balance-card p,
+  .host-dash-panel .section-title,
+  .host-dash-panel .host-table th,
+  .host-dash-panel .host-table td,
+  .host-dash-insight span,
+  .host-dash-insight strong,
+  .scanner-code-title,
+  .scanner-code-text,
+  .host-event-title,
+  .host-event-subtitle,
+  .host-event-hero-info h2,
+  .host-event-hero-info p,
+  .host-event-card-header h2,
+  .host-event-card-header p,
+  .host-metric-label,
+  .host-event-metrics strong {
+    color: var(--text-primary) !important;
+  }
+
+  .host-dash-kicker,
+  .section-subtitle,
+  .host-dash-panel .host-table th,
+  .host-dash-panel .host-table td,
+  .host-dash-balance-card p,
+  .host-dash-insight span,
+  .host-event-subtitle,
+  .host-event-card-header p,
+  .host-event-hero-info p,
+  .host-metric-label,
+  .host-event-description-card p,
+  .host-event-card-header p {
+    color: var(--text-secondary) !important;
+  }
+
+  .host-dash-kicker {
+    color: var(--green) !important;
+  }
+
+  .host-dash-hero-actions .btn-copy-link,
+  .host-dash-hero-actions .btn-primary,
+  .host-dash-panel .btn-copy-link,
+  .host-dash-panel .btn-edit,
+  .host-dash-panel .btn-delete,
+  .host-event-actions .btn-copy-link,
+  .host-event-actions .btn-primary {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .host-dash-panel .btn-copy-link:hover,
+  .host-dash-panel .btn-edit:hover,
+  .host-dash-panel .btn-delete:hover,
+  .host-event-actions .btn-copy-link:hover,
+  .host-event-actions .btn-primary:hover {
+    background: var(--surface-2) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .host-kpis .summary-icon.summary-icon-tickets,
+  .host-kpis .summary-icon.summary-icon-withdrawn,
+  .host-kpis .summary-icon.summary-icon-attendees,
+  .host-kpis .summary-icon {
+    background: var(--surface) !important;
+    color: var(--green-dark) !important;
+  }
+
+  .host-event-row.is-private,
+  .host-sidebar .sidebar-link.active,
+  .host-sidebar .sidebar-link:hover {
+    background: var(--sidebar-active) !important;
+  }
+
+  .host-sidebar .sidebar-link,
+  .host-sidebar .sidebar-link:visited,
+  .host-sidebar .sidebar-link:hover,
+  .host-sidebar .sidebar-link.active,
+  .host-sidebar .sidebar-link .sidebar-label,
+  .host-sidebar .sidebar-link:visited .sidebar-label,
+  .host-sidebar .sidebar-link .sidebar-icon,
+  .host-sidebar .sidebar-link:visited .sidebar-icon,
+  .host-sidebar .sidebar-footer,
+  .host-sidebar .sidebar-logo,
+  .host-sidebar .sidebar-nav-title,
+  .host-sidebar .sidebar-brand-copy,
+  .host-sidebar .sidebar-brand-copy strong,
+  .host-sidebar .sidebar-brand-copy span {
+    color: var(--text-primary) !important;
+    opacity: 1 !important;
+  }
+
+  .host-sidebar .sidebar-link.active .sidebar-icon,
+  .host-sidebar .sidebar-link:hover .sidebar-icon {
+    color: var(--text-primary) !important;
   }
 }
 

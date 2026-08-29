@@ -7,9 +7,10 @@
 /* SIDEBAR */
 .host-sidebar {
   width: 220px;
-  background: #0f172a;
-  color: white;
+  background: var(--surface, #ffffff);
+  color: var(--text-primary, #111827);
   padding: 1rem;
+  border-right: 1px solid var(--border, #e5e7eb);
 }
 
 /* MAIN */
@@ -36,10 +37,12 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #0f172a;
+    background: var(--surface, #ffffff);
+    color: var(--text-primary, #111827);
     justify-content: space-around;
     padding: 0.8rem 0;
     z-index: 999;
+    border-top: 1px solid var(--border, #e5e7eb);
   }
 
   .host-dashboard {
