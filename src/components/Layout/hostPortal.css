@@ -2208,6 +2208,34 @@ a.btn-withdraw {
     background: rgba(8, 25, 15, 0.92);
     border-color: rgba(95, 224, 128, 0.16);
   }
+
+  .host-kpis .summary-card,
+  .scanner-code-card,
+  .host-dash-panel .table-wrapper,
+  .host-dash-panel .chart-wrapper,
+  .host-event-topbar,
+  .host-event-hero-info,
+  .host-event-card,
+  .host-event-card .host-info-pill,
+  .host-event-card .ticket-type-row,
+  .host-event-card .checklist-items li,
+  .host-event-card .host-scanner-row,
+  .host-table thead,
+  .host-table tbody tr,
+  .host-table-stacked tbody tr {
+    background: linear-gradient(180deg, rgba(8, 26, 16, 0.98), rgba(11, 33, 21, 0.98)) !important;
+    border-color: rgba(95, 224, 128, 0.14) !important;
+  }
+
+  .host-table thead th {
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: #d8f0dd !important;
+  }
+
+  .host-table tbody td,
+  .host-table-stacked tbody td {
+    color: #effaf1 !important;
+  }
 }
 
 @media (max-width: 640px) {
