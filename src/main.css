@@ -120,11 +120,11 @@ button:hover {
 .checkout-panel,
 .order-summary-card {
   background:
-    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 28%),
-    rgba(7, 24, 15, 0.88);
-  border: 1px solid rgba(95, 224, 128, 0.14);
+    radial-gradient(circle at top right, rgba(16, 97, 43, 0.08), transparent 28%),
+    linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
+  border: 1px solid var(--app-line);
   border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
   padding: 26px;
 }
 
@@ -160,8 +160,8 @@ html {
   gap: 0.35rem;
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
-  background: rgba(46, 224, 111, 0.12);
-  color: #e7f7ea;
+  background: rgba(16, 97, 43, 0.08);
+  color: #10612b;
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -192,8 +192,8 @@ html {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: rgba(46, 224, 111, 0.12);
-  color: #7ee0a0;
+  background: rgba(16, 97, 43, 0.08);
+  color: #10612b;
   font-size: 1.1rem;
 }
 
@@ -223,32 +223,32 @@ html {
 
 .checkout-event-card,
 .checkout-merch-card {
-  border: 1px solid rgba(95, 224, 128, 0.14);
+  border: 1px solid var(--app-line);
 }
 
 .checkout-panel .checkout-section label,
 .checkout-panel .field-note {
-  color: #d5e7d8;
+  color: var(--app-text);
 }
 
 .checkout-panel .field-note {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(95, 224, 128, 0.12);
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
   border-radius: 14px;
   padding: 0.8rem 0.95rem;
   margin-top: 0.65rem;
-  color: #e7f7ea;
+  color: var(--app-muted);
 }
 
 .checkout-panel input,
 .checkout-panel select {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(95, 224, 128, 0.18);
-  color: #f4fff5;
+  background: var(--app-input-bg);
+  border-color: var(--app-line);
+  color: var(--app-text);
 }
 
 .checkout-panel input::placeholder {
-  color: #b9c9bf;
+  color: var(--app-muted);
 }
 
 .checkout-panel select option {
@@ -282,18 +282,18 @@ html {
 .checkout-heading-brand h1 {
   margin: 0;
   font-size: clamp(1.9rem, 2.3vw, 2.4rem);
-  color: #f4fff5;
+  color: var(--app-text);
 }
 
 .checkout-panel h2,
 .order-summary-card h3,
 .order-summary-card p,
 .order-summary-card span {
-  color: #f4fff5;
+  color: var(--app-text);
 }
 
 .order-summary-card .payment-label {
-  color: #d5e7d8;
+  color: var(--app-muted);
 }
 
 .checkout-heading-brand .kicker {
@@ -303,9 +303,9 @@ html {
 .checkout-card {
   margin-top: 1.75rem;
   background:
-    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 30%),
-    rgba(7, 24, 15, 0.84);
-  border: 1px solid rgba(95, 224, 128, 0.14);
+    radial-gradient(circle at top right, rgba(16, 97, 43, 0.08), transparent 30%),
+    linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
+  border: 1px solid var(--app-line);
   border-radius: 20px;
   padding: 22px;
 }
@@ -315,7 +315,7 @@ html {
 }
 
 .checkout-card p {
-  color: #d5e7d8;
+  color: var(--app-muted);
   line-height: 1.7;
 }
 
@@ -349,11 +349,11 @@ html {
   align-items: stretch;
   border-radius: 20px;
   background:
-    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 34%),
-    rgba(7, 24, 15, 0.88);
+    radial-gradient(circle at top right, rgba(16, 97, 43, 0.08), transparent 34%),
+    linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
   padding: 1rem;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(95, 224, 128, 0.14);
+  border: 1px solid var(--app-line);
 }
 
 .checkout-event-card img {
@@ -362,7 +362,7 @@ html {
   height: auto;
   min-height: 0;
   object-fit: contain;
-  background: rgba(4, 20, 11, 0.92);
+  background: var(--app-surface-2);
   border-radius: 18px;
 }
 
@@ -375,7 +375,7 @@ html {
 }
 
 .order-summary-header {
-  border-bottom: 1px solid rgba(95, 224, 128, 0.12);
+  border-bottom: 1px solid var(--app-line);
   padding-bottom: 1rem;
   margin-bottom: 1rem;
 }
@@ -391,7 +391,7 @@ html {
 .order-total {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #f4fff5;
+  color: var(--app-text);
 }
 
 .checkout-pay-btn {
@@ -404,10 +404,10 @@ html {
   grid-template-columns: 110px 1fr;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--app-line);
   border-radius: 18px;
   margin-bottom: 1.25rem;
-  background: #f8fafc;
+  background: var(--app-surface);
 }
 
 .checkout-merch-card img {
@@ -415,6 +415,101 @@ html {
   height: 110px;
   object-fit: cover;
   border-radius: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .checkout-panel,
+  .order-summary-card {
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 28%),
+      rgba(7, 24, 15, 0.88);
+    border: 1px solid rgba(95, 224, 128, 0.14);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+  }
+
+  .checkout-heading .kicker {
+    background: rgba(46, 224, 111, 0.12);
+    color: #e7f7ea;
+  }
+
+  .summary-icon {
+    background: rgba(46, 224, 111, 0.12);
+    color: #7ee0a0;
+  }
+
+  .checkout-panel .checkout-section label,
+  .checkout-panel .field-note,
+  .order-summary-card .order-item,
+  .order-summary-card .order-total,
+  .payment-label,
+  .payment-methods li {
+    color: #d6e8db;
+  }
+
+  .checkout-panel .field-note {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(95, 224, 128, 0.12);
+    color: #e7f7ea;
+  }
+
+  .checkout-panel input,
+  .checkout-panel select {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(95, 224, 128, 0.18);
+    color: #f4fff5;
+  }
+
+  .checkout-panel input::placeholder {
+    color: #b9c9bf;
+  }
+
+  .checkout-heading-brand h1,
+  .checkout-panel h2,
+  .order-summary-card h3,
+  .order-summary-card p,
+  .order-summary-card span,
+  .checkout-card h2 {
+    color: #f4fff5;
+  }
+
+  .order-summary-card .payment-label {
+    color: #d5e7d8;
+  }
+
+  .checkout-card {
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 30%),
+      rgba(7, 24, 15, 0.84);
+    border: 1px solid rgba(95, 224, 128, 0.14);
+  }
+
+  .checkout-card p {
+    color: #d5e7d8;
+  }
+
+  .checkout-event-card {
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 34%),
+      rgba(7, 24, 15, 0.88);
+    border: 1px solid rgba(95, 224, 128, 0.14);
+  }
+
+  .checkout-event-card img {
+    background: rgba(4, 20, 11, 0.92);
+  }
+
+  .order-summary-header {
+    border-bottom: 1px solid rgba(95, 224, 128, 0.12);
+  }
+
+  .order-total {
+    color: #f4fff5;
+  }
+
+  .checkout-merch-card {
+    border: 1px solid rgba(95, 224, 128, 0.14);
+    background: #f8fafc;
+  }
 }
 
 .quantity-row {
@@ -2210,6 +2305,7 @@ html {
   max-width: 980px;
   margin: 2rem auto;
   padding: 1rem;
+  color: #17201a;
 }
 
 .my-tickets-header {
@@ -2218,18 +2314,18 @@ html {
 
 .my-tickets-header h2 {
   margin: 0.2rem 0 0.4rem;
-  color: #f4fff5;
+  color: #17201a;
 }
 
 .my-tickets-header p,
 .ticket-card-meta,
 .my-tickets-empty p {
-  color: #d5e7d8;
+  color: #637067;
 }
 
 .my-tickets-kicker {
   margin: 0;
-  color: #7ee0a0;
+  color: #10612b;
   font-size: 0.82rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -2240,12 +2336,12 @@ html {
   padding: 1.2rem;
   border: 1px solid rgba(95, 224, 128, 0.14);
   border-radius: 16px;
-  background: rgba(7, 24, 15, 0.82);
+  background: #ffffff;
 }
 
 .my-tickets-empty h3 {
   margin: 0 0 0.35rem;
-  color: #f4fff5;
+  color: #17201a;
 }
 
 .ticket-grid {
@@ -2256,9 +2352,9 @@ html {
 
 .ticket-card--compact {
   text-align: left;
-  background: rgba(7, 24, 15, 0.88);
+  background: #ffffff;
   border-color: rgba(95, 224, 128, 0.14);
-  color: #f4fff5;
+  color: #17201a;
 }
 
 .ticket-card-top {
@@ -2274,8 +2370,8 @@ html {
   align-items: center;
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
-  background: rgba(16, 97, 43, 0.18);
-  color: #c8f5d4;
+  background: rgba(16, 97, 43, 0.12);
+  color: #10612b;
   font-size: 0.8rem;
   font-weight: 700;
 }
@@ -2296,6 +2392,41 @@ html {
 
 .modal-buttons button:hover {
   background: #0e8e20;
+}
+
+@media (prefers-color-scheme: dark) {
+  .my-tickets-page {
+    color: #f4fff5;
+  }
+
+  .my-tickets-header h2 {
+    color: #f4fff5;
+  }
+
+  .my-tickets-header p,
+  .ticket-card-meta,
+  .my-tickets-empty p {
+    color: #d5e7d8;
+  }
+
+  .my-tickets-kicker {
+    color: #7ee0a0;
+  }
+
+  .my-tickets-empty,
+  .ticket-card--compact {
+    background: rgba(7, 24, 15, 0.88);
+    color: #f4fff5;
+  }
+
+  .my-tickets-empty h3 {
+    color: #f4fff5;
+  }
+
+  .ticket-pill {
+    background: rgba(16, 97, 43, 0.18);
+    color: #c8f5d4;
+  }
 }
 
 
@@ -2589,50 +2720,48 @@ html {
   gap: 1.25rem;
 }
 
+.event-details-page .checkout-card p,
+.event-details-page .event-description,
+.event-details-page .detail-location-label,
+.event-details-page .detail-location-full,
+.event-details-page .merch-card p,
+.event-details-page .merch-card small,
+.event-details-page .detail-stats span {
+  color: #334155;
+}
+
+.event-details-page .detail-location-full,
+.event-details-page .checkout-card h2,
+.event-details-page .merch-section h3,
+.event-details-page .detail-stats strong,
+.event-details-page .event-title {
+  color: #0f172a;
+}
+
+.event-details-page .detail-hero-image {
+  background: #fff;
+  border-color: #dbe3ef;
+}
+
+.event-details-page .checkout-card {
+  background:
+    radial-gradient(circle at top right, rgba(16, 97, 43, 0.08), transparent 30%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
 @media (prefers-color-scheme: dark) {
-  .event-details-page .merch-section {
-    display: grid;
-    gap: 1rem;
-    background: linear-gradient(180deg, var(--app-surface), color-mix(in srgb, var(--app-surface) 88%, #f8fff8 12%)) !important;
-    border: 1px solid var(--app-line) !important;
+  .event-details-page .merch-section,
+  .event-details-page .merch-card,
+  .event-details-page .checkout-card,
+  .event-details-page .detail-stats {
+    background: linear-gradient(180deg, var(--app-surface), var(--app-surface-2)) !important;
+    border-color: var(--app-line) !important;
     color: var(--app-text) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08) !important;
   }
 
   .event-details-page .merch-section h3,
-  .event-details-page .checkout-card h2 {
-    color: var(--app-text) !important;
-  }
-
-  .event-details-page .merch-grid {
-    gap: 1rem;
-  }
-
-  .event-details-page .merch-card,
-  .event-details-page .checkout-card {
-    background: linear-gradient(180deg, var(--app-surface), color-mix(in srgb, var(--app-surface) 92%, #f8fff8 8%)) !important;
-    border: 1px solid var(--app-line) !important;
-    color: var(--app-text) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
-  }
-
-  .event-details-page .detail-stats {
-    background: linear-gradient(180deg, var(--app-surface), color-mix(in srgb, var(--app-surface) 90%, #f8fff8 10%)) !important;
-    border: 1px solid var(--app-line) !important;
-    color: var(--app-text) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
-    gap: 0.7rem !important;
-  }
-
-  .event-details-page .merch-card p,
-  .event-details-page .merch-card small,
-  .event-details-page .checkout-card p,
-  .event-details-page .checkout-card span,
-  .event-details-page .detail-stats span,
-  .event-details-page .event-description {
-    color: var(--app-muted) !important;
-  }
-
+  .event-details-page .checkout-card h2,
   .event-details-page .merch-card strong,
   .event-details-page .checkout-card strong,
   .event-details-page .detail-stats strong,
@@ -2640,27 +2769,30 @@ html {
     color: var(--app-text) !important;
   }
 
-  .event-details-page .detail-stats .checkout-links-row {
-    gap: 0.65rem !important;
+  .event-details-page .merch-card p,
+  .event-details-page .merch-card small,
+  .event-details-page .checkout-card p,
+  .event-details-page .checkout-card span,
+  .event-details-page .detail-stats span,
+  .event-details-page .event-description,
+  .event-details-page .detail-location-label {
+    color: var(--app-muted) !important;
   }
 
   .event-details-page .merch-card .btn-copy-link,
   .event-details-page .checkout-card .btn-copy-link,
   .event-details-page .detail-stats .btn-copy-link,
   .event-details-page .detail-stats .btn-primary {
-    background: var(--app-surface-2) !important;
+    background: var(--app-surface) !important;
     color: var(--app-text) !important;
     border-color: var(--app-line) !important;
   }
 
   .event-details-page .merch-card .btn-copy-link:hover,
-  .event-details-page .checkout-card .btn-copy-link:hover {
-    background: color-mix(in srgb, var(--app-surface-2) 85%, var(--app-text) 15%) !important;
-  }
-
+  .event-details-page .checkout-card .btn-copy-link:hover,
   .event-details-page .detail-stats .btn-primary:hover,
   .event-details-page .detail-stats .btn-copy-link:hover {
-    background: color-mix(in srgb, var(--app-surface-2) 82%, var(--app-text) 18%) !important;
+    background: var(--app-surface-2) !important;
   }
 }
 
@@ -2678,7 +2810,7 @@ html {
 
 .event-title {
   margin: 0;
-  color: #f4fff5;
+  color: var(--app-text);
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.05;
 }
@@ -2695,7 +2827,7 @@ html {
   padding: 0.4rem 0.65rem;
   border-radius: 999px;
   background: rgba(16, 97, 43, 0.08);
-  color: #f4fff5;
+  color: #10612b;
   font-size: 0.8rem;
   font-weight: 800;
   line-height: 1;
@@ -2705,7 +2837,7 @@ html {
 
 .detail-pill-location {
   background: rgba(16, 97, 43, 0.06);
-  color: #f4fff5;
+  color: #10612b;
 }
 
 .detail-location-box {
@@ -2713,24 +2845,24 @@ html {
   gap: 0.4rem;
   padding: 0.95rem 1.05rem;
   border-radius: 18px;
-  border: 1px solid rgba(95, 224, 128, 0.28);
-  background: linear-gradient(180deg, rgba(7, 24, 15, 0.96), rgba(7, 24, 15, 0.86));
+  border: 1px solid var(--app-line);
+  background: linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
   width: min(100%, 640px);
   max-width: 100%;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
 .detail-location-label {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(231, 247, 234, 0.72);
+  color: var(--app-muted);
   font-weight: 700;
 }
 
 .detail-location-full {
   margin: 0;
-  color: #f4fff5;
+  color: var(--app-text);
   font-size: 1rem;
   line-height: 1.5;
   font-weight: 700;
@@ -2739,20 +2871,20 @@ html {
 .detail-stats {
   min-width: min(340px, 100%);
   padding: 1rem 1.1rem;
-  border: 1px solid rgba(95, 224, 128, 0.14);
+  border: 1px solid var(--app-line);
   border-radius: 18px;
-  background: rgba(7, 24, 15, 0.82);
+  background: linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
   display: grid;
   gap: 0.4rem;
 }
 
 .detail-stats strong {
-  color: #f4fff5;
+  color: var(--app-text);
   font-size: 1.05rem;
 }
 
 .detail-stats span {
-  color: #d5e7d8;
+  color: var(--app-muted);
 }
 
 .detail-hero-image {
@@ -2760,19 +2892,20 @@ html {
   aspect-ratio: 16 / 9;
   height: auto;
   object-fit: contain;
-  background: rgba(7, 24, 15, 0.92);
+  background: var(--app-surface);
   border-radius: 22px;
-  border: 1px solid rgba(95, 224, 128, 0.14);
+  border: 1px solid var(--app-line);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
 }
 
 .event-description {
-  color: #d5e7d8;
+  color: var(--app-muted);
   line-height: 1.75;
 }
 
 .merch-section h3,
 .checkout-card h2 {
-  color: var(--text);
+  color: var(--app-text);
 }
 
 .merch-grid {
@@ -2782,11 +2915,11 @@ html {
 }
 
 .merch-card {
-  border: 1px solid var(--line);
+  border: 1px solid var(--app-line);
   border-radius: 18px;
   overflow: hidden;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 .merch-card img {
@@ -2803,14 +2936,14 @@ html {
 
 .merch-card p,
 .merch-card small {
-  color: var(--muted);
+  color: var(--app-muted);
 }
 
 .checkout-card {
-  border: 1px solid var(--line);
+  border: 1px solid var(--app-line);
   border-radius: 18px;
-  background: var(--surface);
-  color: var(--text);
+  background: linear-gradient(180deg, var(--app-surface), var(--app-surface-2));
+  color: var(--app-text);
 }
 
 .checkout-links-row {
@@ -2821,12 +2954,12 @@ html {
 
 .checkout-card .btn-copy-link {
   background: transparent;
-  color: var(--text);
-  border: 1px solid var(--line);
+  color: var(--app-text);
+  border: 1px solid var(--app-line);
 }
 
 .checkout-card .btn-copy-link:hover {
-  background: var(--surface-2);
+  background: var(--app-surface-2);
 }
 
 @media (max-width: 640px) {

@@ -814,11 +814,11 @@ a.btn-withdraw {
 .event-title {
   margin: 0 0 10px;
   font-size: clamp(1.6rem, 3vw, 2.1rem);
-  color: #f4fff5;
+  color: #0f172a;
 }
 
 .event-description {
-  color: var(--text);
+  color: #334155;
   line-height: 1.7;
 }
 
@@ -827,28 +827,25 @@ a.btn-withdraw {
   display: grid;
   gap: 10px;
   padding: 18px;
-  border: 1px solid rgba(95, 224, 128, 0.14);
+  border: 1px solid var(--line);
   border-radius: 16px;
-  background:
-    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 35%),
-    rgba(7, 24, 15, 0.84);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
 }
 
 .checkout-card label {
-  color: var(--muted);
+  color: #334155;
   font-size: 0.88rem;
 }
 
 .detail-stats {
-  background:
-    radial-gradient(circle at top right, rgba(46, 224, 111, 0.08), transparent 35%),
-    rgba(7, 24, 15, 0.84);
-  border-color: rgba(95, 224, 128, 0.14);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  border-color: var(--line);
+  color: #0f172a;
 }
 
 .detail-hero-image {
-  background: linear-gradient(180deg, rgba(4, 20, 11, 0.92), rgba(4, 20, 11, 0.98));
+  background: var(--surface);
 }
 
 .summary-box {
@@ -856,7 +853,8 @@ a.btn-withdraw {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px;
-  background: linear-gradient(180deg, #fafbff, #f5f7ff);
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
+  color: #0f172a;
 }
 
 .summary-box hr {
@@ -983,6 +981,7 @@ a.btn-withdraw {
 
 .event-details-page {
   gap: 18px;
+  color: #0f172a;
 }
 
 .detail-header {
@@ -1006,8 +1005,9 @@ a.btn-withdraw {
   border-radius: 999px;
   border: 1px solid #e2e8f0;
   background: #fff;
-  color: #334155;
+  color: #0f172a;
   font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .detail-stats {
@@ -1023,11 +1023,11 @@ a.btn-withdraw {
 .detail-stats strong {
   display: block;
   font-size: 1.08rem;
-  color: #22125f;
+  color: #0f172a;
 }
 
 .detail-stats span {
-  color: var(--muted);
+  color: #475569;
   font-size: 0.84rem;
 }
 
@@ -1036,10 +1036,31 @@ a.btn-withdraw {
   aspect-ratio: 16 / 9;
   height: auto;
   object-fit: contain;
-  background: #081b10;
+  background: #fff;
   border-radius: 16px;
   border: 1px solid #e4e8f3;
   box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+}
+
+.detail-location-label {
+  color: #64748b;
+}
+
+.detail-location-full {
+  color: #0f172a;
+}
+
+.checkout-card label {
+  color: #334155;
+}
+
+.checkout-card p,
+.event-description {
+  color: #334155;
+}
+
+.summary-box {
+  color: #0f172a;
 }
 
 @media (max-width: 980px) {

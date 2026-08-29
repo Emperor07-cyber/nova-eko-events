@@ -4,6 +4,9 @@ import { database } from "../firebase/firebaseConfig";
 import { Html5Qrcode } from "html5-qrcode";
 import { getAuth, signInAnonymously, signOut } from "firebase/auth";
 
+const prefersDark =
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
+
 const CheckInPage = () => {
   const [step, setStep] = useState("login");
   const [accessCode, setAccessCode] = useState("");
@@ -443,8 +446,8 @@ const handleExit = async () => {
 };
 
 const styles = {
-  page: { minHeight: "100vh", background: "radial-gradient(800px 220px at 50% 0%, rgba(16, 97, 43, 0.08), transparent 55%), linear-gradient(180deg, #f7fbf7 0%, #eff7ee 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" },
-  loginCard: { background: "var(--surface)", padding: "2rem", width: "100%", maxWidth: "430px", textAlign: "center", border: "1px solid var(--border)", boxShadow: "0 18px 40px rgba(16, 97, 43, 0.12)", borderRadius: "20px" },
+  page: { minHeight: "100vh", background: prefersDark ? "radial-gradient(800px 220px at 50% 0%, rgba(46, 224, 111, 0.08), transparent 55%), linear-gradient(180deg, #04140b 0%, #081b10 100%)" : "radial-gradient(800px 220px at 50% 0%, rgba(16, 97, 43, 0.08), transparent 55%), linear-gradient(180deg, #f7fbf7 0%, #eff7ee 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" },
+  loginCard: { background: prefersDark ? "rgba(8, 26, 16, 0.9)" : "var(--surface)", padding: "2rem", width: "100%", maxWidth: "430px", textAlign: "center", border: "1px solid var(--border)", boxShadow: prefersDark ? "0 18px 40px rgba(0, 0, 0, 0.22)" : "0 18px 40px rgba(16, 97, 43, 0.12)", borderRadius: "20px" },
   heroBadge: { display: "inline-flex", marginBottom: "0.65rem", padding: "5px 10px", borderRadius: "999px", background: "rgba(16, 97, 43, 0.12)", color: "var(--green)", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" },
   logo: { fontSize: "2.4rem", marginBottom: "0.25rem" },
   title: { color: "var(--text-primary)", fontWeight: 800, margin: "0 0 0.4rem" },
@@ -456,17 +459,17 @@ const styles = {
   codeInput: { width: "100%", padding: "0.9rem 1rem", borderRadius: "12px", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text-primary)", fontWeight: 700, fontFamily: "monospace", textAlign: "center", letterSpacing: "0.3em", boxSizing: "border-box", marginBottom: "0.5rem", outline: "none", boxShadow: "none" },
   manualEntryHint: { color: "var(--text-muted)", fontSize: "0.78rem", textAlign: "center", marginBottom: "0.75rem" },
   modeToggleRow: { display: "flex", gap: "8px", padding: "0 1rem", marginBottom: "0.75rem" },
-  modeToggleBtn: { flex: 1, padding: "0.65rem", borderRadius: "10px", border: "1px solid var(--border)", background: "rgba(8, 26, 16, 0.9)", color: "var(--text-secondary)", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer" },
+  modeToggleBtn: { flex: 1, padding: "0.65rem", borderRadius: "10px", border: "1px solid var(--border)", background: prefersDark ? "rgba(8, 26, 16, 0.9)" : "var(--surface)", color: "var(--text-secondary)", fontSize: "0.9rem", fontWeight: 600, cursor: "pointer" },
   modeToggleBtnActive: { background: "linear-gradient(135deg, #10612B, #1F7A47)", color: "#fff", border: "1px solid transparent" },
-  manualEntryBox: { display: "flex", flexDirection: "column", padding: "1.5rem", background: "rgba(8, 26, 16, 0.9)", borderRadius: "16px", border: "1px solid var(--border)" },
-  manualEntryLabel: { color: "#cde7d4", fontSize: "0.9rem", marginBottom: "0.75rem", textAlign: "center" },
+  manualEntryBox: { display: "flex", flexDirection: "column", padding: "1.5rem", background: prefersDark ? "rgba(8, 26, 16, 0.9)" : "var(--surface)", borderRadius: "16px", border: "1px solid var(--border)" },
+  manualEntryLabel: { color: prefersDark ? "#cde7d4" : "var(--text-secondary)", fontSize: "0.9rem", marginBottom: "0.75rem", textAlign: "center" },
   btn: { width: "100%", padding: "0.9rem", background: "linear-gradient(135deg, #10612B, #1F7A47)", color: "#fff", border: "none", borderRadius: "12px", fontSize: "1rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 22px rgba(16, 97, 43, 0.24)" },
-  scanPage: { minHeight: "100vh", background: "radial-gradient(800px 220px at 50% 0%, rgba(46, 224, 111, 0.1), transparent 55%), linear-gradient(180deg, #04140b 0%, #081b10 100%)", color: "#f4fff5", padding: "1rem" },
-  scanHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.25rem", background: "rgba(8, 26, 16, 0.9)", border: "1px solid var(--border)", borderRadius: "16px", boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)", marginBottom: "1rem" },
-  eventName: { color: "#f4fff5", fontWeight: 800, fontSize: "1.05rem", margin: 0 },
-  scanCount: { color: "#cde7d4", fontSize: "0.85rem", margin: "4px 0 0", fontWeight: 600 },
-  exitBtn: { background: "rgba(255,255,255,0.04)", color: "#f4fff5", border: "1px solid var(--border)", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700 },
-  scannerWrapper: { position: "relative", width: "100%", maxWidth: "760px", margin: "0 auto", background: "rgba(8, 26, 16, 0.9)", border: "1px solid var(--border)", borderRadius: "18px", padding: "1rem", boxShadow: "0 12px 28px rgba(0, 0, 0, 0.22)" },
+  scanPage: { minHeight: "100vh", background: prefersDark ? "radial-gradient(800px 220px at 50% 0%, rgba(46, 224, 111, 0.1), transparent 55%), linear-gradient(180deg, #04140b 0%, #081b10 100%)" : "radial-gradient(800px 220px at 50% 0%, rgba(16, 97, 43, 0.08), transparent 55%), linear-gradient(180deg, #f7fbf7 0%, #eff7ee 100%)", color: prefersDark ? "#f4fff5" : "var(--text-primary)", padding: "1rem" },
+  scanHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.25rem", background: prefersDark ? "rgba(8, 26, 16, 0.9)" : "var(--surface)", border: "1px solid var(--border)", borderRadius: "16px", boxShadow: prefersDark ? "0 12px 28px rgba(0, 0, 0, 0.22)" : "0 12px 28px rgba(16, 97, 43, 0.08)", marginBottom: "1rem" },
+  eventName: { color: prefersDark ? "#f4fff5" : "var(--text-primary)", fontWeight: 800, fontSize: "1.05rem", margin: 0 },
+  scanCount: { color: prefersDark ? "#cde7d4" : "var(--text-secondary)", fontSize: "0.85rem", margin: "4px 0 0", fontWeight: 600 },
+  exitBtn: { background: prefersDark ? "rgba(255,255,255,0.04)" : "var(--surface)", color: prefersDark ? "#f4fff5" : "var(--text-primary)", border: "1px solid var(--border)", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700 },
+  scannerWrapper: { position: "relative", width: "100%", maxWidth: "760px", margin: "0 auto", background: prefersDark ? "rgba(8, 26, 16, 0.9)" : "var(--surface)", border: "1px solid var(--border)", borderRadius: "18px", padding: "1rem", boxShadow: prefersDark ? "0 12px 28px rgba(0, 0, 0, 0.22)" : "0 12px 28px rgba(16, 97, 43, 0.08)" },
   qrReader: { width: "100%" },
   resultOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 10, padding: "2rem" },
   resultIcon: { fontSize: "4rem", marginBottom: "0.5rem" },
@@ -476,10 +479,10 @@ const styles = {
   attendeeDetail: { color: "rgba(255,255,255,0.85)", fontSize: "1rem", margin: 0 },
   resultMessage: { color: "rgba(255,255,255,0.8)", fontSize: "0.9rem", textAlign: "center" },
   controls: { display: "flex", justifyContent: "center", gap: "1rem", padding: "1rem 0" },
-  controlBtn: { background: "rgba(255,255,255,0.04)", color: "#f4fff5", border: "1px solid var(--border)", borderRadius: "10px", padding: "8px 16px", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 },
+  controlBtn: { background: prefersDark ? "rgba(255,255,255,0.04)" : "var(--surface)", color: prefersDark ? "#f4fff5" : "var(--text-primary)", border: "1px solid var(--border)", borderRadius: "10px", padding: "8px 16px", cursor: "pointer", fontSize: "0.9rem", fontWeight: 600 },
   historySection: { padding: "0 1.25rem 1.25rem" },
-  historyTitle: { color: "#cde7d4", fontSize: "0.85rem", marginBottom: "0.5rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" },
-  historyItem: { display: "flex", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: "1px solid rgba(95, 224, 128, 0.12)", color: "#f4fff5", fontSize: "0.9rem" }
+  historyTitle: { color: prefersDark ? "#cde7d4" : "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "0.5rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" },
+  historyItem: { display: "flex", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: "1px solid var(--border)", color: prefersDark ? "#f4fff5" : "var(--text-primary)", fontSize: "0.9rem" }
 };
 
 export default CheckInPage;
