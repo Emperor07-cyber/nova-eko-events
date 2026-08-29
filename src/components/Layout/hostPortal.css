@@ -681,8 +681,8 @@
   align-items: center;
   gap: 0.5rem;
   background: #fff;
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
+  border: 1px solid #d1d5db;
+  color: #475569;
   border-radius: var(--radius-sm);
   padding: 0.55rem 1.2rem;
   font-size: 0.85rem;
@@ -1747,7 +1747,7 @@ a.btn-withdraw {
   font-weight: 700;
   font-size: 0.85rem;
   background: #f3f9f3;
-  color: var(--green);
+  color: #10612B;
   padding: 3px 8px;
   border-radius: 6px;
   border: 1px solid rgba(16, 97, 43, 0.18);
