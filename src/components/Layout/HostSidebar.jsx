@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiCalendar,
-  FiCheckCircle,
   FiCreditCard,
   FiGrid,
   FiLogOut,
@@ -21,7 +20,6 @@ const HostSidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navItems = [
     { to: "/host/dashboard", icon: FiGrid, label: "Dashboard" },
     { to: "/host/events", icon: FiCalendar, label: "Events" },
-    { to: "/host/checkin", icon: FiCheckCircle, label: "Check-In" },
     { to: "/host/attendees", icon: FiUsers, label: "Attendees" },
     { to: "/host/merch", icon: FiShoppingBag, label: "Merch" },
     { to: "/host/wallet", icon: FiCreditCard, label: "Wallet" },

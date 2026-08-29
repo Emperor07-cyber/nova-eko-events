@@ -20,18 +20,6 @@
   --app-input-bg: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-bg: #031109;
-    --app-surface: #081a10;
-    --app-surface-2: #0b2115;
-    --app-text: #eef7f0;
-    --app-muted: #a8b8ae;
-    --app-line: rgba(95, 224, 128, 0.16);
-    --app-inverse-text: #031109;
-    --app-input-bg: rgba(8, 26, 16, 0.96);
-  }
-}
 
 /* Body */
 body {
@@ -4129,4 +4117,206 @@ html {
 .auth-card p,
 .login-card p {
   color: var(--text-secondary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-bg: #031109;
+    --app-surface: #081a10;
+    --app-surface-2: #0b2115;
+    --app-text: #eef7f0;
+    --app-muted: #a8b8ae;
+    --app-line: rgba(95, 224, 128, 0.16);
+    --app-inverse-text: #031109;
+    --app-input-bg: rgba(8, 26, 16, 0.96);
+  }
+    /* ── Create Event page (event-editor-*) ──
+     This page previously had no dark variant and always rendered with
+     hardcoded light-mode colors, clashing with the dark body background
+     everywhere else in the app. */
+  .event-editor-hero {
+    border-color: rgba(95, 224, 128, 0.16);
+    background:
+      radial-gradient(circle at top right, rgba(46, 224, 111, 0.1), transparent 28%),
+      linear-gradient(135deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .event-editor-kicker {
+    background: rgba(46, 224, 111, 0.12);
+    color: #eaf8ee;
+  }
+
+  .event-editor-hero-copy h1 {
+    color: #f4fff5;
+  }
+
+  .event-editor-hero-copy p {
+    color: #cde7d4;
+  }
+
+  .event-editor-stat {
+    border-color: rgba(95, 224, 128, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .event-editor-stat strong {
+    color: #f4fff5;
+  }
+
+  .event-editor-stat span {
+    color: #cde7d4;
+  }
+
+  .event-editor-card {
+    border-color: rgba(95, 224, 128, 0.14);
+    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+  }
+
+  .event-editor-card-head h2,
+  .event-preview-head h2,
+  .event-editor-nested-head h3,
+  .event-editor-inline-head h4,
+  .event-preview-grid h3,
+  .event-preview-merch h3,
+  .event-editor-summary-list strong {
+    color: #f4fff5;
+  }
+
+  .event-editor-card-head p {
+    color: #cde7d4;
+  }
+
+  .event-editor-section-chip {
+    background: rgba(46, 224, 111, 0.12);
+    color: #eaf8ee;
+  }
+
+  .event-editor-field span,
+  .event-editor-toggle span,
+  .event-editor-inline-head h4 {
+    color: #e5f3e8;
+  }
+
+  .event-editor-field input,
+  .event-editor-field textarea,
+  .event-editor-field select,
+  .event-editor-inline-row input {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+    color: #f4fff5;
+  }
+
+  .event-editor-toggle {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-url-input {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-url-input span {
+    background: rgba(46, 224, 111, 0.1);
+    border-right-color: rgba(95, 224, 128, 0.16);
+    color: #7ee0a0;
+  }
+
+  .event-editor-nested-card {
+    border-color: rgba(95, 224, 128, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-upload {
+    border-color: rgba(95, 224, 128, 0.22);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-upload span {
+    color: #7ee0a0;
+  }
+
+  .event-editor-upload small,
+  .event-editor-muted,
+  .event-editor-empty p,
+  .event-editor-policy-list,
+  .event-editor-policy-check span,
+  .event-editor-summary-list span,
+  .event-preview-grid p,
+  .event-preview-meta {
+    color: #cde7d4;
+  }
+
+  .event-editor-image-preview,
+  .event-preview-banner,
+  .event-editor-merch-preview {
+    border-color: rgba(95, 224, 128, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-image-placeholder {
+    border-color: rgba(95, 224, 128, 0.22);
+    background: rgba(255, 255, 255, 0.02);
+    color: #9fc7ab;
+  }
+
+  .event-editor-policy-check {
+    border-color: rgba(95, 224, 128, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-editor-secondary-btn {
+    background: rgba(46, 224, 111, 0.1);
+    border-color: rgba(95, 224, 128, 0.2);
+    color: #7ee0a0;
+  }
+
+  .event-editor-icon-btn {
+    background: rgba(46, 224, 111, 0.1);
+    color: #7ee0a0;
+  }
+
+  .event-editor-danger-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  .event-editor-text-btn {
+    color: #7ee0a0;
+  }
+
+  .event-editor-error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  .event-preview-dialog {
+    background: rgba(7, 23, 14, 0.98);
+  }
+
+  .event-editor-empty {
+    border-color: rgba(95, 224, 128, 0.22);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-preview-pill {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .event-preview-pill strong {
+    color: #f4fff5;
+  }
+
+  .event-preview-pill span {
+    color: #7ee0a0;
+  }
+
+  .event-preview-pill small {
+    color: #cde7d4;
+  }
 }

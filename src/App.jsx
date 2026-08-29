@@ -93,6 +93,7 @@ function PublicLayout() {
           { to: "/", label: "Discover" },
           { to: "/eventlist", label: "Events" },
           { to: "/my-tickets", label: "My Tickets" },
+          { to: "/checkin", label: "Check-in" },
           { to: "/login", label: "Login" },
         ]}
       />
