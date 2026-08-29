@@ -128,9 +128,9 @@
 }
 
 .host-content {
-  width: min(100%, 1480px);
+  width: min(100%, 1600px);
   margin: 0 auto;
-  padding: 2rem clamp(1rem, 2vw, 2.5rem);
+  padding: 2rem clamp(1rem, 2vw, 2.75rem);
   font-family: var(--font-body);
   color: var(--text-primary);
   display: grid;
@@ -1142,7 +1142,7 @@ a.btn-withdraw {
 }
 
 .host-content {
-  max-width: 1180px;
+  max-width: 1540px;
 }
 
 .host-layout {
@@ -1354,6 +1354,26 @@ a.btn-withdraw {
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
 }
 
+.host-dash-hero h1,
+.host-dash-hero p,
+.host-dash-panel .section-title,
+.host-dash-panel .host-table th,
+.host-dash-panel .host-table td,
+.host-dash-insight span,
+.host-dash-insight strong,
+.scanner-code-title,
+.scanner-code-text {
+  color: #0f172a;
+}
+
+.host-dash-panel .host-table td,
+.host-dash-panel .host-table th,
+.host-dash-balance-card p,
+.host-dash-kicker,
+.section-subtitle {
+  opacity: 1;
+}
+
 .host-dash-kicker {
   margin: 0 0 6px;
   font-size: 0.82rem;
@@ -1457,6 +1477,12 @@ a.btn-withdraw {
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
 }
 
+.host-dash-panel .table-wrapper,
+.host-dash-panel .chart-wrapper {
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border: 1px solid #dbe3ef;
+}
+
 .host-dash-panel .section-header {
   margin-bottom: 8px;
   padding: 0;
@@ -1504,12 +1530,12 @@ a.btn-withdraw {
 .host-dash-panel .host-table th {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 .host-dash-panel .host-table td {
   font-size: 0.86rem;
-  color: var(--text-primary);
+  color: #0f172a;
 }
 
 .host-dash-panel .action-btns {
@@ -1607,6 +1633,63 @@ a.btn-withdraw {
   background: var(--surface-2);
   border-color: var(--border);
   color: var(--green-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .host-dash-hero,
+  .host-dash-balance-card,
+  .host-kpis .summary-card,
+  .host-dash-panel,
+  .host-dash-insight,
+  .scanner-code-card,
+  .table-wrapper,
+  .chart-wrapper {
+    background:
+      radial-gradient(460px 120px at 90% -20%, rgba(46, 224, 111, 0.08), transparent 60%),
+      linear-gradient(180deg, rgba(10, 31, 20, 0.98), rgba(7, 22, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.16);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+  }
+
+  .host-dash-hero h1,
+  .host-dash-hero p,
+  .host-dash-panel .section-title,
+  .host-dash-panel .host-table th,
+  .host-dash-panel .host-table td,
+  .host-dash-insight span,
+  .host-dash-insight strong,
+  .scanner-code-title,
+  .scanner-code-text,
+  .host-dash-balance-card p {
+    color: #e8f5ec;
+    opacity: 1;
+  }
+
+  .host-dash-kicker,
+  .section-subtitle {
+    color: #9fd7ae;
+    opacity: 1;
+  }
+
+  .host-dash-panel .host-table th {
+    color: #b7d8c0;
+  }
+
+  .host-dash-panel .host-table td {
+    color: #effaf1;
+  }
+
+  .host-dash-panel .table-wrapper,
+  .host-dash-panel .chart-wrapper {
+    background: rgba(8, 25, 15, 0.92);
+  }
+
+  .host-dash-panel .btn-copy-link,
+  .host-dash-panel .btn-edit,
+  .host-dash-panel .btn-delete,
+  .host-dash-hero-actions a {
+    color: #f7fff8;
+  }
 }
 
 /* ── Host events + wallet consistency pass ───────────────── */
@@ -1726,6 +1809,9 @@ a.btn-withdraw {
 .host-event-detail-page {
   display: grid;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
 }
 
 .host-event-topbar {
@@ -1733,7 +1819,7 @@ a.btn-withdraw {
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  padding: 1.5rem 1.75rem;
+  padding: 1.35rem 1.5rem;
   background: linear-gradient(180deg, #f8fff8, #ffffff);
   border: 1px solid #d8ecd4;
   border-radius: 22px;
@@ -1742,15 +1828,15 @@ a.btn-withdraw {
 
 .host-event-hero {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: 1.25fr 0.95fr;
   gap: 1rem;
   align-items: stretch;
 }
 
 .host-event-hero-image {
   width: 100%;
-  min-height: 300px;
-  max-height: 430px;
+  min-height: 340px;
+  max-height: 500px;
   object-fit: cover;
   border-radius: 24px;
   border: 1px solid #e5f1e8;
@@ -1759,8 +1845,8 @@ a.btn-withdraw {
 
 .host-event-hero-info {
   display: grid;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: 0.9rem;
+  padding: 1.35rem;
   border-radius: 24px;
   background: #ffffff;
   border: 1px solid #e5f1e8;
@@ -1849,7 +1935,7 @@ a.btn-withdraw {
 
 .host-event-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1.1fr;
+  grid-template-columns: 1.45fr 1fr;
   gap: 1rem;
 }
 
@@ -1859,6 +1945,25 @@ a.btn-withdraw {
   border-radius: 22px;
   padding: 1.35rem;
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.host-event-card h2,
+.host-event-card-header h2,
+.host-event-title,
+.host-event-subtitle,
+.host-event-hero-info h2,
+.host-event-hero-info p,
+.host-event-link,
+.host-event-card .info-label,
+.host-event-card .host-muted-note,
+.host-event-card .ticket-type-row span,
+.host-event-card .ticket-type-row strong,
+.host-event-card .checklist-items li,
+.host-event-card .host-scanner-status,
+.host-event-card .host-scanner-code,
+.host-event-card .host-info-pill p {
+  color: #0f172a;
+  opacity: 1;
 }
 
 .host-event-card-header {
@@ -1911,6 +2016,14 @@ a.btn-withdraw {
 .host-event-info-row div {
   display: grid;
   gap: 0.25rem;
+}
+
+.host-event-card .host-info-pill,
+.host-event-card .ticket-type-row,
+.host-event-card .checklist-items li,
+.host-event-card .host-scanner-row {
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border: 1px solid #dbe3ef;
 }
 
 .host-event-link {
@@ -1969,7 +2082,7 @@ a.btn-withdraw {
 
 .host-event-details-grid {
   display: grid;
-  grid-template-columns: 1.7fr 1fr;
+  grid-template-columns: 1.55fr 1fr;
   gap: 1rem;
 }
 
@@ -2005,6 +2118,21 @@ a.btn-withdraw {
   color: #64748b;
 }
 
+.host-event-card .host-scanner-status.active {
+  background: #eaf9ec;
+  color: #157a33;
+}
+
+.host-event-card .host-scanner-status.revoked {
+  background: #fdeeee;
+  color: #b42318;
+}
+
+.host-event-card .host-event-status.is-live,
+.host-event-card .host-event-status.is-draft {
+  color: #0f172a;
+}
+
 .empty-chart-state {
   color: #64748b;
   padding: 2rem;
@@ -2020,6 +2148,65 @@ a.btn-withdraw {
 
   .host-event-topbar {
     flex-direction: column;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .host-event-topbar,
+  .host-event-hero-info,
+  .host-event-card,
+  .host-event-card .host-info-pill,
+  .host-event-card .ticket-type-row,
+  .host-event-card .checklist-items li,
+  .host-event-card .host-scanner-row {
+    background:
+      radial-gradient(460px 120px at 90% -20%, rgba(46, 224, 111, 0.08), transparent 60%),
+      linear-gradient(180deg, rgba(10, 31, 20, 0.98), rgba(7, 22, 14, 0.98));
+    border-color: rgba(95, 224, 128, 0.16);
+  }
+
+  .host-event-topbar h1,
+  .host-event-topbar p,
+  .host-event-hero-info h2,
+  .host-event-hero-info p,
+  .host-event-card h2,
+  .host-event-card-header h2,
+  .host-event-card-header p,
+  .host-event-title,
+  .host-event-subtitle,
+  .host-event-link,
+  .host-event-card .info-label,
+  .host-event-card .host-muted-note,
+  .host-event-card .ticket-type-row span,
+  .host-event-card .ticket-type-row strong,
+  .host-event-card .checklist-items li,
+  .host-event-card .host-scanner-status,
+  .host-event-card .host-scanner-code,
+  .host-event-card .host-info-pill p {
+    color: #e8f5ec;
+    opacity: 1;
+  }
+
+  .host-event-card .host-event-status.is-live,
+  .host-event-card .host-event-status.is-draft {
+    color: #e8f5ec;
+  }
+
+  .host-event-card .host-info-pill .info-label,
+  .host-event-card .host-event-card-header p,
+  .host-event-card .checklist-items li.pending,
+  .host-event-card .host-scanner-status.revoked {
+    color: #b7d8c0;
+  }
+
+  .host-event-card .checklist-items li.done,
+  .host-event-card .host-scanner-status.active {
+    color: #f0fff4;
+  }
+
+  .host-event-card .host-scanner-code {
+    background: rgba(8, 25, 15, 0.92);
+    border-color: rgba(95, 224, 128, 0.16);
   }
 }
 
