@@ -27,6 +27,7 @@ import RemoteAdminOverview from "../components/common/RemoteAdminOverview";
 import TopPerformingEvents from '../components/common/TopPerformingEvents';
 import "./admin-dashboard-troop.css";
 import { useSalesTrend } from '../hooks/useSalesTrend';
+import { ticketMatchesEvent } from '../Utils/ticketEventMatch';
 
 const formatNaira = (value) => `NGN ${Number(value || 0).toLocaleString()}`;
 
@@ -131,7 +132,7 @@ const AdminDashboard = () => {
 
   const categoryData = Object.values(
     tickets.reduce((accumulator, ticket) => {
-      const event = events.find((eventItem) => eventItem.id === ticket.eventId);
+      const event = events.find((eventItem) => ticketMatchesEvent(ticket, eventItem));
       const category = event?.category || "Others";
       accumulator[category] = accumulator[category] || { category, total: 0 };
       accumulator[category].total += ticket.totalPaid || ticket.totalCharged || 0;
@@ -175,15 +176,16 @@ const AdminDashboard = () => {
   const filteredTickets = tickets
     .sort((left, right) => (right.timestamp || 0) - (left.timestamp || 0))
     .filter((ticket) => {
-      const eventExists = events.some((event) => event.id === ticket.eventId);
-      const matchingEventTitle = events.find((event) => event.id === ticket.eventId)?.title || "";
+      const matchingEvent = events.find((event) => ticketMatchesEvent(ticket, event));
+      const matchingEventTitle = matchingEvent?.title || ticket.eventTitle || "";
       const normalizedSearch = searchTerm.toLowerCase();
 
       const matchesSearch =
         ticket.email?.toLowerCase().includes(normalizedSearch) ||
-        matchingEventTitle.toLowerCase().includes(normalizedSearch);
+        matchingEventTitle.toLowerCase().includes(normalizedSearch) ||
+        (ticket.eventId || "").toLowerCase().includes(normalizedSearch);
 
-      return eventExists && matchesSearch;
+      return matchesSearch && (matchingEvent || ticket.eventTitle || ticket.hostEmail || ticket.eventId);
     });
 
   const paginatedTickets = filteredTickets.slice(
@@ -565,7 +567,7 @@ const AdminDashboard = () => {
                   <td data-label="Date">{ticket.date}</td>
                   <td data-label="Name">{ticket.name}</td>
                   <td data-label="Email">{ticket.email}</td>
-                  <td data-label="Event">{events.find((event) => event.id === ticket.eventId)?.title || "N/A"}</td>
+                  <td data-label="Event">{events.find((event) => ticketMatchesEvent(ticket, event))?.title || ticket.eventTitle || "N/A"}</td>
                   <td data-label="Ticket Type">{ticket.ticketType}</td>
                   <td data-label="Qty">{ticket.quantity}</td>
                   <td data-label="Host Earns" className="admin-value admin-value-blue">

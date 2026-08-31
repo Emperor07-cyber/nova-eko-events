@@ -40,6 +40,7 @@ const HostWallet = () => {
         .filter(
           (ticket) =>
             ticket.hostEmail?.toLowerCase() === user.email?.toLowerCase() ||
+            ticket.hostUid === user.uid ||
             hostEventIds.includes(ticket.eventId)
         );
       setTickets(hostTickets);

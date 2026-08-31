@@ -87,13 +87,14 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
 
     const customFields = Array.isArray(metadata.custom_fields) ? metadata.custom_fields : [];
     const readField = (variableName) => customFields.find(f => f.variable_name === variableName)?.value || "";
+    const readMetadataValue = (...keys) => keys.reduce((result, key) => result || (metadata[key] ?? ""), "");
     const name = metadata.name || email;
-    const ticketType = readField("ticket_type");
-    const quantity = Number(readField("quantity")) || 1;
-    const eventId = readField("event_id");
-    const eventTitle = readField("event_title") || metadata.event_title || "";
-    const hostEmail = readField("host_email") || metadata.host_email || "";
-    const hostUid = readField("host_uid") || metadata.host_uid || "";
+    const ticketType = readField("ticket_type") || metadata.ticket_type || "";
+    const quantity = Number(readField("quantity") || metadata.quantity || 1) || 1;
+    const eventId = String(readField("event_id") || readMetadataValue("event_id", "eventId", "eventid") || "").trim();
+    const eventTitle = String(readField("event_title") || readMetadataValue("event_title", "eventTitle") || "").trim();
+    const hostEmail = String(readField("host_email") || readMetadataValue("host_email", "hostEmail") || "").trim();
+    const hostUid = String(readField("host_uid") || readMetadataValue("host_uid", "hostUid") || "").trim();
     const merchName = readField("merch_name") || metadata.merch_name || "";
     const deliveryType = readField("delivery_type") || metadata.delivery_type || "";
     const phone = readField("phone") || metadata.phone || "";
@@ -133,7 +134,21 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         return;
       }
 
-      const eventRecord = await loadEventById(eventId);
+      let eventRecord = null;
+      if (eventId) {
+        eventRecord = await loadEventById(eventId);
+      }
+      if (!eventRecord && eventTitle) {
+        const eventsSnap = await admin.database().ref('events').once('value');
+        const events = eventsSnap.val() || {};
+        eventRecord = Object.entries(events).find(([_, event]) => {
+          const sameTitle = String(event?.title || '').trim().toLowerCase() === eventTitle.toLowerCase();
+          const sameHost = !hostEmail || String(event?.hostEmail || event?.createdBy || '').trim().toLowerCase() === hostEmail.toLowerCase();
+          const sameHostUid = !hostUid || String(event?.hostUid || '').trim() === hostUid;
+          return sameTitle && sameHost && sameHostUid;
+        })?.[1];
+      }
+
       const matchedTicket = Array.isArray(eventRecord?.tickets)
         ? eventRecord.tickets.find((ticket) => ticket.type === ticketType)
         : null;

@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import HostLayout from "../components/Layout/HostLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { FiCreditCard, FiDollarSign, FiTag, FiUsers } from "react-icons/fi";
+import { ticketMatchesEvent } from "../Utils/ticketEventMatch";
 
 const HostDashboard = () => {
   const [user] = useAuthState(auth);
@@ -58,7 +59,7 @@ const HostDashboard = () => {
         const allTickets = Object.entries(ticketsData).map(([id, val]) => ({ id, ...val }));
 
         const hostTickets = allTickets.filter((ticket) =>
-          userEvents.some((e) => e.id === ticket.eventId)
+          userEvents.some((event) => ticketMatchesEvent(ticket, event))
         );
 
         setTickets(hostTickets);

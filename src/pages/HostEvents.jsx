@@ -4,6 +4,7 @@ import { database, auth } from "../firebase/firebaseConfig";
 import { ref, onValue, remove } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom";
+import { ticketMatchesEvent } from "../Utils/ticketEventMatch";
 
 const HostEvents = () => {
   const [user] = useAuthState(auth);
@@ -35,7 +36,7 @@ const HostEvents = () => {
         const ticketsData = ticketsSnapshot.val() || {};
         const hostTickets = Object.entries(ticketsData)
           .map(([id, val]) => ({ id, ...val }))
-          .filter((ticket) => userEvents.some((e) => e.id === ticket.eventId));
+          .filter((ticket) => userEvents.some((event) => ticketMatchesEvent(ticket, event)));
         setTickets(hostTickets);
       });
 
