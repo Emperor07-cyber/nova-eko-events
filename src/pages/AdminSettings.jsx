@@ -3,6 +3,7 @@ import { onValue, ref, update } from 'firebase/database';
 import { FiSave, FiSettings } from 'react-icons/fi';
 import { auth, database } from '../firebase/firebaseConfig.jsx';
 import { adminApiUrl } from '../Utils/adminApi';
+import { resetAdminDataInFirebase } from '../Utils/adminDataReset';
 import './admin-dashboard-troop.css';
 
 const defaultSettings = {
@@ -25,6 +26,7 @@ const toNumber = (value, fallback) => {
 const AdminSettings = () => {
   const [settings, setSettings] = useState(defaultSettings);
   const [saving, setSaving] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
 
   React.useEffect(() => {
@@ -86,6 +88,53 @@ const AdminSettings = () => {
       setFeedback({ type: 'error', message: error?.message || 'Failed to save settings.' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const clearAdminData = async () => {
+    const confirmed = window.confirm(
+      'This permanently removes every event, ticket sale, withdrawal request, merch order, and admin audit entry for this platform. Continue?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setClearing(true);
+      setFeedback({ type: '', message: '' });
+
+      if (!auth?.currentUser) {
+        throw new Error('You must be signed in as an admin to clear platform data.');
+      }
+
+      const token = await auth.currentUser.getIdToken(true);
+      const response = await fetch(adminApiUrl('/data/reset'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || 'Failed to clear admin data.');
+      }
+
+      await sendAudit('clear_admin_data', { clearedPaths: result.clearedPaths || [] });
+      setFeedback({ type: 'success', message: 'All admin data has been cleared.' });
+    } catch (error) {
+      try {
+        await resetAdminDataInFirebase(database);
+        await sendAudit('clear_admin_data_fallback', { fallback: true });
+        setFeedback({ type: 'success', message: 'All admin data has been cleared.' });
+      } catch (fallbackError) {
+        setFeedback({
+          type: 'error',
+          message: fallbackError?.message || error?.message || 'Failed to clear admin data.',
+        });
+      }
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -237,6 +286,29 @@ const AdminSettings = () => {
             </label>
           </div>
         </article>
+      </div>
+
+      <div className="admin-panel" style={{ marginTop: '1.5rem', borderColor: '#ef4444', background: '#fff7f7' }}>
+        <div className="admin-panel-head">
+          <div>
+            <span className="admin-panel-chip" style={{ background: '#fee2e2', color: '#991b1b' }}>Danger zone</span>
+            <h2>Clear platform data</h2>
+          </div>
+        </div>
+
+        <p className="admin-processed-note" style={{ margin: '0.75rem 0 1rem', color: '#7f1d1d' }}>
+          This permanently deletes the live event catalog, ticket sales, withdrawal requests, merch orders, aggregate summaries, and admin audit history.
+        </p>
+
+        <button
+          type="button"
+          className="admin-primary-btn"
+          onClick={clearAdminData}
+          disabled={clearing}
+          style={{ background: '#dc2626', borderColor: '#dc2626' }}
+        >
+          {clearing ? 'Clearing...' : 'Clear admin data'}
+        </button>
       </div>
     </div>
   );

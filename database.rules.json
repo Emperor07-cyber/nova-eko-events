@@ -9,6 +9,7 @@
     "events": {
       ".read": true,
       ".indexOn": ["eventUrl"],
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && (newData.child('hostUid').val() === auth.uid || newData.child('createdBy').val() === auth.token.email)) || (data.exists() && (data.child('hostUid').val() === auth.uid || data.child('createdBy').val() === auth.token.email)))",
       "$eventId": {
         ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && (newData.child('hostUid').val() === auth.uid || newData.child('createdBy').val() === auth.token.email)) || (data.exists() && (data.child('hostUid').val() === auth.uid || data.child('createdBy').val() === auth.token.email)))"
       }
@@ -16,24 +17,24 @@
     "tickets": {
       ".read": "auth != null",
       ".indexOn": ["token"],
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "merchOrders": {
       ".read": "auth != null",
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "withdrawalRequests": {
       ".read": "auth != null",
       ".indexOn": ["hostEmail", "timestamp", "status"],
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "adminAudit": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "aggregates": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
-      ".write": false
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     },
     "platformSettings": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",

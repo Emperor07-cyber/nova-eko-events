@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "test": "node --test src/firebase/firebaseRuntime.test.js src/Utils/adminAccess.test.js src/Utils/adminTransactionsTransform.test.js",
+    "test": "node --test src/firebase/firebaseRuntime.test.js src/Utils/adminAccess.test.js src/Utils/adminTransactionsTransform.test.js src/Utils/adminDataReset.test.js",
     "preview": "vite preview",
     "smtp:check": "node scripts/verify-smtp.js"
   },

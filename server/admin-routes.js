@@ -29,6 +29,14 @@ try {
 }
 
 const db = () => admin.database();
+const ADMIN_DATA_RESET_PATHS = [
+  "events",
+  "tickets",
+  "withdrawalRequests",
+  "merchOrders",
+  "aggregates",
+  "adminAudit",
+];
 
 const normalizeText = (value) => String(value || "").trim().toLowerCase();
 
@@ -878,6 +886,30 @@ function registerRoutes(app) {
     } catch (err) {
       console.error("admin/audit error", err);
       res.status(500).json({ error: "Failed to write audit entry" });
+    }
+  });
+
+  app.post("/admin/data/reset", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const databaseRef = db();
+      const removals = ADMIN_DATA_RESET_PATHS.map((path) => databaseRef.ref(path).remove());
+      await Promise.all(removals);
+
+      await databaseRef.ref("adminResetLog").push({
+        uid: req.user.uid,
+        email: req.user.email || "",
+        name: req.user.name || req.user.email || "",
+        action: "reset_admin_data",
+        details: {
+          clearedPaths: ADMIN_DATA_RESET_PATHS,
+        },
+        timestamp: Date.now(),
+      });
+
+      res.json({ success: true, clearedPaths: ADMIN_DATA_RESET_PATHS });
+    } catch (err) {
+      console.error("admin/data reset error", err);
+      res.status(500).json({ error: "Failed to clear admin data" });
     }
   });
 
