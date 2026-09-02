@@ -23,4 +23,21 @@ describe('ticketEventMatch helpers', () => {
 
     assert.equal(ticketMatchesEvent(ticket, event), true);
   });
+
+  it('matches tickets with snake_case host metadata', () => {
+    const ticket = {
+      eventId: '',
+      eventTitle: 'Legacy Event',
+      host_email: 'host@example.com',
+      host_uid: 'abc-123',
+    };
+    const event = {
+      id: 'evt-789',
+      title: 'Different Title',
+      hostEmail: 'host@example.com',
+      hostUid: 'abc-123',
+    };
+
+    assert.equal(ticketMatchesEvent(ticket, event), true);
+  });
 });
