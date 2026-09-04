@@ -1,51 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
 @import '../../styles/admin-theme.css';
 
-:root {
-  --admin-shell-bg: #f4f7f6;
-  --admin-sidebar-bg: #071b10;
-  --admin-sidebar-surface: rgba(255, 255, 255, 0.08);
-  --admin-sidebar-border: rgba(255, 255, 255, 0.1);
-  --admin-sidebar-text: rgba(255, 255, 255, 0.78);
-  --admin-sidebar-muted: rgba(255, 255, 255, 0.58);
-  --admin-sidebar-active: #22c55e;
-  --admin-sidebar-width: 300px;
-  --admin-shell-surface: #ffffff;
-  --admin-shell-border: #dceee0;
-  --admin-shell-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-  --admin-shell-text: #0f172a;
-  --admin-shell-muted: #64748b;
-  --admin-font-body: "Segoe UI", sans-serif;
-  --admin-font-display: "Syne", "Segoe UI", sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --admin-shell-bg: #031109;
-    --admin-sidebar-bg: #020d08;
-    --admin-sidebar-surface: rgba(255, 255, 255, 0.05);
-    --admin-sidebar-border: rgba(95, 224, 128, 0.14);
-    --admin-sidebar-text: rgba(240, 249, 243, 0.84);
-    --admin-sidebar-muted: rgba(220, 233, 224, 0.58);
-    --admin-sidebar-active: #2ee06f;
-    --admin-shell-surface: #0b2115;
-    --admin-shell-border: rgba(95, 224, 128, 0.12);
-    --admin-shell-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
-    --admin-shell-text: #eef7f0;
-    --admin-shell-muted: #9fb4a8;
-  }
-}
+/* All admin colour tokens live in ../../styles/admin-theme.css (imported above). */
 
 .admin-shell-layout {
   min-height: 100vh;
   display: flex;
-  background: var(--admin-shell-bg);
+  background:
+    radial-gradient(circle at top left, var(--admin-bg-glow), transparent 24%),
+    var(--admin-bg);
 }
 
 .admin-shell-main {
   flex: 1;
   min-width: 0;
-  background: var(--admin-shell-bg);
+  background: transparent;
 }
 
 .admin-shell-content {
@@ -74,9 +43,11 @@
   gap: 1rem;
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  background: linear-gradient(180deg, var(--admin-shell-surface), color-mix(in srgb, var(--admin-shell-surface) 92%, #f7fff6 8%));
-  border: 1px solid var(--admin-shell-border);
-  box-shadow: 0 8px 28px rgba(15,23,42,0.06);
+  background:
+    radial-gradient(circle at top left, var(--admin-bg-glow), transparent 24%),
+    linear-gradient(180deg, var(--admin-surface), var(--admin-surface-2));
+  border: 1px solid var(--admin-line);
+  box-shadow: var(--admin-shadow-soft);
   margin-bottom: 1rem;
 }
 
@@ -111,8 +82,8 @@
   flex-direction: column;
   padding: 1.25rem 1rem 1rem;
   background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), transparent 20%),
-    linear-gradient(180deg, #071b10, #07120d);
+    radial-gradient(circle at top left, var(--admin-sidebar-glow), transparent 20%),
+    linear-gradient(180deg, var(--admin-sidebar-bg-from), var(--admin-sidebar-bg-to));
   color: var(--admin-sidebar-text);
   transform: translateX(-100%);
   transition: transform 0.22s ease;
@@ -188,7 +159,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--admin-sidebar-surface);
+  border: 1px solid var(--admin-sidebar-border);
   color: #ffffff;
 }
 
@@ -239,10 +211,10 @@
 }
 
 .admin-sidebar-link.active {
-  background: rgba(34, 197, 94, 0.16);
+  background: color-mix(in srgb, var(--admin-sidebar-active) 16%, transparent);
   color: #ffffff;
   border-color: var(--admin-sidebar-border);
-  box-shadow: inset 4px 0 0 rgba(34, 197, 94, 0.95);
+  box-shadow: inset 4px 0 0 var(--admin-sidebar-active);
 }
 
 .admin-sidebar-link.active::before {
@@ -253,7 +225,7 @@
   bottom: 10px;
   width: 4px;
   border-radius: 999px;
-  background: #22c55e;
+  background: var(--admin-sidebar-active);
 }
 
 .admin-sidebar-icon,
@@ -319,7 +291,7 @@
 }
 
 .admin-sidebar-highlight-icon {
-  background: rgba(34, 197, 94, 0.16);
+  background: color-mix(in srgb, var(--admin-sidebar-active) 16%, transparent);
   color: #4ade80;
   font-size: 0.95rem;
 }
@@ -367,76 +339,24 @@
   width: 46px;
   height: 42px;
   border-radius: 14px;
-  background: var(--admin-shell-surface);
-  border: 1px solid var(--admin-shell-border);
-  color: var(--admin-shell-text);
-  box-shadow: var(--admin-shell-shadow);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  color: var(--admin-text);
+  box-shadow: var(--admin-shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-  .admin-shell-layout,
-  .admin-shell-main {
-    background:
-      radial-gradient(circle at top left, rgba(46, 224, 111, 0.1), transparent 24%),
-      linear-gradient(180deg, #031109, #04150c);
-  }
-
-  .admin-topbar {
-    background:
-      radial-gradient(circle at top left, rgba(46, 224, 111, 0.14), transparent 24%),
-      linear-gradient(180deg, rgba(11, 33, 21, 0.96), rgba(5, 18, 11, 0.96));
-    border-color: rgba(95, 224, 128, 0.14);
-  }
-
-  .admin-sidebar {
-    background:
-      radial-gradient(circle at top left, rgba(46, 224, 111, 0.2), transparent 20%),
-      linear-gradient(180deg, #06150d, #020905);
-  }
-
-  .admin-sidebar-close-btn,
-  .admin-sidebar-toggle-btn {
-    background: rgba(9, 29, 18, 0.95);
-    border-color: rgba(95, 224, 128, 0.16);
-    color: #eef7f0;
-  }
-
-  .admin-sidebar-link:hover {
-    background: rgba(46, 224, 111, 0.1);
-  }
-
-  .admin-sidebar-link.active {
-    background: rgba(46, 224, 111, 0.16);
-    box-shadow: inset 4px 0 0 rgba(46, 224, 111, 0.95);
-  }
-
-  .admin-sidebar-user,
-  .admin-sidebar-highlight {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(95, 224, 128, 0.1);
-  }
-
-  .admin-shell-content .card,
-  .admin-shell-content .dashboard-card,
-  .admin-shell-content .stat-card,
-  .admin-shell-content .chart-container,
-  .admin-shell-content .table-wrapper,
-  .admin-shell-content .ticket-table-container,
-  .admin-shell-content .admin-panel,
-  .admin-shell-content .section-card {
-    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
-    border-color: rgba(95, 224, 128, 0.12);
-    color: #eef7f0;
-  }
-
-  .admin-shell-content p,
-  .admin-shell-content li,
-  .admin-shell-content td,
-  .admin-shell-content th,
-  .admin-shell-content label,
-  .admin-shell-content span {
-    color: #e8f5eb;
-  }
+/* Generic container classes that come from main.css but can appear inside the
+   admin shell — pin them to admin tokens so they follow the admin theme. */
+.admin-shell-content .card,
+.admin-shell-content .dashboard-card,
+.admin-shell-content .stat-card,
+.admin-shell-content .chart-container,
+.admin-shell-content .table-wrapper,
+.admin-shell-content .ticket-table-container,
+.admin-shell-content .section-card {
+  background: linear-gradient(180deg, var(--admin-surface), var(--admin-surface-2));
+  border-color: var(--admin-line);
+  color: var(--admin-text);
 }
 
 @media (min-width: 1025px) {

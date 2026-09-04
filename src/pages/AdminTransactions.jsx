@@ -108,7 +108,7 @@ const AdminTransactions = () => {
       </div>
 
       {actionMessage ? <p className="admin-value admin-value-emerald">{actionMessage}</p> : null}
-      {actionError ? <p style={{ color: '#dc2626', fontWeight: 600 }}>{actionError}</p> : null}
+      {actionError ? <p className="admin-error-text">{actionError}</p> : null}
 
       <div className="admin-table-wrap">
         <table className="admin-table admin-table-stacked">

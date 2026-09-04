@@ -1,28 +1,133 @@
+/* ==========================================================================
+   Admin theme tokens.
+
+   Single source of truth for admin light/dark colours. Every admin stylesheet
+   reads colour from these variables, so the dark variant is produced by
+   swapping tokens here rather than by re-declaring rules later in the file.
+   That is deliberate: the admin CSS is long, and late light-mode rules used to
+   out-order the dark-mode overrides and win.
+   ========================================================================== */
+
 :root {
-  /* Color tokens */
+  /* Surfaces */
   --admin-bg: #f4f7f6;
-  --admin-sidebar-bg: #052018; /* deep forest */
-  --admin-accent: #16a34a; /* primary green */
-  --admin-accent-2: #22c55e;
-  --admin-muted: #64748b;
-  --admin-card-bg: #ffffff;
+  --admin-bg-glow: rgba(34, 197, 94, 0.06);
+  --admin-surface: #ffffff;          /* cards, panels, popovers */
+  --admin-surface-2: #fbfffc;        /* gradient partner for --admin-surface */
+  --admin-surface-sunken: #f8fffa;   /* rows/items nested inside a panel */
+  --admin-surface-tint: #f4fbf5;     /* green-tinted chrome: table head, soft buttons */
+  --admin-surface-neutral: #f1f5f9;  /* neutral chips, pagination */
+
+  /* Lines */
+  --admin-line: #dceee0;
+  --admin-line-soft: #e8f1ea;
+
+  /* Text */
   --admin-text: #0f172a;
+  --admin-muted: #64748b;
   --admin-text-inverse: #ffffff;
-  --admin-line: rgba(12, 52, 23, 0.08);
+
+  /* Brand */
+  --admin-accent: #16a34a;        /* fills */
+  --admin-accent-2: #22c55e;      /* gradient partner for --admin-accent */
+  --admin-accent-text: #166534;   /* accent used as text/icon on a surface */
+  --admin-accent-soft: #effcf2;   /* accent used as a chip background */
+
+  /* Status (each pair: readable text colour + its chip background) */
+  --admin-ok: #15803d;
+  --admin-ok-soft: #f0fdf4;
+  --admin-warn: #d97706;
+  --admin-warn-soft: #fff8e1;
+  --admin-danger: #dc2626;
+  --admin-danger-soft: #fef2f2;
+  --admin-info: #2563eb;
+  --admin-info-soft: #eff6ff;
+  --admin-purple: #7e22ce;
+  --admin-purple-soft: rgba(126, 34, 206, 0.08);
+
+  /* Elevation */
   --admin-shadow: 0 18px 40px rgba(2, 6, 23, 0.06);
+  --admin-shadow-soft: 0 8px 28px rgba(15, 23, 42, 0.06);
+
+  /* Sidebar — dark in both themes, but the tones still shift slightly */
+  --admin-sidebar-bg-from: #071b10;
+  --admin-sidebar-bg-to: #07120d;
+  --admin-sidebar-glow: rgba(34, 197, 94, 0.18);
+  --admin-sidebar-surface: rgba(255, 255, 255, 0.08);
+  --admin-sidebar-border: rgba(255, 255, 255, 0.1);
+  --admin-sidebar-text: rgba(255, 255, 255, 0.78);
+  --admin-sidebar-muted: rgba(255, 255, 255, 0.58);
+  --admin-sidebar-active: #22c55e;
+
+  /* Aliases kept so existing --admin-shell-* selectors keep resolving.
+     var() in a custom property is substituted at use time, so these follow
+     whatever the dark block below sets. */
+  --admin-shell-bg: var(--admin-bg);
+  --admin-shell-surface: var(--admin-surface);
+  --admin-shell-border: var(--admin-line);
+  --admin-shell-text: var(--admin-text);
+  --admin-shell-muted: var(--admin-muted);
+  --admin-shell-shadow: var(--admin-shadow);
+  --admin-card-bg: var(--admin-surface);
 
   /* Sizes */
-  --admin-sidebar-width: 260px;
+  --admin-sidebar-width: 300px;
   --admin-radius: 12px;
 
   /* Typography */
-  --admin-font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
-  --admin-font-display: "Syne", "Segoe UI", system-ui;
+  --admin-font-body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --admin-font-display: "Syne", "Segoe UI", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --admin-bg: #031109;
+    --admin-bg-glow: rgba(46, 224, 111, 0.1);
+    --admin-surface: #0b2115;
+    --admin-surface-2: #071710;
+    --admin-surface-sunken: rgba(255, 255, 255, 0.04);
+    --admin-surface-tint: rgba(46, 224, 111, 0.1);
+    --admin-surface-neutral: rgba(255, 255, 255, 0.06);
+
+    --admin-line: rgba(95, 224, 128, 0.16);
+    --admin-line-soft: rgba(95, 224, 128, 0.12);
+
+    --admin-text: #eef7f0;
+    --admin-muted: #9fb4a8;
+
+    --admin-accent: #16a34a;
+    --admin-accent-2: #22c55e;
+    --admin-accent-text: #7ee0a0;
+    --admin-accent-soft: rgba(46, 224, 111, 0.14);
+
+    --admin-ok: #6ee7a0;
+    --admin-ok-soft: rgba(16, 185, 129, 0.16);
+    --admin-warn: #fbbf24;
+    --admin-warn-soft: rgba(245, 158, 11, 0.16);
+    --admin-danger: #fca5a5;
+    --admin-danger-soft: rgba(239, 68, 68, 0.16);
+    --admin-info: #93c5fd;
+    --admin-info-soft: rgba(59, 130, 246, 0.16);
+    --admin-purple: #c4b5fd;
+    --admin-purple-soft: rgba(167, 139, 250, 0.14);
+
+    --admin-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+    --admin-shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.28);
+
+    --admin-sidebar-bg-from: #06150d;
+    --admin-sidebar-bg-to: #020905;
+    --admin-sidebar-glow: rgba(46, 224, 111, 0.2);
+    --admin-sidebar-surface: rgba(255, 255, 255, 0.05);
+    --admin-sidebar-border: rgba(95, 224, 128, 0.14);
+    --admin-sidebar-text: rgba(240, 249, 243, 0.84);
+    --admin-sidebar-muted: rgba(220, 233, 224, 0.58);
+    --admin-sidebar-active: #2ee06f;
+  }
 }
 
 /* Shared utilities */
 .admin-card {
-  background: var(--admin-card-bg);
+  background: var(--admin-surface);
   border-radius: var(--admin-radius);
   box-shadow: var(--admin-shadow);
   border: 1px solid var(--admin-line);
@@ -55,7 +160,6 @@
   border-radius: 10px;
   font-weight: 800;
 }
-
 
 .button-primary {
   background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2));

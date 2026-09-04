@@ -1,7 +1,11 @@
+/* Colours come from ../styles/admin-theme.css, loaded by AdminLayout via
+   adminPortal.css. Do not hardcode literal colours here — a literal defeats the
+   dark theme, which works purely by swapping those tokens. */
+
 .admin-dashboard {
   display: grid;
   gap: 1rem;
-  color: var(--admin-shell-text, #0f172a);
+  color: var(--admin-text);
 }
 
 .admin-dashboard,
@@ -14,10 +18,10 @@
 .admin-finance-card,
 .admin-panel,
 .admin-modal {
-  border: 1px solid var(--admin-shell-border, #dceee0);
+  border: 1px solid var(--admin-line);
   border-radius: 24px;
-  background: linear-gradient(180deg, var(--admin-shell-surface, #ffffff), color-mix(in srgb, var(--admin-shell-surface, #ffffff) 92%, #fbfffc 8%));
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  background: linear-gradient(180deg, var(--admin-surface), var(--admin-surface-2));
+  box-shadow: var(--admin-shadow);
 }
 
 .admin-hero {
@@ -27,8 +31,8 @@
   gap: 1.25rem;
   align-items: center;
   background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 25%),
-    linear-gradient(135deg, var(--admin-shell-surface, #ffffff), color-mix(in srgb, var(--admin-shell-surface, #ffffff) 92%, #f5fff6 8%));
+    radial-gradient(circle at top right, var(--admin-bg-glow), transparent 25%),
+    linear-gradient(135deg, var(--admin-surface), var(--admin-surface-2));
 }
 
 .admin-hero-copy {
@@ -41,8 +45,8 @@
   width: fit-content;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--admin-shell-surface, #ffffff) 88%, #ebfbef 12%);
-  color: var(--admin-accent, #15803d);
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent-text);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -53,7 +57,7 @@
 .admin-panel h2,
 .admin-modal h2 {
   margin: 0;
-  color: var(--admin-shell-text, #0f172a);
+  color: var(--admin-text);
 }
 
 .admin-hero h1 {
@@ -68,7 +72,7 @@
 .admin-event-item span,
 .admin-table td,
 .admin-processed-note {
-  color: var(--admin-shell-muted, #64748b);
+  color: var(--admin-muted);
 }
 
 .admin-hero-actions,
@@ -111,9 +115,9 @@
 }
 
 .admin-secondary-btn {
-  background: var(--admin-shell-surface, #f4fbf5);
-  border: 1px solid var(--admin-shell-border, #d7eadb);
-  color: var(--admin-accent, #166534);
+  background: var(--admin-surface-tint);
+  border: 1px solid var(--admin-line);
+  color: var(--admin-accent-text);
 }
 
 .admin-primary-btn:hover,
@@ -131,9 +135,9 @@
 
 .admin-hero-stat {
   padding: 1rem 1.1rem;
-  border: 1px solid var(--admin-shell-border, #dceee0);
+  border: 1px solid var(--admin-line);
   border-radius: 18px;
-  background: var(--admin-shell-surface, rgba(255, 255, 255, 0.98));
+  background: var(--admin-surface-sunken);
   display: grid;
   gap: 0.2rem;
 }
@@ -153,7 +157,7 @@
 
 .admin-hero-stat span,
 .admin-kpi-card p {
-  color: var(--admin-shell-muted, #5f6f7e);
+  color: var(--admin-muted);
   font-size: 0.88rem;
 }
 
@@ -161,7 +165,7 @@
 .admin-kpi-card strong,
 .admin-finance-card strong {
   font-size: 1.6rem;
-  color: var(--admin-shell-text, #0f172a);
+  color: var(--admin-text);
 }
 
 .admin-kpi-grid,
@@ -176,10 +180,16 @@
 }
 
 /* KPI card visual refinements */
-.kpi-card-emerald .admin-kpi-icon { background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.06)); color: #16a34a }
-.kpi-card-blue .admin-kpi-icon { background: linear-gradient(135deg, rgba(29,78,216,0.10), rgba(29,78,216,0.04)); color: #1d4ed8 }
-.kpi-card-amber .admin-kpi-icon { background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.03)); color: #d97706 }
-.kpi-card-purple .admin-kpi-icon { background: linear-gradient(135deg, rgba(126,34,206,0.08), rgba(126,34,206,0.03)); color: #7e22ce }
+.kpi-card-emerald .admin-kpi-icon { background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.06)); color: var(--admin-accent-text) }
+.kpi-card-blue .admin-kpi-icon { background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.05)); color: var(--admin-info) }
+.kpi-card-amber .admin-kpi-icon { background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(245,158,11,0.05)); color: var(--admin-warn) }
+.kpi-card-purple .admin-kpi-icon { background: linear-gradient(135deg, rgba(139,92,246,0.14), rgba(139,92,246,0.05)); color: var(--admin-purple) }
+
+/* Sparkline strokes are SVG presentation attributes, so these CSS rules win
+   and keep the line readable in both themes. */
+.kpi-sparkline path { stroke: var(--admin-accent-text) }
+.kpi-card-blue .kpi-sparkline path,
+.kpi-card-purple .kpi-sparkline path { stroke: var(--admin-info) }
 
 /* Transactions header / chips */
 .admin-transactions-header {
@@ -191,10 +201,10 @@
 }
 
 .tx-pills { display:flex; gap:0.6rem; align-items:center }
-.tx-pill { padding:0.45rem 0.7rem; border-radius:999px; background:#f1f5f9; color:#0f172a; font-weight:700 }
-.tx-pill.green { background:#ecfdf5; color:#16a34a }
-.tx-pill.amber { background:#fff7ed; color:#f59e0b }
-.tx-pill.red { background:#fff5f5; color:#ef4444 }
+.tx-pill { padding:0.45rem 0.7rem; border-radius:999px; background:var(--admin-surface-neutral); color:var(--admin-text); font-weight:700 }
+.tx-pill.green { background:var(--admin-ok-soft); color:var(--admin-ok) }
+.tx-pill.amber { background:var(--admin-warn-soft); color:var(--admin-warn) }
+.tx-pill.red { background:var(--admin-danger-soft); color:var(--admin-danger) }
 
 .kpi-delta {
   align-self: start;
@@ -203,11 +213,11 @@
   border-radius: 999px;
   font-weight: 800;
   font-size: 0.78rem;
-  color: #083344;
+  color: var(--admin-text);
 }
 
-.kpi-delta.delta-up { background: rgba(16,185,129,0.14); color: #059669 }
-.kpi-delta.delta-down { background: rgba(239,68,68,0.08); color: #ef4444 }
+.kpi-delta.delta-up { background: var(--admin-ok-soft); color: var(--admin-ok) }
+.kpi-delta.delta-down { background: var(--admin-danger-soft); color: var(--admin-danger) }
 
 .admin-kpi-card .admin-kpi-left { display:flex; gap:0.9rem; align-items:center }
 
@@ -266,23 +276,23 @@
 }
 
 .admin-kpi-icon-events {
-  background: rgba(34,197,94,0.08);
-  color: var(--admin-accent);
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent-text);
 }
 
 .admin-kpi-icon-tickets {
-  background: rgba(29,78,216,0.06);
-  color: #1d4ed8;
+  background: var(--admin-info-soft);
+  color: var(--admin-info);
 }
 
 .admin-kpi-icon-revenue {
-  background: rgba(194,65,12,0.06);
-  color: #c2410c;
+  background: var(--admin-warn-soft);
+  color: var(--admin-warn);
 }
 
 .admin-kpi-icon-attendees {
-  background: rgba(126,34,206,0.06);
-  color: #7e22ce;
+  background: var(--admin-purple-soft);
+  color: var(--admin-purple);
 }
 
 .admin-finance-card {
@@ -291,15 +301,15 @@
 }
 
 .admin-finance-card-emerald {
-  border-color: #cdeed7;
+  border-color: color-mix(in srgb, var(--admin-ok) 34%, var(--admin-line));
 }
 
 .admin-finance-card-amber {
-  border-color: #fde3bc;
+  border-color: color-mix(in srgb, var(--admin-warn) 34%, var(--admin-line));
 }
 
 .admin-finance-card-blue {
-  border-color: #cfe0ff;
+  border-color: color-mix(in srgb, var(--admin-info) 34%, var(--admin-line));
 }
 
 .admin-panel-head,
@@ -323,181 +333,69 @@
 .admin-panel td,
 .admin-panel th,
 .admin-panel span {
-  color: #5f6f7e;
+  color: var(--admin-muted);
 }
 
 .admin-chart-wrap {
   padding: 0.4rem 0 0.1rem;
 }
 
+/* Recharts paints grid/tick colours as SVG presentation attributes, which CSS
+   overrides — this is what keeps the charts legible in dark mode. */
+.admin-chart-wrap .recharts-cartesian-grid line {
+  stroke: var(--admin-line-soft);
+}
+
+.admin-chart-wrap .recharts-cartesian-axis-tick-value {
+  fill: var(--admin-muted);
+}
+
+.admin-chart-wrap .recharts-default-tooltip {
+  background: var(--admin-surface) !important;
+  border: 1px solid var(--admin-line) !important;
+  border-radius: 10px;
+  color: var(--admin-text);
+}
+
 .admin-table-wrap {
-  border: 1px solid #dceee0;
+  border: 1px solid var(--admin-line);
   border-radius: 18px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--admin-surface-sunken);
 }
 
 .admin-table th {
-  background: #f4fbf5;
+  background: var(--admin-surface-tint);
 }
 
 .admin-table tbody tr:hover {
-  background: #f6fff8;
+  background: color-mix(in srgb, var(--admin-accent) 8%, transparent);
 }
 
 .admin-dashboard .admin-panel,
 .admin-dashboard .admin-kpi-card,
 .admin-dashboard .admin-finance-card {
   background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.06), transparent 28%),
-    linear-gradient(180deg, #ffffff, #fbfffc);
+    radial-gradient(circle at top right, var(--admin-bg-glow), transparent 28%),
+    linear-gradient(180deg, var(--admin-surface), var(--admin-surface-2));
 }
 
 .admin-panel-chip {
-  background: #effcf2;
-  color: #166534;
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent-text);
 }
 
 .admin-icon-btn,
 .admin-inline-btn,
 .admin-page-btn {
-  background: #f4fbf5;
-  color: #166534;
+  background: var(--admin-surface-tint);
+  color: var(--admin-accent-text);
 }
 
 .admin-icon-btn:hover,
 .admin-inline-btn:hover,
 .admin-page-btn:hover {
-  background: #e8f8ec;
-}
-
-@media (prefers-color-scheme: dark) {
-  .admin-dashboard {
-    color: #eef7f0;
-  }
-
-  .admin-hero,
-  .admin-kpi-card,
-  .admin-finance-card,
-  .admin-panel,
-  .admin-modal {
-    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
-    border-color: rgba(95, 224, 128, 0.14);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
-  }
-
-  .admin-hero {
-    background:
-      radial-gradient(circle at top right, rgba(46, 224, 111, 0.1), transparent 25%),
-      linear-gradient(135deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
-  }
-
-  .admin-hero h1,
-  .admin-panel h2,
-  .admin-modal h2,
-  .admin-hero strong,
-  .admin-kpi-card strong,
-  .admin-finance-card strong,
-  .admin-value {
-    color: #f4fff5 !important;
-  }
-
-  .admin-hero p,
-  .admin-finance-card p,
-  .admin-hero-stat small,
-  .admin-empty-state p,
-  .admin-event-item span,
-  .admin-table td,
-  .admin-processed-note,
-  .admin-panel p,
-  .admin-panel td,
-  .admin-panel th,
-  .admin-panel span,
-  .admin-table th {
-    color: #d5e7d8;
-  }
-
-  .admin-kicker,
-  .admin-panel-chip {
-    background: rgba(46, 224, 111, 0.12);
-    color: #eaf8ee;
-  }
-
-  .admin-hero-stat,
-  .admin-search {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(95, 224, 128, 0.12);
-  }
-
-  .admin-table th,
-  .admin-table td {
-    border-bottom-color: rgba(95, 224, 128, 0.12);
-  }
-
-  .admin-search input {
-    color: #f4fff5;
-  }
-
-  .tx-pill {
-    background: rgba(255, 255, 255, 0.06);
-    color: #f4fff5;
-  }
-
-  .tx-pill.green {
-    background: rgba(16, 185, 129, 0.14);
-    color: #dcfce7;
-  }
-
-  .tx-pill.amber {
-    background: rgba(245, 158, 11, 0.14);
-    color: #fde68a;
-  }
-
-  .tx-pill.red {
-    background: rgba(239, 68, 68, 0.12);
-    color: #fecaca;
-  }
-
-  .admin-icon-btn,
-  .admin-inline-btn,
-  .admin-page-btn,
-  .admin-secondary-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: #f4fff5;
-    border-color: rgba(95, 224, 128, 0.12);
-  }
-
-  .admin-secondary-btn:hover,
-  .admin-icon-btn:hover,
-  .admin-inline-btn:hover,
-  .admin-page-btn:hover {
-    background: rgba(46, 224, 111, 0.1);
-  }
-
-  .chart-container,
-  .ticket-table-container {
-    background: linear-gradient(180deg, rgba(11, 33, 21, 0.98), rgba(7, 23, 14, 0.98));
-    border-color: rgba(95, 224, 128, 0.14);
-  }
-
-  .ticket-table th {
-    background: rgba(255, 255, 255, 0.04);
-    color: #eaf8ee;
-  }
-
-  .ticket-table td {
-    color: #d5e7d8;
-    border-bottom-color: rgba(95, 224, 128, 0.12);
-  }
-
-  .ticket-table tbody tr:hover {
-    background: rgba(46, 224, 111, 0.06);
-  }
-
-  .admin-table-wrap {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(95, 224, 128, 0.14);
-  }
+  background: color-mix(in srgb, var(--admin-accent) 14%, transparent);
 }
 
 @media (max-width: 640px) {
@@ -555,8 +453,8 @@
   gap: 0.45rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: #effcf2;
-  color: #15803d;
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent-text);
   font-size: 0.76rem;
   font-weight: 700;
 }
@@ -579,38 +477,48 @@
 .admin-table th,
 .admin-table td {
   padding: 0.9rem 0.8rem;
-  border-bottom: 1px solid #e8f1ea;
+  border-bottom: 1px solid var(--admin-line-soft);
   text-align: left;
   vertical-align: top;
   word-break: break-word;
 }
 
 .admin-table th {
-  color: #64748b;
+  color: var(--admin-muted);
   font-size: 0.76rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .admin-value {
-  color: #0f172a !important;
+  color: var(--admin-text) !important;
   font-weight: 700;
 }
 
+.admin-error-text {
+  color: var(--admin-danger);
+  font-weight: 600;
+}
+
+.admin-link-accent {
+  color: var(--admin-accent-text);
+  font-size: 0.75rem;
+}
+
 .admin-value-emerald {
-  color: #15803d !important;
+  color: var(--admin-ok) !important;
 }
 
 .admin-value-amber {
-  color: #d97706 !important;
+  color: var(--admin-warn) !important;
 }
 
 .admin-value-blue {
-  color: #2563eb !important;
+  color: var(--admin-info) !important;
 }
 
 .admin-value-muted {
-  color: #94a3b8 !important;
+  color: var(--admin-muted) !important;
 }
 
 .admin-search {
@@ -620,16 +528,16 @@
   gap: 0.55rem;
   padding: 0 0.95rem;
   height: 46px;
-  border: 1px solid #d7eadb;
+  border: 1px solid var(--admin-line);
   border-radius: 14px;
-  background: #ffffff;
+  background: var(--admin-surface);
 }
 
 .admin-search input {
   width: 100%;
   border: none;
   background: transparent;
-  color: #0f172a;
+  color: var(--admin-text);
 }
 
 .admin-search input:focus {
@@ -683,23 +591,23 @@
 }
 
 .admin-status-pending {
-  background: #fff8e1;
-  color: #f59e0b;
+  background: var(--admin-warn-soft);
+  color: var(--admin-warn);
 }
 
 .admin-status-completed {
-  background: #f0fdf4;
-  color: #15803d;
+  background: var(--admin-ok-soft);
+  color: var(--admin-ok);
 }
 
 .admin-status-rejected {
-  background: #fef2f2;
-  color: #ef4444;
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger);
 }
 
 .admin-status-approved {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--admin-info-soft);
+  color: var(--admin-info);
 }
 
 .admin-alert-pill {
@@ -721,8 +629,8 @@
 .admin-page-btn {
   min-width: 42px;
   height: 42px;
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--admin-surface-neutral);
+  color: var(--admin-text);
 }
 
 .admin-page-btn.is-active {
@@ -732,9 +640,9 @@
 
 .admin-empty-state {
   padding: 1.2rem;
-  border: 1px dashed #d8eadc;
+  border: 1px dashed var(--admin-line);
   border-radius: 18px;
-  background: #fbfffc;
+  background: var(--admin-surface-sunken);
 }
 
 .admin-modal-backdrop {
@@ -757,13 +665,13 @@
 .admin-icon-btn {
   width: 42px;
   height: 42px;
-  background: #f4fbf5;
-  color: #166534;
+  background: var(--admin-surface-tint);
+  color: var(--admin-accent-text);
 }
 
 .admin-icon-btn-danger {
-  background: #fff5f5;
-  color: #b91c1c;
+  background: var(--admin-danger-soft);
+  color: var(--admin-danger);
 }
 
 .admin-event-list {
@@ -777,14 +685,14 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #e2efe5;
+  border: 1px solid var(--admin-line);
   border-radius: 18px;
-  background: #fbfffc;
+  background: var(--admin-surface-sunken);
 }
 
 .admin-event-item strong {
   display: block;
-  color: #0f172a;
+  color: var(--admin-text);
   margin-bottom: 0.2rem;
 }
 
@@ -806,12 +714,13 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #16a34a;
+  color: var(--admin-accent-text);
   font-weight: 700;
 }
 
 .admin-dashboard-header h1 {
   margin: 0;
+  color: var(--admin-text);
   font-size: clamp(2.1rem, 3vw, 3.1rem);
   line-height: 1.04;
 }
@@ -819,7 +728,7 @@
 .admin-dashboard-intro {
   margin: 1rem 0 0;
   max-width: 56rem;
-  color: #64748b;
+  color: var(--admin-muted);
   font-size: 1rem;
   line-height: 1.75;
 }
@@ -835,9 +744,9 @@
   min-width: min(240px, 100%);
   padding: 0.85rem 1rem;
   border-radius: 16px;
-  background: #f4fff6;
-  border: 1px solid #dceee0;
-  color: #166534;
+  background: var(--admin-surface-tint);
+  border: 1px solid var(--admin-line);
+  color: var(--admin-accent-text);
   font-weight: 700;
 }
 
@@ -882,14 +791,14 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 12px rgba(236, 252, 245, 0.75);
+  box-shadow: inset 0 0 0 12px color-mix(in srgb, var(--admin-surface) 75%, transparent);
 }
 
 .admin-donut-center {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--admin-surface);
   display: grid;
   place-items: center;
   text-align: center;
@@ -900,14 +809,14 @@
 .admin-donut-center strong {
   display: block;
   font-size: 0.95rem;
-  color: #0f172a;
+  color: var(--admin-text);
 }
 
 .admin-donut-center span {
   display: block;
   margin-top: 0.15rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--admin-muted);
 }
 
 .admin-category-list {
@@ -923,12 +832,12 @@
   align-items: center;
   padding: 0.95rem 0.9rem;
   border-radius: 16px;
-  background: #f7fffa;
-  border: 1px solid #dceee0;
+  background: var(--admin-surface-sunken);
+  border: 1px solid var(--admin-line);
 }
 
 .admin-category-label {
-  color: #0f172a;
+  color: var(--admin-text);
   font-weight: 700;
 }
 
@@ -944,8 +853,8 @@
   gap: 1rem;
   padding: 1rem;
   border-radius: 18px;
-  background: #f8fffa;
-  border: 1px solid #e5f4e7;
+  background: var(--admin-surface-sunken);
+  border: 1px solid var(--admin-line);
 }
 
 .admin-activity-row > div {
@@ -988,8 +897,8 @@
   gap: 0.85rem;
   padding: 1rem;
   border-radius: 18px;
-  background: #f8fffa;
-  border: 1px solid #dceee0;
+  background: var(--admin-surface-sunken);
+  border: 1px solid var(--admin-line);
 }
 
 .admin-health-dot {
@@ -997,7 +906,7 @@
   height: 12px;
   border-radius: 50%;
   margin-top: 0.5rem;
-  background: #16a34a;
+  background: var(--admin-accent);
   flex-shrink: 0;
 }
 
@@ -1010,8 +919,8 @@
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: #ecfdf5;
-  color: #166534;
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent-text);
 }
 
 .admin-panel-head-wrap {
@@ -1097,7 +1006,7 @@
 
   .admin-table-stacked tr {
     padding: 0.9rem 0;
-    border-bottom: 1px solid #e8f1ea;
+    border-bottom: 1px solid var(--admin-line-soft);
     overflow: hidden;
   }
 
@@ -1110,7 +1019,7 @@
     content: attr(data-label);
     display: block;
     margin-bottom: 0.15rem;
-    color: #64748b;
+    color: var(--admin-muted);
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;

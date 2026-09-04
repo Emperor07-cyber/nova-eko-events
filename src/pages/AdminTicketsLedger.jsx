@@ -172,8 +172,7 @@ const AdminTicketsLedger = () => {
 
       {feedback.message ? (
         <p
-          className={feedback.type === 'success' ? 'admin-value admin-value-emerald' : ''}
-          style={feedback.type === 'error' ? { color: '#dc2626', fontWeight: 600 } : undefined}
+          className={feedback.type === 'success' ? 'admin-value admin-value-emerald' : feedback.type === 'error' ? 'admin-error-text' : ''}
         >
           {feedback.message}
         </p>
