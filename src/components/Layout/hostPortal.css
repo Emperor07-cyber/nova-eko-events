@@ -64,54 +64,6 @@
     --text-secondary: #a8b8ae;
     --text-muted:     #7f9286;
   }
-
-  .host-dash-codes-panel {
-    background: linear-gradient(180deg, rgba(8, 26, 16, 0.96), rgba(11, 33, 21, 0.96));
-    border-color: rgba(95, 224, 128, 0.12);
-  }
-
-  .scanner-code-card,
-  .host-dash-panel,
-  .host-dash-insight,
-  .host-event-topbar,
-  .host-event-hero-info,
-  .host-metric-card,
-  .host-event-card {
-    background: var(--surface);
-    border-color: var(--border);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .host-dash-panel .host-table td,
-  .host-dash-panel .host-table th,
-  .host-event-hero-info p,
-  .host-event-subtitle,
-  .host-dash-insight span,
-  .host-scanner-status,
-  .host-event-visibility-badge {
-    color: var(--text-secondary);
-  }
-
-  .host-scanner-code {
-    background: rgba(16, 97, 43, 0.18);
-    color: #8df2ae;
-    border-color: rgba(95, 224, 128, 0.2);
-  }
-
-  .host-scanner-row,
-  .host-scanner-add-row .input {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: var(--border);
-  }
-
-  .host-event-row.is-private {
-    background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0) 52%);
-  }
-
-  .host-event-visibility-badge {
-    background: rgba(127, 29, 29, 0.18);
-    border-color: rgba(248, 113, 113, 0.28);
-  }
 }
 
 /* ── Layout Shell ────────────────────────── */
@@ -128,9 +80,9 @@
 }
 
 .host-content {
-  width: min(100%, 1600px);
+  width: min(100%, 1480px);
   margin: 0 auto;
-  padding: 2rem clamp(1rem, 2vw, 2.75rem);
+  padding: 2rem clamp(1rem, 2vw, 2.5rem);
   font-family: var(--font-body);
   color: var(--text-primary);
   display: grid;
@@ -681,8 +633,8 @@
   align-items: center;
   gap: 0.5rem;
   background: #fff;
-  border: 1px solid #d1d5db;
-  color: #475569;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
   border-radius: var(--radius-sm);
   padding: 0.55rem 1.2rem;
   font-size: 0.85rem;
@@ -1142,7 +1094,7 @@ a.btn-withdraw {
 }
 
 .host-content {
-  max-width: 1540px;
+  max-width: 1180px;
 }
 
 .host-layout {
@@ -1350,28 +1302,8 @@ a.btn-withdraw {
   padding: 20px;
   background:
     radial-gradient(460px 120px at 90% -20%, rgba(16, 97, 43, 0.18), transparent 60%),
-    linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #f8fff8 6%));
+    linear-gradient(180deg, #ffffff, #f8fff8);
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
-}
-
-.host-dash-hero h1,
-.host-dash-hero p,
-.host-dash-panel .section-title,
-.host-dash-panel .host-table th,
-.host-dash-panel .host-table td,
-.host-dash-insight span,
-.host-dash-insight strong,
-.scanner-code-title,
-.scanner-code-text {
-  color: #0f172a;
-}
-
-.host-dash-panel .host-table td,
-.host-dash-panel .host-table th,
-.host-dash-balance-card p,
-.host-dash-kicker,
-.section-subtitle {
-  opacity: 1;
 }
 
 .host-dash-kicker {
@@ -1395,10 +1327,10 @@ a.btn-withdraw {
 }
 
 .host-dash-balance-card {
-  border: 1px solid var(--border);
+  border: 1px solid #d8ecd4;
   border-radius: 14px;
   padding: 14px;
-  background: var(--surface);
+  background: #fff;
   display: grid;
   align-content: center;
   gap: 8px;
@@ -1407,7 +1339,7 @@ a.btn-withdraw {
 .host-dash-balance-card p {
   margin: 0;
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 .host-dash-balance-card .wallet-amount {
@@ -1418,16 +1350,16 @@ a.btn-withdraw {
 }
 
 .host-kpis .summary-card {
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #f9fff9 6%));
+  border: 1px solid #dfeee0;
+  background: linear-gradient(180deg, #ffffff, #f9fff9);
 }
 
 .host-kpis .summary-icon {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid #d4ecd7;
+  background: #fff;
   color: #0b8f1f;
   display: inline-flex;
   align-items: center;
@@ -1458,7 +1390,7 @@ a.btn-withdraw {
 }
 
 .host-kpis .summary-value {
-  color: var(--text-primary);
+  color: #0f172a;
   font-family: var(--font-body);
   letter-spacing: 0;
 }
@@ -1473,14 +1405,8 @@ a.btn-withdraw {
 .host-dash-panel {
   border-radius: 16px;
   padding: 12px;
-  background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 94%, #fbfffb 6%));
+  background: linear-gradient(180deg, #ffffff, #fbfffb);
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
-}
-
-.host-dash-panel .table-wrapper,
-.host-dash-panel .chart-wrapper {
-  background: linear-gradient(180deg, #ffffff, #f8fbff);
-  border: 1px solid #dbe3ef;
 }
 
 .host-dash-panel .section-header {
@@ -1508,9 +1434,9 @@ a.btn-withdraw {
 }
 
 .host-dash-insight {
-  border: 1px solid var(--border);
+  border: 1px solid #dceddf;
   border-radius: 12px;
-  background: var(--surface);
+  background: #fff;
   padding: 10px;
   display: grid;
   gap: 4px;
@@ -1518,24 +1444,24 @@ a.btn-withdraw {
 
 .host-dash-insight span {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 .host-dash-insight strong {
   font-size: 0.95rem;
-  color: var(--text-primary);
+  color: #0f172a;
   font-family: var(--font-body);
 }
 
 .host-dash-panel .host-table th {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #5d687a;
 }
 
 .host-dash-panel .host-table td {
   font-size: 0.86rem;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .host-dash-panel .action-btns {
@@ -1630,66 +1556,9 @@ a.btn-withdraw {
 }
 
 .host-dash-hero-actions .btn-copy-link:hover {
-  background: var(--surface-2);
-  border-color: var(--border);
+  background: #e6f4e4;
+  border-color: rgba(16, 97, 43, 0.2);
   color: var(--green-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-  .host-dash-hero,
-  .host-dash-balance-card,
-  .host-kpis .summary-card,
-  .host-dash-panel,
-  .host-dash-insight,
-  .scanner-code-card,
-  .table-wrapper,
-  .chart-wrapper {
-    background:
-      radial-gradient(460px 120px at 90% -20%, rgba(46, 224, 111, 0.08), transparent 60%),
-      linear-gradient(180deg, rgba(10, 31, 20, 0.98), rgba(7, 22, 14, 0.98));
-    border-color: rgba(95, 224, 128, 0.16);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
-  }
-
-  .host-dash-hero h1,
-  .host-dash-hero p,
-  .host-dash-panel .section-title,
-  .host-dash-panel .host-table th,
-  .host-dash-panel .host-table td,
-  .host-dash-insight span,
-  .host-dash-insight strong,
-  .scanner-code-title,
-  .scanner-code-text,
-  .host-dash-balance-card p {
-    color: #e8f5ec;
-    opacity: 1;
-  }
-
-  .host-dash-kicker,
-  .section-subtitle {
-    color: #9fd7ae;
-    opacity: 1;
-  }
-
-  .host-dash-panel .host-table th {
-    color: #b7d8c0;
-  }
-
-  .host-dash-panel .host-table td {
-    color: #effaf1;
-  }
-
-  .host-dash-panel .table-wrapper,
-  .host-dash-panel .chart-wrapper {
-    background: rgba(8, 25, 15, 0.92);
-  }
-
-  .host-dash-panel .btn-copy-link,
-  .host-dash-panel .btn-edit,
-  .host-dash-panel .btn-delete,
-  .host-dash-hero-actions a {
-    color: #f7fff8;
-  }
 }
 
 /* ── Host events + wallet consistency pass ───────────────── */
@@ -1747,7 +1616,7 @@ a.btn-withdraw {
   font-weight: 700;
   font-size: 0.85rem;
   background: #f3f9f3;
-  color: #10612B;
+  color: var(--green);
   padding: 3px 8px;
   border-radius: 6px;
   border: 1px solid rgba(16, 97, 43, 0.18);
@@ -1809,9 +1678,6 @@ a.btn-withdraw {
 .host-event-detail-page {
   display: grid;
   gap: 1.5rem;
-  width: 100%;
-  max-width: 1540px;
-  margin: 0 auto;
 }
 
 .host-event-topbar {
@@ -1819,7 +1685,7 @@ a.btn-withdraw {
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  padding: 1.35rem 1.5rem;
+  padding: 1.5rem 1.75rem;
   background: linear-gradient(180deg, #f8fff8, #ffffff);
   border: 1px solid #d8ecd4;
   border-radius: 22px;
@@ -1828,15 +1694,15 @@ a.btn-withdraw {
 
 .host-event-hero {
   display: grid;
-  grid-template-columns: 1.25fr 0.95fr;
+  grid-template-columns: 1.4fr 1fr;
   gap: 1rem;
   align-items: stretch;
 }
 
 .host-event-hero-image {
   width: 100%;
-  min-height: 340px;
-  max-height: 500px;
+  min-height: 300px;
+  max-height: 430px;
   object-fit: cover;
   border-radius: 24px;
   border: 1px solid #e5f1e8;
@@ -1845,8 +1711,8 @@ a.btn-withdraw {
 
 .host-event-hero-info {
   display: grid;
-  gap: 0.9rem;
-  padding: 1.35rem;
+  gap: 1rem;
+  padding: 1.5rem;
   border-radius: 24px;
   background: #ffffff;
   border: 1px solid #e5f1e8;
@@ -1935,7 +1801,7 @@ a.btn-withdraw {
 
 .host-event-grid {
   display: grid;
-  grid-template-columns: 1.45fr 1fr;
+  grid-template-columns: 1.6fr 1.1fr;
   gap: 1rem;
 }
 
@@ -1945,25 +1811,6 @@ a.btn-withdraw {
   border-radius: 22px;
   padding: 1.35rem;
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
-}
-
-.host-event-card h2,
-.host-event-card-header h2,
-.host-event-title,
-.host-event-subtitle,
-.host-event-hero-info h2,
-.host-event-hero-info p,
-.host-event-link,
-.host-event-card .info-label,
-.host-event-card .host-muted-note,
-.host-event-card .ticket-type-row span,
-.host-event-card .ticket-type-row strong,
-.host-event-card .checklist-items li,
-.host-event-card .host-scanner-status,
-.host-event-card .host-scanner-code,
-.host-event-card .host-info-pill p {
-  color: #0f172a;
-  opacity: 1;
 }
 
 .host-event-card-header {
@@ -2016,14 +1863,6 @@ a.btn-withdraw {
 .host-event-info-row div {
   display: grid;
   gap: 0.25rem;
-}
-
-.host-event-card .host-info-pill,
-.host-event-card .ticket-type-row,
-.host-event-card .checklist-items li,
-.host-event-card .host-scanner-row {
-  background: linear-gradient(180deg, #ffffff, #f8fbff);
-  border: 1px solid #dbe3ef;
 }
 
 .host-event-link {
@@ -2082,7 +1921,7 @@ a.btn-withdraw {
 
 .host-event-details-grid {
   display: grid;
-  grid-template-columns: 1.55fr 1fr;
+  grid-template-columns: 1.7fr 1fr;
   gap: 1rem;
 }
 
@@ -2118,21 +1957,6 @@ a.btn-withdraw {
   color: #64748b;
 }
 
-.host-event-card .host-scanner-status.active {
-  background: #eaf9ec;
-  color: #157a33;
-}
-
-.host-event-card .host-scanner-status.revoked {
-  background: #fdeeee;
-  color: #b42318;
-}
-
-.host-event-card .host-event-status.is-live,
-.host-event-card .host-event-status.is-draft {
-  color: #0f172a;
-}
-
 .empty-chart-state {
   color: #64748b;
   padding: 2rem;
@@ -2148,93 +1972,6 @@ a.btn-withdraw {
 
   .host-event-topbar {
     flex-direction: column;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .host-event-topbar,
-  .host-event-hero-info,
-  .host-event-card,
-  .host-event-card .host-info-pill,
-  .host-event-card .ticket-type-row,
-  .host-event-card .checklist-items li,
-  .host-event-card .host-scanner-row {
-    background:
-      radial-gradient(460px 120px at 90% -20%, rgba(46, 224, 111, 0.08), transparent 60%),
-      linear-gradient(180deg, rgba(10, 31, 20, 0.98), rgba(7, 22, 14, 0.98));
-    border-color: rgba(95, 224, 128, 0.16);
-  }
-
-  .host-event-topbar h1,
-  .host-event-topbar p,
-  .host-event-hero-info h2,
-  .host-event-hero-info p,
-  .host-event-card h2,
-  .host-event-card-header h2,
-  .host-event-card-header p,
-  .host-event-title,
-  .host-event-subtitle,
-  .host-event-link,
-  .host-event-card .info-label,
-  .host-event-card .host-muted-note,
-  .host-event-card .ticket-type-row span,
-  .host-event-card .ticket-type-row strong,
-  .host-event-card .checklist-items li,
-  .host-event-card .host-scanner-status,
-  .host-event-card .host-scanner-code,
-  .host-event-card .host-info-pill p {
-    color: #e8f5ec;
-    opacity: 1;
-  }
-
-  .host-event-card .host-event-status.is-live,
-  .host-event-card .host-event-status.is-draft {
-    color: #e8f5ec;
-  }
-
-  .host-event-card .host-info-pill .info-label,
-  .host-event-card .host-event-card-header p,
-  .host-event-card .checklist-items li.pending,
-  .host-event-card .host-scanner-status.revoked {
-    color: #b7d8c0;
-  }
-
-  .host-event-card .checklist-items li.done,
-  .host-event-card .host-scanner-status.active {
-    color: #f0fff4;
-  }
-
-  .host-event-card .host-scanner-code {
-    background: rgba(8, 25, 15, 0.92);
-    border-color: rgba(95, 224, 128, 0.16);
-  }
-
-  .host-kpis .summary-card,
-  .scanner-code-card,
-  .host-dash-panel .table-wrapper,
-  .host-dash-panel .chart-wrapper,
-  .host-event-topbar,
-  .host-event-hero-info,
-  .host-event-card,
-  .host-event-card .host-info-pill,
-  .host-event-card .ticket-type-row,
-  .host-event-card .checklist-items li,
-  .host-event-card .host-scanner-row,
-  .host-table thead,
-  .host-table tbody tr,
-  .host-table-stacked tbody tr {
-    background: linear-gradient(180deg, rgba(8, 26, 16, 0.98), rgba(11, 33, 21, 0.98)) !important;
-    border-color: rgba(95, 224, 128, 0.14) !important;
-  }
-
-  .host-table thead th {
-    background: rgba(255, 255, 255, 0.03) !important;
-    color: #d8f0dd !important;
-  }
-
-  .host-table tbody td,
-  .host-table-stacked tbody td {
-    color: #effaf1 !important;
   }
 }
 
@@ -2555,42 +2292,29 @@ a.btn-withdraw {
   color: #8b99a8;
 }
 
-/* Restores visibility to all event detail card headers */
-.host-event-card h2,
-.host-event-card-header h2,
-.host-event-detail-page h2,
-.host-event-detail-page h1 {
-  color: var(--text-primary) !important;
-}
-
-.host-event-description-card p,
-.host-event-card-header p {
-  color: var(--text-secondary);
-}
-
 @media (prefers-color-scheme: dark) {
   .host-layout {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.1), transparent 24%),
-      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, #04150c 12%));
+      linear-gradient(180deg, #031109, #04150c);
   }
 
   .host-main {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.06), transparent 26%),
-      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 88%, #04150c 12%));
+      linear-gradient(180deg, #031109, #04150c);
   }
 
   .host-sidebar {
     background:
       radial-gradient(circle at top left, rgba(46, 224, 111, 0.16), transparent 24%),
-      linear-gradient(180deg, var(--sidebar-bg), color-mix(in srgb, var(--sidebar-bg) 88%, #020905 12%));
+      linear-gradient(180deg, #06150d, #020905);
     color: var(--text-primary);
   }
 
   .sidebar-header,
   .sidebar-footer {
-    border-color: var(--border);
+    border-color: rgba(95, 224, 128, 0.12);
   }
 
   .sidebar-logo {
@@ -2602,34 +2326,34 @@ a.btn-withdraw {
   }
 
   .sidebar-close-btn:hover {
-    background: var(--sidebar-hover);
-    color: var(--text-primary);
+    background: rgba(46, 224, 111, 0.08);
+    color: #ffffff;
   }
 
   .sidebar-link:hover {
-    background: var(--sidebar-hover);
-    color: var(--text-primary) !important;
+    background: rgba(46, 224, 111, 0.08);
+    color: #ffffff;
   }
 
   .sidebar-link.active {
-    background: var(--sidebar-active);
-    color: var(--text-primary) !important;
+    background: rgba(46, 224, 111, 0.14);
+    color: #ffffff;
   }
 
   .host-sidebar .sidebar-link .sidebar-icon {
-    background: var(--sidebar-hover);
-    border-color: var(--border);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(95, 224, 128, 0.12);
+    color: #dcfce7;
   }
 
   .host-sidebar .sidebar-link:hover .sidebar-icon {
-    background: var(--sidebar-active);
+    background: rgba(46, 224, 111, 0.16);
   }
 
   .sidebar-toggle-btn {
-    background: var(--surface);
-    border-color: var(--border);
-    color: var(--text-primary);
+    background: rgba(8, 26, 16, 0.96);
+    border-color: rgba(95, 224, 128, 0.14);
+    color: #eef7f0;
   }
 
   .host-content .section-header,
@@ -2643,9 +2367,9 @@ a.btn-withdraw {
   .host-content .dashboard-card,
   .host-content .chart-container,
   .host-content .table-wrapper {
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 88%, #05120b 12%));
-    border-color: var(--border);
-    color: var(--text-primary);
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    border-color: rgba(95, 224, 128, 0.12);
+    color: #eef7f0;
   }
 
   .host-content p,
@@ -2654,122 +2378,75 @@ a.btn-withdraw {
   .host-content th,
   .host-content label,
   .host-content span {
-    color: var(--text-primary);
+    color: #e8f5eb;
   }
 
-  .host-dash-hero,
-  .host-dash-balance-card,
-  .host-kpis .summary-card,
-  .host-dash-panel,
-  .host-dash-insight,
-  .scanner-code-card,
-  .host-event-topbar,
-  .host-event-hero-info,
-  .host-metric-card,
-  .host-event-card,
-  .table-wrapper,
-  .chart-wrapper {
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface) 90%, #05120b 10%)) !important;
-    border-color: var(--border) !important;
-    box-shadow: var(--shadow-sm) !important;
+  /* Host dashboard hero + panels use their own classes and hardcoded
+     light colors that the block above doesn't reach — cover them here. */
+  .host-dash-hero {
+    border-color: rgba(95, 224, 128, 0.16);
+    background:
+      radial-gradient(460px 120px at 90% -20%, rgba(46, 224, 111, 0.14), transparent 60%),
+      linear-gradient(180deg, #081a10, #04150c);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
   }
 
-  .host-dash-hero h1,
-  .host-dash-hero p,
-  .host-dash-balance-card p,
-  .host-dash-panel .section-title,
-  .host-dash-panel .host-table th,
-  .host-dash-panel .host-table td,
-  .host-dash-insight span,
-  .host-dash-insight strong,
-  .scanner-code-title,
-  .scanner-code-text,
-  .host-event-title,
-  .host-event-subtitle,
-  .host-event-hero-info h2,
-  .host-event-hero-info p,
-  .host-event-card-header h2,
-  .host-event-card-header p,
-  .host-metric-label,
-  .host-event-metrics strong {
-    color: var(--text-primary) !important;
+  .host-dash-balance-card {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: #081a10;
   }
 
-  .host-dash-kicker,
-  .section-subtitle,
-  .host-dash-panel .host-table th,
-  .host-dash-panel .host-table td,
-  .host-dash-balance-card p,
-  .host-dash-insight span,
-  .host-event-subtitle,
-  .host-event-card-header p,
-  .host-event-hero-info p,
-  .host-metric-label,
-  .host-event-description-card p,
-  .host-event-card-header p {
-    color: var(--text-secondary) !important;
+  .host-dash-balance-card p {
+    color: var(--text-secondary);
   }
 
-  .host-dash-kicker {
-    color: var(--green) !important;
+  .host-kpis .summary-card {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: linear-gradient(180deg, #081a10, #0b2115);
   }
 
-  .host-dash-hero-actions .btn-copy-link,
-  .host-dash-hero-actions .btn-primary,
-  .host-dash-panel .btn-copy-link,
-  .host-dash-panel .btn-edit,
-  .host-dash-panel .btn-delete,
-  .host-event-actions .btn-copy-link,
-  .host-event-actions .btn-primary {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-    color: var(--text-primary) !important;
-  }
-
-  .host-dash-panel .btn-copy-link:hover,
-  .host-dash-panel .btn-edit:hover,
-  .host-dash-panel .btn-delete:hover,
-  .host-event-actions .btn-copy-link:hover,
-  .host-event-actions .btn-primary:hover {
-    background: var(--surface-2) !important;
-    color: var(--text-primary) !important;
+  .host-kpis .summary-icon {
+    background: rgba(46, 224, 111, 0.08);
+    border-color: rgba(95, 224, 128, 0.2);
+    color: var(--green);
   }
 
   .host-kpis .summary-icon.summary-icon-tickets,
-  .host-kpis .summary-icon.summary-icon-withdrawn,
-  .host-kpis .summary-icon.summary-icon-attendees,
-  .host-kpis .summary-icon {
-    background: var(--surface) !important;
-    color: var(--green-dark) !important;
+  .host-kpis .summary-icon.summary-icon-withdrawn {
+    background: rgba(46, 224, 111, 0.1);
+    border-color: rgba(95, 224, 128, 0.22);
+    color: var(--green-dark);
   }
 
-  .host-event-row.is-private,
-  .host-sidebar .sidebar-link.active,
-  .host-sidebar .sidebar-link:hover {
-    background: var(--sidebar-active) !important;
+  .host-kpis .summary-value {
+    color: var(--text-primary);
   }
 
-  .host-sidebar .sidebar-link,
-  .host-sidebar .sidebar-link:visited,
-  .host-sidebar .sidebar-link:hover,
-  .host-sidebar .sidebar-link.active,
-  .host-sidebar .sidebar-link .sidebar-label,
-  .host-sidebar .sidebar-link:visited .sidebar-label,
-  .host-sidebar .sidebar-link .sidebar-icon,
-  .host-sidebar .sidebar-link:visited .sidebar-icon,
-  .host-sidebar .sidebar-footer,
-  .host-sidebar .sidebar-logo,
-  .host-sidebar .sidebar-nav-title,
-  .host-sidebar .sidebar-brand-copy,
-  .host-sidebar .sidebar-brand-copy strong,
-  .host-sidebar .sidebar-brand-copy span {
-    color: var(--text-primary) !important;
-    opacity: 1 !important;
+  .host-dash-panel {
+    background: linear-gradient(180deg, rgba(9, 29, 18, 0.96), rgba(5, 18, 11, 0.96));
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
   }
 
-  .host-sidebar .sidebar-link.active .sidebar-icon,
-  .host-sidebar .sidebar-link:hover .sidebar-icon {
-    color: var(--text-primary) !important;
+  .host-dash-insight {
+    border-color: rgba(95, 224, 128, 0.16);
+    background: #081a10;
+  }
+
+  .host-dash-insight span {
+    color: var(--text-secondary);
+  }
+
+  .host-dash-insight strong {
+    color: var(--text-primary);
+  }
+
+  .scanner-code-card {
+    background: #081a10;
+    border-color: rgba(95, 224, 128, 0.16);
+  }
+
+  .host-dash-panel .host-table th {
+    color: var(--text-secondary);
   }
 }
 

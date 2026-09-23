@@ -12,7 +12,7 @@ const TopPerformingEvents = ({ events = [] }) => {
     <div className="admin-top-events admin-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <strong>Top Performing Events</strong>
-        <a href="#" style={{ fontSize: 12, color: '#16a34a' }}>View all</a>
+        <a href="#" className="admin-link-accent">View all</a>
       </div>
 
       <div style={{ display: 'grid', gap: 10 }}>
@@ -21,9 +21,9 @@ const TopPerformingEvents = ({ events = [] }) => {
             <img src={ev.thumbnail || '/images/ekotixx.jpeg'} alt={ev.title} style={{ width: 56, height: 40, objectFit: 'cover', borderRadius: 8 }} />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <div style={{ fontWeight: 700 }}>{ev.title}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{ev.tickets || 0} tickets</div>
+              <div className="kpi-sub">{ev.tickets || 0} tickets</div>
             </div>
-            <div style={{ fontWeight: 800, color: '#0f172a' }}>NGN {Number(ev.revenue || 0).toLocaleString()}</div>
+            <div className="admin-value" style={{ fontWeight: 800 }}>NGN {Number(ev.revenue || 0).toLocaleString()}</div>
           </div>
         ))}
       </div>
