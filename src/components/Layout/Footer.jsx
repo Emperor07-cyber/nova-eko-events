@@ -99,7 +99,7 @@ const Footer = () => {
             <h4>Follow Ekotix</h4>
             <p>Stay close to upcoming drops, host tools, and event culture updates.</p>
             <div className="footer-social-icons">
-              <a href="https://www.instagram.com/eko.tix?igsh=ZDg5YWFmanA1dDFo" target="_blank" rel="noopener noreferrer" aria-label="Follow Ekotix on Instagram">
+              <a href="https://www.instagram.com/ekotixx?stkn=eTc5ajF5eDNldm9l&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Follow Ekotix on Instagram">
                 <FaInstagram size={20} />
               </a>
             </div>
