@@ -1059,8 +1059,21 @@
 
 @media (max-width: 700px) {
   .home-troop {
+    max-width: none;
+    width: 100%;
     padding: 20px 16px 56px;
     gap: 56px;
+  }
+
+  .home-hero,
+  .home-categories,
+  .home-section,
+  .quick-features,
+  .why-ekotix,
+  .pricing-banner,
+  .faq-section {
+    width: 100%;
+    max-width: none;
   }
 
   .home-hero {
@@ -1214,31 +1227,112 @@
 
 @media (max-width: 420px) {
   .home-troop {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 12px 12px 36px;
+    gap: 28px;
+  }
+
+  .home-hero,
+  .home-categories,
+  .home-section,
+  .quick-features,
+  .why-ekotix,
+  .pricing-banner,
+  .faq-section {
+    width: 100%;
+    max-width: none;
   }
 
   .home-hero {
-    padding: 24px 16px;
+    min-height: auto;
+    padding: 22px 14px 16px;
+    border-radius: 18px;
   }
 
   .home-hero h1 {
-    font-size: 2.65rem;
+    font-size: clamp(2.3rem, 12vw, 3rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
   }
 
-  /* REMOVED fixed .event-card-image height override for small phones —
-     height is now driven by the image itself (see base rule above). */
+  .home-hero-description {
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .home-proof {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .home-proof span {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .home-hero-actions {
+    flex-direction: column;
+  }
+
+  .home-hero-actions .home-btn {
+    width: 100%;
+  }
+
+  .category-scroll {
+    justify-content: flex-start;
+  }
+
+  .category-chip {
+    height: 38px;
+    padding: 0 14px;
+    font-size: 0.8rem;
+  }
+
+  .section-heading h2,
+  .why-ekotix h2,
+  .pricing-banner h2,
+  .faq-section h2 {
+    font-size: 1.65rem;
+  }
+
+  .events-grid,
+  .offer-grid,
+  .quick-features {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card-content,
+  .offer-card-content {
+    padding: 15px;
+  }
+
+  .quick-feature {
+    padding: 18px 12px;
+  }
+
+  .why-ekotix {
+    padding: 16px 14px;
+    gap: 20px;
+    border-radius: 18px;
+  }
 
   .why-ekotix-image {
-    min-height: 250px;
+    min-height: 220px;
+  }
+
+  .pricing-banner {
+    padding: 22px 16px;
+    border-radius: 18px;
+    gap: 16px;
   }
 
   .faq-question {
-    padding: 16px 14px;
+    padding: 14px 16px;
+    min-height: 58px;
   }
 
   .faq-answer {
-    padding: 0 14px 16px;
+    padding: 0 16px 16px;
   }
 
   .home-btn {

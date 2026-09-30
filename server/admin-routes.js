@@ -47,7 +47,10 @@ const getExistingTicketQuantity = async (eventId, email) => {
   const snapshot = await db().ref("tickets").once("value");
   const tickets = snapshot.val() || {};
   return Object.values(tickets)
-    .filter((ticket) => String(ticket.eventId || "") === String(eventId) && normalizeText(ticket.email) === normalizedEmail)
+    .filter((ticket) => {
+      const ticketEventId = String(ticket.eventId || ticket.event_id || ticket.eventID || ticket.eventid || "");
+      return ticketEventId === String(eventId) && normalizeText(ticket.email) === normalizedEmail;
+    })
     .reduce((sum, ticket) => sum + (Number(ticket.quantity) || 1), 0);
 };
 
@@ -180,10 +183,18 @@ const readRecordByTransactionId = async (collection, reference) => {
 
 const matchHostRecord = (record, hostEmail, hostUid) => {
   const recordHostEmail = normalizeText(
-    record.hostEmail || record.requestedByEmail || record.createdBy || record.email
+    record.hostEmail ||
+      record.host_email ||
+      record.requestedByEmail ||
+      record.createdBy ||
+      record.email
   );
   const recordHostUid = normalizeText(
-    record.hostUid || record.requestedByUid || record.ownerUid || record.uid
+    record.hostUid ||
+      record.host_uid ||
+      record.requestedByUid ||
+      record.ownerUid ||
+      record.uid
   );
 
   return (
@@ -569,9 +580,13 @@ function registerRoutes(app) {
         name,
         email,
         eventId,
+        event_id: eventId,
         eventTitle: event.title || "",
+        event_title: event.title || "",
         hostEmail: event.hostEmail || event.createdBy || "",
+        host_email: event.hostEmail || event.createdBy || "",
         hostUid: event.hostUid || "",
+        host_uid: event.hostUid || "",
         ticketType,
         quantity: qty,
         totalPaid: 0,

@@ -177,14 +177,22 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       // from the long Firebase push key and Paystack reference — see
       // server/ticketCode.js.
       const ticketCode = await generateUniqueTicketCode(admin.database());
+      const resolvedEventId = eventId;
+      const resolvedEventTitle = eventTitle || String(eventRecord?.title || '').trim();
+      const resolvedHostEmail = hostEmail || String(eventRecord?.hostEmail || eventRecord?.createdBy || '').trim();
+      const resolvedHostUid = hostUid || String(eventRecord?.hostUid || eventRecord?.ownerUid || '').trim();
 
       const ticketData = {
         name,
         email,
-        eventId,
-        eventTitle,
-        hostEmail,
-        hostUid,
+        eventId: resolvedEventId,
+        event_id: resolvedEventId,
+        eventTitle: resolvedEventTitle,
+        event_title: resolvedEventTitle,
+        hostEmail: resolvedHostEmail,
+        host_email: resolvedHostEmail,
+        hostUid: resolvedHostUid,
+        host_uid: resolvedHostUid,
         ticketType,
         quantity,
         totalPaid: baseAmount,

@@ -3,13 +3,17 @@ export const normalizeText = (value) => String(value ?? '').trim().toLowerCase()
 export const ticketMatchesEvent = (ticket = {}, event = {}) => {
   if (!ticket || !event) return false;
 
-  const ticketEventId = normalizeText(ticket.eventId);
+  const ticketEventId = normalizeText(
+    ticket.eventId || ticket.event_id || ticket.eventID || ticket.eventid
+  );
   const eventId = normalizeText(event.id);
   if (ticketEventId && eventId && ticketEventId === eventId) {
     return true;
   }
 
-  const ticketEventTitle = normalizeText(ticket.eventTitle || ticket.event?.title || ticket.event_title);
+  const ticketEventTitle = normalizeText(
+    ticket.eventTitle || ticket.event?.title || ticket.event_title || ticket.eventTitle
+  );
   const eventTitle = normalizeText(event.title);
   if (ticketEventTitle && eventTitle && ticketEventTitle === eventTitle) {
     return true;

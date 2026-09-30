@@ -40,4 +40,19 @@ describe('ticketEventMatch helpers', () => {
 
     assert.equal(ticketMatchesEvent(ticket, event), true);
   });
+
+  it('matches tickets by snake_case event_id when eventId is absent', () => {
+    const ticket = {
+      event_id: 'evt-999',
+      eventTitle: 'Legacy Event',
+      hostEmail: 'host@example.com',
+    };
+    const event = {
+      id: 'evt-999',
+      title: 'Different Title',
+      hostEmail: 'host@example.com',
+    };
+
+    assert.equal(ticketMatchesEvent(ticket, event), true);
+  });
 });
