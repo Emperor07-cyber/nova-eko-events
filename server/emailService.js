@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const admin = require('firebase-admin');
+const { getDatabase } = require('firebase-admin/database');
 
 const DEFAULT_BRAND_NAME = process.env.EMAIL_DEFAULT_BRAND_NAME || 'Ekotix';
 const DEFAULT_SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'Ekotix234@gmail.com';
@@ -212,7 +213,7 @@ const sendTicketReceiptEmail = async ({ ticket, event, resend = false }) => {
 
 const loadEventById = async (eventId) => {
   if (!eventId) return null;
-  const snap = await admin.database().ref(`events/${eventId}`).once('value');
+  const snap = await getDatabase().ref(`events/${eventId}`).once('value');
   return snap.val() || null;
 };
 

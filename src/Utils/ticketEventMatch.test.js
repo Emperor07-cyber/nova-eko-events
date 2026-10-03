@@ -1,6 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { ticketMatchesEvent } from './ticketEventMatch.js';
+import {
+  ticketMatchesEvent,
+  findMatchingEventForTicket,
+  buildTicketMetadataPatch,
+} from './ticketEventMatch.js';
 
 describe('ticketEventMatch helpers', () => {
   it('matches a ticket to an event by eventId', () => {
@@ -54,5 +58,27 @@ describe('ticketEventMatch helpers', () => {
     };
 
     assert.equal(ticketMatchesEvent(ticket, event), true);
+  });
+
+  it('finds the exact event match and builds missing ticket metadata keys', () => {
+    const ticket = {
+      eventTitle: 'Legacy Event',
+      hostEmail: 'host@example.com',
+      hostUid: 'abc-123',
+    };
+    const events = [
+      { id: 'evt-111', title: 'Another Event', hostEmail: 'other@example.com', hostUid: 'zzz' },
+      { id: 'evt-789', title: 'Legacy Event', hostEmail: 'host@example.com', hostUid: 'abc-123' },
+    ];
+
+    const matches = findMatchingEventForTicket(ticket, events);
+    assert.deepEqual(matches.map((event) => event.id), ['evt-789']);
+    assert.deepEqual(buildTicketMetadataPatch(ticket, events[1]), {
+      eventId: 'evt-789',
+      event_id: 'evt-789',
+      event_title: 'Legacy Event',
+      host_email: 'host@example.com',
+      host_uid: 'abc-123',
+    });
   });
 });

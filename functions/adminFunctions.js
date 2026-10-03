@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { getDatabase } = require('firebase-admin/database');
 
 // helper to validate Authorization: Bearer <idToken> and ensure user role=admin
 async function verifyAdminRequest(req) {
@@ -10,7 +11,7 @@ async function verifyAdminRequest(req) {
   const decoded = await admin.auth().verifyIdToken(idToken);
   // Accept if custom claim 'admin' is present
   if (decoded.admin === true) return decoded;
-  const snapshot = await admin.database().ref(`users/${decoded.uid}`).once('value');
+  const snapshot = await getDatabase().ref(`users/${decoded.uid}`).once('value');
   const data = snapshot.val();
   if (!data || data.role !== 'admin') throw new Error('Forbidden');
   return decoded;
@@ -25,7 +26,7 @@ exports.adminSummary = functions.https.onRequest(async (req, res) => {
   }
 
   try {
-    const db = admin.database();
+    const db = getDatabase();
     // Prefer cached aggregates when available
     const aggregatesSnap = await db.ref('aggregates/summary').once('value');
     const aggregates = aggregatesSnap.val();
@@ -66,7 +67,7 @@ exports.salesTrend = functions.https.onRequest(async (req, res) => {
 
   const days = Number(req.query.days) || 30;
   try {
-    const db = admin.database();
+    const db = getDatabase();
     const dailySnap = await db.ref('aggregates/daily').once('value');
     const daily = dailySnap.val() || {};
     const entries = [];
@@ -94,7 +95,7 @@ exports.hostsTop = functions.https.onRequest(async (req, res) => {
 
   const n = Number(req.query.n) || 10;
   try {
-    const db = admin.database();
+    const db = getDatabase();
     const [ticketsSnap, withdrawalsSnap] = await Promise.all([
       db.ref('tickets').once('value'),
       db.ref('withdrawalRequests').once('value'),
@@ -130,7 +131,7 @@ exports.hostsTop = functions.https.onRequest(async (req, res) => {
 exports.onTicketCreate = functions.database.ref('/tickets/{ticketId}').onCreate(async (snapshot, context) => {
   try {
     const ticket = snapshot.val();
-    const db = admin.database();
+    const db = getDatabase();
     const totalPaid = Number(ticket.totalPaid || ticket.totalCharged || 0);
     const quantity = Number(ticket.quantity || 1);
 

@@ -4,6 +4,7 @@ const crypto = require("crypto");
 require("dotenv").config();
 const cors = require("cors");
 const admin = require('firebase-admin');
+const { getDatabase } = require('firebase-admin/database');
 
 // Render (and most non-GCP hosts) cannot reach metadata.google.internal, so
 // admin.credential.applicationDefault() fails there with
@@ -14,7 +15,11 @@ const admin = require('firebase-admin');
 const buildFirebaseCredential = () => {
   const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
   if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
-    return admin.credential.cert({
+    const certFactory = admin.credential?.cert || admin.cert;
+    if (!certFactory) {
+      throw new Error("Firebase Admin SDK does not expose a cert factory in this runtime.");
+    }
+    return certFactory({
       projectId: FIREBASE_PROJECT_ID,
       clientEmail: FIREBASE_CLIENT_EMAIL,
       // Render (and most dashboards) can't store literal newlines in an env
@@ -22,13 +27,14 @@ const buildFirebaseCredential = () => {
       privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     });
   }
-  return admin.credential.applicationDefault();
+  return admin.credential?.applicationDefault ? admin.credential.applicationDefault() : admin.applicationDefault();
 };
 const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
 const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
 const { generateUniqueTicketCode } = require('./ticketCode');
 
 const app = express();
+const db = () => getDatabase();
 
 app.use(cors({
   origin: [
@@ -128,7 +134,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
           savedBy: "webhook",
         };
 
-        const orderRef = admin.database().ref("merchOrders").push();
+        const orderRef = db().ref("merchOrders").push();
         await orderRef.set(merchData);
         console.log("✅ Merch order saved to Firebase via webhook:", reference);
         return;
@@ -139,7 +145,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
         eventRecord = await loadEventById(eventId);
       }
       if (!eventRecord && eventTitle) {
-        const eventsSnap = await admin.database().ref('events').once('value');
+        const eventsSnap = await db().ref('events').once('value');
         const events = eventsSnap.val() || {};
         eventRecord = Object.entries(events).find(([_, event]) => {
           const sameTitle = String(event?.title || '').trim().toLowerCase() === eventTitle.toLowerCase();
@@ -176,7 +182,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       // Short, human-typeable code (7 chars) for manual check-in, separate
       // from the long Firebase push key and Paystack reference — see
       // server/ticketCode.js.
-      const ticketCode = await generateUniqueTicketCode(admin.database());
+      const ticketCode = await generateUniqueTicketCode(db());
       const resolvedEventId = eventId;
       const resolvedEventTitle = eventTitle || String(eventRecord?.title || '').trim();
       const resolvedHostEmail = hostEmail || String(eventRecord?.hostEmail || eventRecord?.createdBy || '').trim();
@@ -213,14 +219,14 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
           : {}),
       };
 
-      const ticketRef = admin.database().ref('tickets').push();
+      const ticketRef = db().ref('tickets').push();
       await ticketRef.set(ticketData);
 
       if (overLimit) {
         // Payment was already captured by Paystack. Don't silently deliver
         // the ticket — leave it flagged for the host/admin to refund or
         // manually approve, and log it so it isn't missed.
-        await admin.database().ref('adminAudit').push({
+        await db().ref('adminAudit').push({
           action: 'ticket_over_limit',
           details: { ticketId: ticketRef.key, eventId, email, quantity, maxPerUser, reference },
           timestamp: Date.now(),

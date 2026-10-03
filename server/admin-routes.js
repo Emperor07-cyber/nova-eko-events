@@ -1,5 +1,6 @@
 const axios = require("axios");
 const admin = require("firebase-admin");
+const { getDatabase } = require("firebase-admin/database");
 const { loadEventById, sendTicketReceiptEmail } = require("./emailService");
 const { generateUniqueTicketCode } = require("./ticketCode");
 
@@ -8,13 +9,17 @@ const { generateUniqueTicketCode } = require("./ticketCode");
 const buildFirebaseCredential = () => {
   const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
   if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
-    return admin.credential.cert({
+    const certFactory = admin.credential?.cert || admin.cert;
+    if (!certFactory) {
+      throw new Error("Firebase Admin SDK does not expose a cert factory in this runtime.");
+    }
+    return certFactory({
       projectId: FIREBASE_PROJECT_ID,
       clientEmail: FIREBASE_CLIENT_EMAIL,
       privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     });
   }
-  return admin.credential.applicationDefault();
+  return admin.credential?.applicationDefault ? admin.credential.applicationDefault() : admin.applicationDefault();
 };
 
 try {
@@ -28,7 +33,7 @@ try {
   console.warn("firebase-admin init warning (admin-routes):", err.message);
 }
 
-const db = () => admin.database();
+const db = () => getDatabase();
 const ADMIN_DATA_RESET_PATHS = [
   "events",
   "tickets",
@@ -39,6 +44,101 @@ const ADMIN_DATA_RESET_PATHS = [
 ];
 
 const normalizeText = (value) => String(value || "").trim().toLowerCase();
+const firstNonEmpty = (...values) => values.find((value) => String(value || "").trim()) || "";
+
+const ticketMatchesEvent = (ticket = {}, event = {}) => {
+  if (!ticket || !event) return false;
+
+  const ticketEventId = normalizeText(
+    ticket.eventId || ticket.event_id || ticket.eventID || ticket.eventid
+  );
+  const eventId = normalizeText(event.id);
+  if (ticketEventId && eventId && ticketEventId === eventId) {
+    return true;
+  }
+
+  const ticketEventTitle = normalizeText(
+    ticket.eventTitle || ticket.event?.title || ticket.event_title || ticket.eventTitle
+  );
+  const eventTitle = normalizeText(event.title);
+  if (ticketEventTitle && eventTitle && ticketEventTitle === eventTitle) {
+    return true;
+  }
+
+  const ticketHostCandidates = [
+    ticket.hostEmail,
+    ticket.host_email,
+    ticket.host_uid,
+    ticket.hostUid,
+    ticket.createdBy,
+    ticket.ownerEmail,
+    ticket.owner_email,
+    ticket.ownerUid,
+    ticket.owner_uid,
+    ticket.requestedByEmail,
+    ticket.requestedByUid,
+  ];
+  const eventHostCandidates = [
+    event.hostEmail,
+    event.host_email,
+    event.hostUid,
+    event.host_uid,
+    event.createdBy,
+    event.ownerEmail,
+    event.owner_email,
+    event.ownerUid,
+    event.owner_uid,
+  ];
+
+  return ticketHostCandidates.some((candidate) => {
+    const normalizedCandidate = normalizeText(candidate);
+    if (!normalizedCandidate) return false;
+    return eventHostCandidates.some((eventCandidate) => normalizeText(eventCandidate) === normalizedCandidate);
+  });
+};
+
+const buildTicketMetadataPatch = (ticket = {}, event = {}) => {
+  if (!ticket || !event) return {};
+
+  const patch = {};
+  const eventIdValue = firstNonEmpty(ticket.eventId, ticket.event_id, ticket.eventID, ticket.eventid, event.id);
+  const eventTitleValue = firstNonEmpty(ticket.eventTitle, ticket.event_title, event.title);
+  const hostEmailValue = firstNonEmpty(
+    ticket.hostEmail,
+    ticket.host_email,
+    ticket.createdBy,
+    ticket.ownerEmail,
+    ticket.owner_email,
+    event.hostEmail,
+    event.createdBy,
+    event.ownerEmail,
+    event.owner_email
+  );
+  const hostUidValue = firstNonEmpty(
+    ticket.hostUid,
+    ticket.host_uid,
+    ticket.ownerUid,
+    ticket.owner_uid,
+    event.hostUid,
+    event.host_uid,
+    event.ownerUid,
+    event.owner_uid
+  );
+
+  if (eventIdValue && !ticket.eventId) patch.eventId = eventIdValue;
+  if (eventIdValue && !ticket.event_id && !ticket.eventID && !ticket.eventid) patch.event_id = eventIdValue;
+
+  if (eventTitleValue && !ticket.eventTitle) patch.eventTitle = eventTitleValue;
+  if (eventTitleValue && !ticket.event_title) patch.event_title = eventTitleValue;
+
+  if (hostEmailValue && !ticket.hostEmail) patch.hostEmail = hostEmailValue;
+  if (hostEmailValue && !ticket.host_email) patch.host_email = hostEmailValue;
+
+  if (hostUidValue && !ticket.hostUid) patch.hostUid = hostUidValue;
+  if (hostUidValue && !ticket.host_uid) patch.host_uid = hostUidValue;
+
+  return patch;
+};
 
 // Sums how many tickets `email` has already bought for `eventId`, across
 // every past order, so purchase limits can't be bypassed by re-checking out.
@@ -925,6 +1025,84 @@ function registerRoutes(app) {
     } catch (err) {
       console.error("admin/data reset error", err);
       res.status(500).json({ error: "Failed to clear admin data" });
+    }
+  });
+
+  app.post("/admin/tickets/reconcile", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const databaseRef = db();
+      const dryRun = Boolean(req.body?.dryRun ?? req.query?.dryRun === "true");
+
+      const [eventsSnap, ticketsSnap] = await Promise.all([
+        databaseRef.ref("events").once("value"),
+        databaseRef.ref("tickets").once("value"),
+      ]);
+
+      const events = Object.entries(eventsSnap.val() || {}).map(([id, event]) => ({ id, ...event }));
+      const tickets = ticketsSnap.val() || {};
+      const summary = {
+        scanned: Object.keys(tickets).length,
+        matched: 0,
+        repaired: 0,
+        unmatched: 0,
+        ambiguous: 0,
+        dryRun,
+        updates: [],
+      };
+
+      for (const [ticketId, ticket] of Object.entries(tickets)) {
+        const matches = events.filter((event) => ticketMatchesEvent(ticket, event));
+
+        if (matches.length === 0) {
+          summary.unmatched += 1;
+          continue;
+        }
+
+        if (matches.length > 1) {
+          summary.ambiguous += 1;
+          continue;
+        }
+
+        summary.matched += 1;
+        const event = matches[0];
+        const patch = buildTicketMetadataPatch(ticket, event);
+
+        if (Object.keys(patch).length === 0) {
+          continue;
+        }
+
+        summary.repaired += 1;
+        summary.updates.push({
+          ticketId,
+          eventId: event.id,
+          patch,
+        });
+
+        if (!dryRun) {
+          await databaseRef.ref(`tickets/${ticketId}`).update(patch);
+        }
+      }
+
+      await databaseRef.ref("adminAudit").push({
+        uid: req.user.uid,
+        email: req.user.email || "",
+        name: req.user.name || req.user.email || "",
+        action: dryRun ? "reconcile_tickets_dry_run" : "reconcile_tickets",
+        details: {
+          scanned: summary.scanned,
+          matched: summary.matched,
+          repaired: summary.repaired,
+          unmatched: summary.unmatched,
+          ambiguous: summary.ambiguous,
+          dryRun,
+        },
+        timestamp: Date.now(),
+      });
+
+      res.json(summary);
+    } catch (err) {
+      console.error("admin/tickets reconcile error", err);
+      res.status(500).json({ error: err.message || "Failed to reconcile ticket metadata" });
     }
   });
 

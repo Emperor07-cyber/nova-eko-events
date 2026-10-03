@@ -18,6 +18,7 @@ try {
   // Environment variables can also be supplied directly by the shell.
 }
 const admin = require("firebase-admin");
+const { getDatabase } = require("firebase-admin/database");
 
 const APPLY = process.argv.includes("--apply");
 const databaseUrl = process.env.FIREBASE_DATABASE_URL;
@@ -30,7 +31,12 @@ function buildCredential() {
     );
   }
 
-  return admin.credential.cert({
+  const certFactory = admin.credential?.cert || admin.cert;
+  if (!certFactory) {
+    throw new Error("Firebase Admin SDK does not expose a cert factory in this runtime.");
+  }
+
+  return certFactory({
     projectId: FIREBASE_PROJECT_ID,
     clientEmail: FIREBASE_CLIENT_EMAIL,
     privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
@@ -105,7 +111,7 @@ async function main() {
     databaseURL: databaseUrl,
   });
 
-  const db = admin.database();
+  const db = getDatabase();
   const [ticketsSnapshot, eventsSnapshot] = await Promise.all([
     db.ref("tickets").once("value"),
     db.ref("events").once("value"),
