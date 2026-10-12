@@ -1,8 +1,6 @@
 // api/checkin/ticket.js
 const admin = require('firebase-admin');
 
-const admin = require('firebase-admin');
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -24,7 +22,7 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { ticketId, eventId, accessCode } = req.body;
+  const { ticketId, eventId } = req.body;
 
   if (!ticketId || !eventId) {
     return res.status(400).json({ error: 'Missing ticketId or eventId' });

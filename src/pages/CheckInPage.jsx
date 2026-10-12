@@ -57,7 +57,9 @@ const CheckInPage = () => {
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.4);
       }
-    } catch (e) {}
+    } catch {
+      // Audio feedback is optional and may be unavailable in some browsers.
+    }
   };
 
   const vibrate = (type) => {
@@ -162,12 +164,14 @@ const CheckInPage = () => {
       if (html5QrRef.current) {
         try {
           html5QrRef.current.stop().catch(() => {});
-        } catch (error) {
+        } catch {
           // Scanner wasn't running yet, safely ignore the library's error
         }
         html5QrRef.current = null;
       }
     };
+  // handleScan is declared below and closes over the current scanner state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, scanMode]);
 
   const handleScan = async (decodedText) => {
@@ -263,7 +267,9 @@ const CheckInPage = () => {
       setScanMessage("");
       setAttendeeInfo(null);
       if (resumeCamera && html5QrRef.current) {
-        try { await html5QrRef.current.resume(); } catch (e) {}
+        try { await html5QrRef.current.resume(); } catch {
+          // The scanner may already have stopped during cleanup.
+        }
       }
     }, 3000);
   };
@@ -275,7 +281,9 @@ const CheckInPage = () => {
         await html5QrRef.current.applyVideoConstraints({ advanced: [{ torch: !torchOn }] });
         setTorchOn(!torchOn);
       }
-    } catch (e) {}
+    } catch {
+      // Torch controls are optional for unsupported camera devices.
+    }
   };
 
 const handleExit = async () => {
@@ -285,7 +293,7 @@ const handleExit = async () => {
     if (html5QrRef.current) {
       try {
         await html5QrRef.current.stop().catch(() => {});
-      } catch (error) {
+      } catch {
         // Safely ignore if it wasn't fully running
       }
       html5QrRef.current = null;
@@ -294,7 +302,9 @@ const handleExit = async () => {
     try {
       const auth = getAuth();
       await signOut(auth);
-    } catch (e) {}
+    } catch {
+      // Sign-out cleanup should not block returning to the login screen.
+    }
 
     setStep("login");
     setEventData(null);

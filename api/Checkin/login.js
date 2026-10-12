@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
     });
 
     return res.status(200).json({ token: customToken, eventId: matchedEventId });
-  } catch (error) {
+  } catch {
     return res.status(500).json({ error: 'Login failed' });
   }
 };

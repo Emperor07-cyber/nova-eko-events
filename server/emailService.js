@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const admin = require('firebase-admin');
 const { getDatabase } = require('firebase-admin/database');
 
 const DEFAULT_BRAND_NAME = process.env.EMAIL_DEFAULT_BRAND_NAME || 'Ekotix';

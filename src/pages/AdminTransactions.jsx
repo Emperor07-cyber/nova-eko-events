@@ -26,7 +26,7 @@ const AdminTransactions = () => {
   const [actionMessage, setActionMessage] = useState('');
   const [actionError, setActionError] = useState('');
 
-  const withdrawals = data?.withdrawals || [];
+  const withdrawals = useMemo(() => data?.withdrawals || [], [data?.withdrawals]);
   const transactions = data?.transactions || [];
 
   const counts = useMemo(() => {

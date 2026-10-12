@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { auth } from "../../firebase/firebaseConfig";
-import QRCode from "react-qr-code";
 import "../styles/main.css";
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "";
@@ -10,7 +9,6 @@ function BuyTicket({ event }) {
   const [name, setName] = useState(currentUser?.displayName || "");
   const [email, setEmail] = useState(currentUser?.email || "");
   const [ticketType, setTicketType] = useState("");
-  const [qrCodeData, setQrCodeData] = useState(null);
 
   const handlePay = () => {
     if (!name || !email || !ticketType) {
@@ -42,8 +40,8 @@ function BuyTicket({ event }) {
         eventTitle: event.title,
         userId: currentUser?.uid,
       },
-      callback: async (response) => {
-        const ticketData = {
+      callback: async () => {
+        /*
           userId: currentUser?.uid,
           eventId: event.id,
           eventTitle: event.title,
@@ -53,9 +51,8 @@ function BuyTicket({ event }) {
           ticketId: response.reference,
           totalPaid: event.prices[ticketType],  // ✅ save price for revenue reports
           timestamp: Date.now(),                // ✅ save date for revenue reports
-        };
+        */
 
-        setQrCodeData(JSON.stringify(ticketData)); // Show QR code
         alert("Payment successful! Ticket prepared.");
       },
       onClose: () => {

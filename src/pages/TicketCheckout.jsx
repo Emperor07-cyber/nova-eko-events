@@ -97,7 +97,7 @@ const TicketCheckout = () => {
               ? "You’ve reached the buying limit for this event."
               : `You can still buy ${result.remaining} more ticket(s) for this event.`
         );
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setLimitInfo(null);
           setLimitError("");

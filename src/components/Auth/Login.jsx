@@ -105,7 +105,7 @@ function Login() {
       const userData = await getOrCreateUser(result.user);
       showFeedback("success", "Google sign-in successful. Redirecting...");
       routeAfterLogin(userData);
-    } catch (error) {
+    } catch {
       showFeedback("error", "Google sign-in failed. Please try again.");
     }
   };

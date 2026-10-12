@@ -128,7 +128,7 @@ exports.hostsTop = functions.https.onRequest(async (req, res) => {
 });
 
 // Database trigger: on ticket create, update aggregates.summary and aggregates/daily/{YYYY-MM-DD}
-exports.onTicketCreate = functions.database.ref('/tickets/{ticketId}').onCreate(async (snapshot, context) => {
+exports.onTicketCreate = functions.database.ref('/tickets/{ticketId}').onCreate(async (snapshot) => {
   try {
     const ticket = snapshot.val();
     const db = getDatabase();

@@ -114,7 +114,6 @@ const buildTicketMetadataPatch = (ticket = {}, event = {}) => {
   if (!ticket || !event) return {};
 
   const patch = {};
-  const eventIdValue = firstNonEmpty(ticket.eventId, ticket.event_id, ticket.eventID, ticket.eventid, event.id);
   const eventTitleValue = firstNonEmpty(ticket.eventTitle, ticket.event_title, event.title);
   const hostEmailValue = firstNonEmpty(
     ticket.hostEmail,

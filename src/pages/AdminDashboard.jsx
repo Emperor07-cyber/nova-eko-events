@@ -71,15 +71,15 @@ const AdminDashboard = () => {
     });
   }, []);
 
-  const totalEvents = events.length;
-  const totalTicketsSold = tickets.reduce((sum, ticket) => sum + (ticket.quantity || 1), 0);
-  const totalRevenue = tickets.reduce((sum, ticket) => sum + (ticket.totalCharged || ticket.totalPaid || 0), 0);
-  const platformRevenue = tickets.reduce(
+  const _totalEvents = events.length;
+  const _totalTicketsSold = tickets.reduce((sum, ticket) => sum + (ticket.quantity || 1), 0);
+  const _totalRevenue = tickets.reduce((sum, ticket) => sum + (ticket.totalCharged || ticket.totalPaid || 0), 0);
+  const _platformRevenue = tickets.reduce(
     (sum, ticket) => sum + ((ticket.hostFee || 0) + (ticket.serviceFee || 0)),
     0
   );
-  const totalAttendees = new Set(tickets.map((ticket) => ticket.email)).size;
-  const totalPaidOut = withdrawals
+  const _totalAttendees = new Set(tickets.map((ticket) => ticket.email)).size;
+  const _totalPaidOut = withdrawals
     .filter((withdrawal) => withdrawal.status === "completed")
     .reduce((sum, withdrawal) => sum + (withdrawal.amount || 0), 0);
   const pendingCount = withdrawals.filter((withdrawal) => withdrawal.status === "pending").length;
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
       .sort((left, right) => right.totalEarned - left.totalEarned);
   }, [tickets, withdrawals]);
 
-  const totalOwedToHosts = hostBreakdown.reduce((sum, host) => sum + host.stillOwed, 0);
+  const _totalOwedToHosts = hostBreakdown.reduce((sum, host) => sum + host.stillOwed, 0);
 
   const salesData = Object.values(
     tickets.reduce((accumulator, ticket) => {
@@ -168,7 +168,7 @@ const AdminDashboard = () => {
   ];
 
   // remote sales trend (from server aggregates)
-  const { data: remoteSales, isLoading: remoteSalesLoading } = useSalesTrend(30);
+  const { data: remoteSales, isLoading: _remoteSalesLoading } = useSalesTrend(30);
   const recentWithdrawals = withdrawals.slice(0, 4);
   const periodLabel = "May 1 - May 31, 2025";
   const chartData = remoteSales && remoteSales.length ? remoteSales : salesData;

@@ -151,7 +151,9 @@ const HostEventDetails = () => {
         if (!isNaN(d.getTime())) {
           return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "numeric" }).format(d);
         }
-      } catch {}
+      } catch {
+        return timeStr;
+      }
     }
     // fallback to whatever was provided (e.g., "7:00 PM")
     return timeStr;

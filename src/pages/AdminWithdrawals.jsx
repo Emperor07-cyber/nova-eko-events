@@ -29,7 +29,7 @@ const AdminWithdrawals = () => {
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const itemsPerPage = 10;
 
-  const withdrawals = data?.withdrawals || [];
+  const withdrawals = useMemo(() => data?.withdrawals || [], [data?.withdrawals]);
 
   const counts = useMemo(() => {
     return {

@@ -151,7 +151,7 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       if (!eventRecord && eventTitle) {
         const eventsSnap = await db().ref('events').once('value');
         const events = eventsSnap.val() || {};
-        const eventMatch = Object.entries(events).find(([_, event]) => {
+        const eventMatch = Object.entries(events).find(([, event]) => {
           const sameTitle = String(event?.title || '').trim().toLowerCase() === eventTitle.toLowerCase();
           const sameHost = !hostEmail || String(event?.hostEmail || event?.createdBy || '').trim().toLowerCase() === hostEmail.toLowerCase();
           const sameHostUid = !hostUid || String(event?.hostUid || '').trim() === hostUid;
