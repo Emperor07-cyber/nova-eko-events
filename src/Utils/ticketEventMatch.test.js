@@ -21,6 +21,37 @@ describe('ticketEventMatch helpers', () => {
     assert.equal(ticketMatchesEvent(ticket, event), true);
   });
 
+  it('matches titles when emojis were added or removed', () => {
+    const ticket = { eventTitle: '🔥 Horla after dark 🎉', hostEmail: 'host@example.com' };
+    const event = { id: 'evt-456', title: 'Horla after dark', hostEmail: 'host@example.com' };
+
+    assert.equal(ticketMatchesEvent(ticket, event), true);
+  });
+
+  it('falls back to normalized title and host when a ticket event ID is stale', () => {
+    const ticket = {
+      eventId: 'old-event-id',
+      eventTitle: 'Horla after dark ✨',
+      hostEmail: 'host@example.com',
+    };
+    const event = { id: 'evt-456', title: '🔥 Horla after dark', hostEmail: 'host@example.com' };
+
+    assert.equal(ticketMatchesEvent(ticket, event), true);
+    assert.deepEqual(buildTicketMetadataPatch(ticket, event), {
+      eventId: 'evt-456',
+      event_id: 'evt-456',
+      event_title: 'Horla after dark ✨',
+      host_email: 'host@example.com',
+    });
+  });
+
+  it('does not match equal normalized titles across different hosts', () => {
+    const ticket = { eventId: 'old-event-id', eventTitle: 'Launch Night 🎉', hostEmail: 'buyer@example.com' };
+    const event = { id: 'evt-456', title: '🔥 Launch Night', hostEmail: 'host@example.com' };
+
+    assert.equal(ticketMatchesEvent(ticket, event), false);
+  });
+
   it('matches by host identity when ticket metadata is stale', () => {
     const ticket = { eventId: '', eventTitle: 'Legacy Event', hostEmail: 'host@example.com', hostUid: 'abc-123' };
     const event = { id: 'evt-789', title: 'Different Title', hostEmail: 'host@example.com', hostUid: 'abc-123' };

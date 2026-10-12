@@ -47,6 +47,14 @@ function normalize(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeEventTitle(value) {
+  return normalize(value)
+    .normalize("NFKC")
+    .replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\uFE0F\u200D]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function firstValue(...values) {
   return values.find((value) => String(value || "").trim()) || "";
 }
@@ -58,10 +66,10 @@ function eventMatchesTicket(eventKey, event, ticket) {
     ticket.eventID,
     ticket.eventid
   );
-  if (ticketEventId) return eventKey === ticketEventId || event.id === ticketEventId;
+  if (ticketEventId && (eventKey === ticketEventId || event.id === ticketEventId)) return true;
 
-  const ticketTitle = normalize(firstValue(ticket.eventTitle, ticket.event_title));
-  if (!ticketTitle || normalize(event.title) !== ticketTitle) return false;
+  const ticketTitle = normalizeEventTitle(firstValue(ticket.eventTitle, ticket.event_title));
+  if (!ticketTitle || normalizeEventTitle(event.title) !== ticketTitle) return false;
 
   const ticketHostEmail = normalize(firstValue(ticket.hostEmail, ticket.host_email));
   const eventHostEmail = normalize(firstValue(event.hostEmail, event.createdBy));
@@ -75,7 +83,7 @@ function eventMatchesTicket(eventKey, event, ticket) {
 }
 
 function buildUpdate(ticket, eventKey, event) {
-  const eventId = firstValue(ticket.eventId, ticket.event_id, eventKey);
+  const eventId = eventKey;
   const eventTitle = firstValue(ticket.eventTitle, ticket.event_title, event.title);
   const hostEmail = firstValue(
     ticket.hostEmail,
@@ -91,8 +99,8 @@ function buildUpdate(ticket, eventKey, event) {
   );
   const update = {};
 
-  if (!ticket.eventId && eventId) update.eventId = eventId;
-  if (!ticket.event_id && eventId) update.event_id = eventId;
+  if (ticket.eventId !== eventId && eventId) update.eventId = eventId;
+  if (ticket.event_id !== eventId && eventId) update.event_id = eventId;
   if (!ticket.eventTitle && eventTitle) update.eventTitle = eventTitle;
   if (!ticket.event_title && eventTitle) update.event_title = eventTitle;
   if (!ticket.hostEmail && hostEmail) update.hostEmail = hostEmail;
@@ -119,6 +127,7 @@ async function main() {
   const tickets = ticketsSnapshot.val() || {};
   const events = eventsSnapshot.val() || {};
   const updates = [];
+  const unresolved = [];
   let repaired = 0;
   let complete = 0;
   let skipped = 0;
@@ -129,8 +138,41 @@ async function main() {
     );
 
     if (matches.length !== 1) {
+      const ticketEventId = firstValue(
+        ticket?.eventId,
+        ticket?.event_id,
+        ticket?.eventID,
+        ticket?.eventid
+      );
+      const ticketTitle = firstValue(ticket?.eventTitle, ticket?.event_title, ticket?.event?.title);
+      const ticketHost = firstValue(
+        ticket?.hostEmail,
+        ticket?.host_email,
+        ticket?.hostUid,
+        ticket?.host_uid
+      );
+      unresolved.push({
+        ticketId: ticketKey,
+        reason: matches.length === 0 ? "no matching event" : "multiple matching events",
+        eventId: ticketEventId || null,
+        eventTitle: ticketTitle || null,
+        hostIdentity: ticketHost || null,
+        transactionReference: firstValue(
+          ticket?.transactionId,
+          ticket?.reference,
+          ticket?.paystackReference,
+          ticket?.paystackRef
+        ) || null,
+        timestamp: ticket?.timestamp || null,
+        ticketType: ticket?.ticketType || null,
+        quantity: ticket?.quantity || null,
+        amount: ticket?.totalPaid ?? ticket?.totalCharged ?? null,
+        candidates: matches.map(([candidateId, candidate]) => ({
+          eventId: candidateId,
+          title: candidate?.title || null,
+        })),
+      });
       if (matches.length === 0) skipped += 1;
-      else console.warn(`Skipped ambiguous ticket ${ticketKey}: matched ${matches.length} events.`);
       continue;
     }
 
@@ -149,6 +191,10 @@ async function main() {
   console.log(`\nComplete: ${complete}`);
   console.log(`Repairable: ${repaired}`);
   console.log(`Skipped without one exact event match: ${skipped}`);
+  if (unresolved.length > 0) {
+    console.log("\nUnresolved tickets (buyer details omitted):");
+    for (const entry of unresolved) console.log(JSON.stringify(entry));
+  }
 
   if (!APPLY) {
     console.log("\nDry run only. Re-run with --apply to write these changes.");
@@ -169,5 +215,5 @@ main()
     process.exitCode = 1;
   })
   .finally(() => {
-    if (admin.apps.length) return admin.app().delete();
+    if (admin.getApps().length) return admin.deleteApp(admin.getApp());
   });

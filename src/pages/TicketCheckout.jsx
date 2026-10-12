@@ -167,6 +167,11 @@ const TicketCheckout = () => {
         throw new Error(result?.error || "Payment verification failed.");
       }
 
+      if (result.reviewRequired) {
+        setSuccessMessage(result.message || "Payment received, but your ticket needs manual review. Contact support with your payment reference.");
+        return;
+      }
+
       setSuccessMessage("Payment verified. Your ticket is being finalized by the server.");
     } catch (error) {
       console.error("Ticket verification error:", error);

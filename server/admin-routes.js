@@ -23,7 +23,8 @@ const buildFirebaseCredential = () => {
 };
 
 try {
-  if (!admin.apps.length) {
+  const firebaseApps = admin.getApps ? admin.getApps() : admin.apps || [];
+  if (!firebaseApps.length) {
     admin.initializeApp({
       credential: buildFirebaseCredential(),
       databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -44,6 +45,12 @@ const ADMIN_DATA_RESET_PATHS = [
 ];
 
 const normalizeText = (value) => String(value || "").trim().toLowerCase();
+const normalizeEventTitle = (value) =>
+  normalizeText(value)
+    .normalize("NFKC")
+    .replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\uFE0F\u200D]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
 const firstNonEmpty = (...values) => values.find((value) => String(value || "").trim()) || "";
 
 const ticketMatchesEvent = (ticket = {}, event = {}) => {
@@ -53,16 +60,22 @@ const ticketMatchesEvent = (ticket = {}, event = {}) => {
     ticket.eventId || ticket.event_id || ticket.eventID || ticket.eventid
   );
   const eventId = normalizeText(event.id);
-  if (ticketEventId && eventId && ticketEventId === eventId) {
-    return true;
-  }
+  if (ticketEventId && eventId && ticketEventId === eventId) return true;
 
-  const ticketEventTitle = normalizeText(
+  const ticketEventTitle = normalizeEventTitle(
     ticket.eventTitle || ticket.event?.title || ticket.event_title || ticket.eventTitle
   );
-  const eventTitle = normalizeText(event.title);
+  const eventTitle = normalizeEventTitle(event.title);
   if (ticketEventTitle && eventTitle && ticketEventTitle === eventTitle) {
-    return true;
+    const ticketHosts = [ticket.hostEmail, ticket.host_email, ticket.hostUid, ticket.host_uid]
+      .map(normalizeText)
+      .filter(Boolean);
+    const eventHosts = [event.hostEmail, event.host_email, event.hostUid, event.host_uid]
+      .map(normalizeText)
+      .filter(Boolean);
+    if (!ticketHosts.length || !eventHosts.length || ticketHosts.some((host) => eventHosts.includes(host))) {
+      return true;
+    }
   }
 
   const ticketHostCandidates = [
@@ -125,8 +138,9 @@ const buildTicketMetadataPatch = (ticket = {}, event = {}) => {
     event.owner_uid
   );
 
-  if (eventIdValue && !ticket.eventId) patch.eventId = eventIdValue;
-  if (eventIdValue && !ticket.event_id && !ticket.eventID && !ticket.eventid) patch.event_id = eventIdValue;
+  const matchedEventId = firstNonEmpty(event.id);
+  if (matchedEventId && ticket.eventId !== matchedEventId) patch.eventId = matchedEventId;
+  if (matchedEventId && ticket.event_id !== matchedEventId) patch.event_id = matchedEventId;
 
   if (eventTitleValue && !ticket.eventTitle) patch.eventTitle = eventTitleValue;
   if (eventTitleValue && !ticket.event_title) patch.event_title = eventTitleValue;
@@ -762,6 +776,7 @@ function registerRoutes(app) {
         readRecordByTransactionId("tickets", reference),
         readRecordByTransactionId("merchOrders", reference),
       ]);
+      const paymentException = await readRecordByTransactionId("paymentExceptions", reference);
 
       const matchedRecord =
         kind === "merch"
@@ -773,6 +788,10 @@ function registerRoutes(app) {
       return res.json({
         verified: true,
         found: Boolean(matchedRecord),
+        reviewRequired: Boolean(paymentException),
+        message: paymentException
+          ? "Payment was received, but a ticket was not issued because the payment details need review. Contact support with your payment reference."
+          : null,
         kind: matchedRecord?.collection === "merchOrders" ? "merch" : matchedRecord?.collection === "tickets" ? "ticket" : kind || null,
         record: matchedRecord,
         paystack: paystackData,

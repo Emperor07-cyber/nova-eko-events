@@ -1,4 +1,10 @@
 export const normalizeText = (value) => String(value ?? '').trim().toLowerCase();
+export const normalizeEventTitle = (value) =>
+  normalizeText(value)
+    .normalize('NFKC')
+    .replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\uFE0F\u200D]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const firstNonEmpty = (...values) => {
   for (const value of values) {
@@ -14,16 +20,22 @@ export const ticketMatchesEvent = (ticket = {}, event = {}) => {
     ticket.eventId || ticket.event_id || ticket.eventID || ticket.eventid
   );
   const eventId = normalizeText(event.id);
-  if (ticketEventId && eventId && ticketEventId === eventId) {
-    return true;
-  }
+  if (ticketEventId && eventId && ticketEventId === eventId) return true;
 
-  const ticketEventTitle = normalizeText(
+  const ticketEventTitle = normalizeEventTitle(
     ticket.eventTitle || ticket.event?.title || ticket.event_title || ticket.eventTitle
   );
-  const eventTitle = normalizeText(event.title);
+  const eventTitle = normalizeEventTitle(event.title);
   if (ticketEventTitle && eventTitle && ticketEventTitle === eventTitle) {
-    return true;
+    const ticketHosts = [ticket.hostEmail, ticket.host_email, ticket.hostUid, ticket.host_uid]
+      .map(normalizeText)
+      .filter(Boolean);
+    const eventHosts = [event.hostEmail, event.host_email, event.hostUid, event.host_uid]
+      .map(normalizeText)
+      .filter(Boolean);
+    if (!ticketHosts.length || !eventHosts.length || ticketHosts.some((host) => eventHosts.includes(host))) {
+      return true;
+    }
   }
 
   const ticketHostCandidates = [
@@ -67,7 +79,7 @@ export const buildTicketMetadataPatch = (ticket = {}, event = {}) => {
   if (!ticket || !event) return {};
 
   const patch = {};
-  const eventIdValue = firstNonEmpty(ticket.eventId, ticket.event_id, ticket.eventID, ticket.eventid, event.id);
+  const eventIdValue = firstNonEmpty(event.id, ticket.eventId, ticket.event_id, ticket.eventID, ticket.eventid);
   const eventTitleValue = firstNonEmpty(ticket.eventTitle, ticket.event_title, event.title);
   const hostEmailValue = firstNonEmpty(
     ticket.hostEmail,
@@ -91,8 +103,8 @@ export const buildTicketMetadataPatch = (ticket = {}, event = {}) => {
     event.owner_uid
   );
 
-  if (eventIdValue && !ticket.eventId) patch.eventId = eventIdValue;
-  if (eventIdValue && !ticket.event_id && !ticket.eventID && !ticket.eventid) patch.event_id = eventIdValue;
+  if (eventIdValue && ticket.eventId !== eventIdValue) patch.eventId = eventIdValue;
+  if (eventIdValue && ticket.event_id !== eventIdValue) patch.event_id = eventIdValue;
 
   if (eventTitleValue && !ticket.eventTitle) patch.eventTitle = eventTitleValue;
   if (eventTitleValue && !ticket.event_title) patch.event_title = eventTitleValue;

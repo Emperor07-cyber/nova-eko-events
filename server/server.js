@@ -32,6 +32,7 @@ const buildFirebaseCredential = () => {
 const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
 const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
 const { generateUniqueTicketCode } = require('./ticketCode');
+const { calculateTicketCharge, validateTicketPayment } = require('./paymentValidation');
 
 const app = express();
 const db = () => getDatabase();
@@ -51,7 +52,8 @@ app.use(cors({
 
 // initialize firebase-admin (will use application default credentials if available)
 try {
-  if (!admin.apps.length) {
+  const firebaseApps = admin.getApps ? admin.getApps() : admin.apps || [];
+  if (!firebaseApps.length) {
     admin.initializeApp({
       credential: buildFirebaseCredential(),
       databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -96,7 +98,8 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     const readMetadataValue = (...keys) => keys.reduce((result, key) => result || (metadata[key] ?? ""), "");
     const name = metadata.name || email;
     const ticketType = readField("ticket_type") || metadata.ticket_type || "";
-    const quantity = Number(readField("quantity") || metadata.quantity || 1) || 1;
+    const rawQuantity = readField("quantity") || metadata.quantity || 1;
+    const quantity = Number(rawQuantity);
     const eventId = String(readField("event_id") || readMetadataValue("event_id", "eventId", "eventid") || "").trim();
     const eventTitle = String(readField("event_title") || readMetadataValue("event_title", "eventTitle") || "").trim();
     const hostEmail = String(readField("host_email") || readMetadataValue("host_email", "hostEmail") || "").trim();
@@ -104,10 +107,10 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
     const merchName = readField("merch_name") || metadata.merch_name || "";
     const deliveryType = readField("delivery_type") || metadata.delivery_type || "";
     const phone = readField("phone") || metadata.phone || "";
-    const baseAmount = Number(readField("base_amount") || metadata.base_amount || 0) || Math.max(0, amount);
-    const platformFee = Number(readField("platform_fee") || metadata.platform_fee || 0) || Math.max(0, amount - baseAmount);
     const deliveryFee = Number(readField("delivery_fee") || metadata.delivery_fee || 0) || 0;
-    const totalAmount = Number(readField("total_amount") || metadata.total_amount || amount) || amount;
+    let baseAmount = Number(readField("base_amount") || metadata.base_amount || 0) || Math.max(0, amount);
+    let platformFee = Number(readField("platform_fee") || metadata.platform_fee || 0) || Math.max(0, amount - baseAmount);
+    let totalAmount = Number(readField("total_amount") || metadata.total_amount || amount) || amount;
 
     try {
       if (merchName) {
@@ -141,23 +144,83 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       }
 
       let eventRecord = null;
+      let resolvedEventId = eventId;
       if (eventId) {
         eventRecord = await loadEventById(eventId);
       }
       if (!eventRecord && eventTitle) {
         const eventsSnap = await db().ref('events').once('value');
         const events = eventsSnap.val() || {};
-        eventRecord = Object.entries(events).find(([_, event]) => {
+        const eventMatch = Object.entries(events).find(([_, event]) => {
           const sameTitle = String(event?.title || '').trim().toLowerCase() === eventTitle.toLowerCase();
           const sameHost = !hostEmail || String(event?.hostEmail || event?.createdBy || '').trim().toLowerCase() === hostEmail.toLowerCase();
           const sameHostUid = !hostUid || String(event?.hostUid || '').trim() === hostUid;
           return sameTitle && sameHost && sameHostUid;
-        })?.[1];
+        });
+        if (eventMatch) {
+          [resolvedEventId, eventRecord] = eventMatch;
+        }
       }
 
       const matchedTicket = Array.isArray(eventRecord?.tickets)
         ? eventRecord.tickets.find((ticket) => ticket.type === ticketType)
         : null;
+      const expectedCharge = matchedTicket
+        ? calculateTicketCharge(matchedTicket.price, quantity)
+        : null;
+      const paymentValidation = validateTicketPayment({
+        amountKobo: data.amount,
+        currency: data.currency,
+        expectedAmountKobo: expectedCharge?.expectedAmountKobo,
+      });
+
+      if (!eventRecord || !matchedTicket || !expectedCharge || !paymentValidation.valid) {
+        const exception = {
+          transactionId: reference,
+          eventId: resolvedEventId || eventId || null,
+          eventTitle: eventTitle || String(eventRecord?.title || '').trim() || null,
+          ticketType: ticketType || null,
+          quantity: Number.isInteger(quantity) ? quantity : null,
+          currency: data.currency || null,
+          actualAmountKobo: paymentValidation.actualAmountKobo,
+          expectedAmountKobo: paymentValidation.expectedAmountKobo,
+          reason: !eventRecord
+            ? 'event_not_found'
+            : !matchedTicket
+              ? 'ticket_type_not_found'
+              : !expectedCharge
+                ? 'invalid_ticket_price_or_quantity'
+                : 'payment_amount_or_currency_mismatch',
+          status: 'review_required',
+          timestamp: Date.now(),
+        };
+        const existingException = await db().ref('paymentExceptions')
+          .orderByChild('transactionId')
+          .equalTo(reference)
+          .once('value');
+        if (!existingException.exists()) {
+          await db().ref('paymentExceptions').push().set(exception);
+          await db().ref('adminAudit').push({
+            action: 'ticket_payment_review_required',
+            details: exception,
+            timestamp: Date.now(),
+          });
+        }
+        console.warn('⚠️ Successful Paystack payment requires ticket review:', reference, exception.reason);
+        return res.sendStatus(200);
+      }
+
+      const existingTicket = await db().ref('tickets')
+        .orderByChild('transactionId')
+        .equalTo(reference)
+        .once('value');
+      if (existingTicket.exists()) {
+        return res.sendStatus(200);
+      }
+
+      baseAmount = expectedCharge.baseAmount;
+      platformFee = expectedCharge.platformFee;
+      totalAmount = paymentValidation.actualAmountKobo / 100;
       const ticketLimit = Number(matchedTicket?.limit);
       const hasTicketLimit = Number.isFinite(ticketLimit) && ticketLimit > 0;
 
@@ -183,10 +246,9 @@ app.post("/webhook/paystack", express.raw({ type: "application/json" }), async (
       // from the long Firebase push key and Paystack reference — see
       // server/ticketCode.js.
       const ticketCode = await generateUniqueTicketCode(db());
-      const resolvedEventId = eventId;
       const resolvedEventTitle = eventTitle || String(eventRecord?.title || '').trim();
-      const resolvedHostEmail = hostEmail || String(eventRecord?.hostEmail || eventRecord?.createdBy || '').trim();
-      const resolvedHostUid = hostUid || String(eventRecord?.hostUid || eventRecord?.ownerUid || '').trim();
+      const resolvedHostEmail = String(eventRecord?.hostEmail || eventRecord?.createdBy || '').trim();
+      const resolvedHostUid = String(eventRecord?.hostUid || eventRecord?.ownerUid || '').trim();
 
       const ticketData = {
         name,
