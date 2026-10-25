@@ -25,7 +25,6 @@ const AdminTicketsLedger = React.lazy(() => import('./pages/AdminTicketsLedger')
 const AdminUsers = React.lazy(() => import('./pages/AdminUsers'));
 const AdminSettings = React.lazy(() => import('./pages/AdminSettings'));
 const AdminSystemLogs = React.lazy(() => import('./pages/AdminSystemLogs'));
-const AdminNewsletter = React.lazy(() => import('./pages/AdminNewsletter'));
 
 import HostDashboard from "./pages/HostDashboard";
 import HostEvents from "./pages/HostEvents";
@@ -259,7 +258,7 @@ function App() {
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/admin/tickets-ledger" element={<AdminTicketsLedger />} />
           <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+          {/* Newsletter: hidden until payment is confirmed — falls through to AdminPlaceholder below */}
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/system-logs" element={<AdminSystemLogs />} />
           <Route path="/admin/:section" element={<AdminPlaceholder />} />
