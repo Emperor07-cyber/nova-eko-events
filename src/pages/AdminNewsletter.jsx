@@ -203,12 +203,12 @@ const AdminNewsletter = () => {
             </label>
 
             <label className="admin-event-item" style={{ display: 'grid', gap: 8 }}>
-              <strong>Heading</strong>
+              <strong>Heading (optional)</strong>
               <input
                 type="text"
                 value={form.heading}
                 onChange={(e) => onChange('heading', e.target.value)}
-                placeholder="Shown as the large headline in the email"
+                placeholder="Defaults to the subject if left blank"
               />
             </label>
 
@@ -295,11 +295,13 @@ const AdminNewsletter = () => {
 
           <div style={{ background: '#f4f7f4', borderRadius: 16, padding: '1.25rem' }}>
             <div style={{ background: '#fff', border: '1px solid #dbe7dd', borderRadius: 16, overflow: 'hidden' }}>
+              <h3 style={{ margin: 0, padding: '1.25rem 1.25rem 0', textAlign: 'center', fontWeight: 800 }}>
+                {form.heading || form.subject || 'Your headline'}
+              </h3>
               {form.heroImageUrl ? (
-                <img src={form.heroImageUrl} alt="" style={{ width: '100%', display: 'block' }} />
+                <img src={form.heroImageUrl} alt="" style={{ width: '100%', display: 'block', marginTop: '1rem' }} />
               ) : null}
               <div style={{ padding: '1.25rem' }}>
-                <h3 style={{ margin: '0 0 .75rem' }}>{form.heading || form.subject || 'Your headline'}</h3>
                 <p style={{ whiteSpace: 'pre-line', color: '#475569', margin: 0 }}>
                   {form.bodyText || 'Your message will appear here.'}
                 </p>

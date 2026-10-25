@@ -237,6 +237,9 @@ const buildUnsubscribeUrl = (email) =>
 
 const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, recipientEmail }) => {
   const brandName = DEFAULT_BRAND_NAME;
+  // The headline mirrors the subject line unless explicitly overridden, and
+  // is the first thing the reader sees — before the hero image or body.
+  const effectiveHeading = heading || subject || brandName;
   const paragraphs = String(bodyText || '')
     .split(/\n{2,}/)
     .map((block) => block.trim())
@@ -253,8 +256,8 @@ const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText
   ` : '';
 
   const heroBlock = heroImageUrl ? `
-    <div style="padding:24px 24px 0;">
-      <img src="${escapeHtml(heroImageUrl)}" alt="${escapeHtml(heading || subject || brandName)}" style="width:100%;height:auto;display:block;border-radius:16px;" />
+    <div style="padding:20px 24px 0;">
+      <img src="${escapeHtml(heroImageUrl)}" alt="${escapeHtml(effectiveHeading)}" style="width:100%;height:auto;display:block;border-radius:16px;" />
     </div>
   ` : '';
 
@@ -268,10 +271,13 @@ const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText
             <img src="${escapeHtml(DEFAULT_LOGO_URL)}" alt="${escapeHtml(brandName)}" style="height:40px;width:auto;display:inline-block;" />
           </div>
 
+          <div style="padding:20px 28px 0;text-align:center;">
+            <h1 style="margin:0;font-size:22px;line-height:1.35;font-weight:800;color:#0f172a;">${escapeHtml(effectiveHeading)}</h1>
+          </div>
+
           ${heroBlock}
 
           <div style="padding:24px 28px 8px;">
-            ${heading ? `<h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;color:#0f172a;">${escapeHtml(heading)}</h1>` : ''}
             ${paragraphs}
             ${ctaBlock}
           </div>
