@@ -13,7 +13,6 @@ import {
   FiUsers,
   FiActivity,
   FiCreditCard,
-  FiMail,
 } from "react-icons/fi";
 import { signOut } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -32,7 +31,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { to: "/admin/reports", icon: FiFileText, label: "Reports" },
     { to: "/admin/tickets-ledger", icon: FiList, label: "Tickets Ledger" },
     { to: "/admin/users", icon: FiUsers, label: "Users" },
-    { to: "/admin/newsletter", icon: FiMail, label: "Newsletter" },
+    // Newsletter: hidden from nav until payment is confirmed — see App.jsx.
     { to: "/admin/settings", icon: FiSettings, label: "Settings" },
     { to: "/admin/system-logs", icon: FiShield, label: "System Logs" },
   ];
