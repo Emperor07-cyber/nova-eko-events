@@ -1,9 +1,15 @@
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const { getDatabase } = require('firebase-admin/database');
 
 const DEFAULT_BRAND_NAME = process.env.EMAIL_DEFAULT_BRAND_NAME || 'Ekotix';
 const DEFAULT_SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'Ekotix234@gmail.com';
 const DEFAULT_LOGO_URL = process.env.EMAIL_DEFAULT_LOGO_URL || 'https://www.ekotixx.com/images/Logo4.jpg';
+const SERVER_PUBLIC_URL = (process.env.SERVER_PUBLIC_URL || 'https://nova-eko-events.onrender.com').replace(/\/$/, '');
+// Falls back to SMTP_PASS so an unsubscribe link still works without an extra
+// env var on existing deployments, but a dedicated UNSUBSCRIBE_SECRET is
+// recommended — see .env.example.
+const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || process.env.SMTP_PASS || 'ekotix-newsletter-unsubscribe';
 
 const stripInlineSpaces = (value) => String(value ?? '').trim().replace(/\s+/g, '');
 
@@ -210,6 +216,109 @@ const sendTicketReceiptEmail = async ({ ticket, event, resend = false }) => {
   return { sent: true, brandName: branding.brandName, supportEmail: branding.supportEmail };
 };
 
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+
+// RTDB keys can't contain '.', '#', '$', '[', ']', '/' — base64url-encode the
+// email so it's safe to use as a key under newsletterOptOuts/.
+const emailToKey = (email) => Buffer.from(normalizeEmail(email)).toString('base64url');
+
+const generateUnsubscribeToken = (email) =>
+  crypto.createHmac('sha256', UNSUBSCRIBE_SECRET).update(normalizeEmail(email)).digest('hex');
+
+const verifyUnsubscribeToken = (email, token) => {
+  const expected = generateUnsubscribeToken(email);
+  const provided = String(token || '');
+  if (expected.length !== provided.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
+};
+
+const buildUnsubscribeUrl = (email) =>
+  `${SERVER_PUBLIC_URL}/newsletter/unsubscribe?email=${encodeURIComponent(normalizeEmail(email))}&token=${generateUnsubscribeToken(email)}`;
+
+const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, recipientEmail }) => {
+  const brandName = DEFAULT_BRAND_NAME;
+  const paragraphs = String(bodyText || '')
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.7;white-space:pre-line;">${escapeHtml(block)}</p>`)
+    .join('');
+
+  const ctaBlock = ctaText && ctaUrl ? `
+    <div style="text-align:center;margin:28px 0 4px;">
+      <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:999px;">
+        ${escapeHtml(ctaText)}
+      </a>
+    </div>
+  ` : '';
+
+  const heroBlock = heroImageUrl ? `
+    <div style="padding:24px 24px 0;">
+      <img src="${escapeHtml(heroImageUrl)}" alt="${escapeHtml(heading || subject || brandName)}" style="width:100%;height:auto;display:block;border-radius:16px;" />
+    </div>
+  ` : '';
+
+  const unsubscribeUrl = buildUnsubscribeUrl(recipientEmail);
+
+  return `
+    <div style="margin:0;padding:0;background:#f4f7f4;font-family:Arial,Helvetica,sans-serif;">
+      <div style="max-width:640px;margin:0 auto;padding:24px;">
+        <div style="background:#ffffff;border:1px solid #dbe7dd;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(16,97,43,0.08);">
+          <div style="padding:24px 28px 0;text-align:center;">
+            <img src="${escapeHtml(DEFAULT_LOGO_URL)}" alt="${escapeHtml(brandName)}" style="height:40px;width:auto;display:inline-block;" />
+          </div>
+
+          ${heroBlock}
+
+          <div style="padding:24px 28px 8px;">
+            ${heading ? `<h1 style="margin:0 0 16px;font-size:24px;line-height:1.3;color:#0f172a;">${escapeHtml(heading)}</h1>` : ''}
+            ${paragraphs}
+            ${ctaBlock}
+          </div>
+
+          <div style="padding:18px 28px 28px;color:#94a3b8;font-size:12px;line-height:1.6;text-align:center;">
+            You're receiving this because you bought a ticket on ${escapeHtml(brandName)}.
+            <br />
+            <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;text-decoration:underline;">Unsubscribe from these emails</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+const buildNewsletterText = ({ subject, heading, bodyText, ctaText, ctaUrl, recipientEmail }) => {
+  const lines = [heading || subject || DEFAULT_BRAND_NAME, '', String(bodyText || '').trim()];
+  if (ctaText && ctaUrl) {
+    lines.push('', `${ctaText}: ${ctaUrl}`);
+  }
+  lines.push('', `Unsubscribe: ${buildUnsubscribeUrl(recipientEmail)}`);
+  return lines.join('\n');
+};
+
+const sendNewsletterEmail = async ({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }) => {
+  if (!transporter) {
+    return { sent: false, reason: 'SMTP not configured' };
+  }
+  if (!to) {
+    throw new Error('Recipient email is missing');
+  }
+
+  const html = buildNewsletterHtml({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, recipientEmail: to });
+  const text = buildNewsletterText({ subject, heading, bodyText, ctaText, ctaUrl, recipientEmail: to });
+
+  await transporter.sendMail({
+    from: getFromAddress({ brandName: DEFAULT_BRAND_NAME }),
+    to,
+    replyTo: DEFAULT_SUPPORT_EMAIL,
+    subject,
+    text,
+    html,
+  });
+
+  return { sent: true };
+};
+
 const loadEventById = async (eventId) => {
   if (!eventId) return null;
   const snap = await getDatabase().ref(`events/${eventId}`).once('value');
@@ -220,4 +329,9 @@ module.exports = {
   loadEventById,
   readEventBranding,
   sendTicketReceiptEmail,
+  sendNewsletterEmail,
+  normalizeEmail,
+  emailToKey,
+  generateUnsubscribeToken,
+  verifyUnsubscribeToken,
 };

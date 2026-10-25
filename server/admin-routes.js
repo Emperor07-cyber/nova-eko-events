@@ -1,7 +1,7 @@
 const axios = require("axios");
 const admin = require("firebase-admin");
 const { getDatabase } = require("firebase-admin/database");
-const { loadEventById, sendTicketReceiptEmail } = require("./emailService");
+const { loadEventById, sendTicketReceiptEmail, sendNewsletterEmail, normalizeEmail } = require("./emailService");
 const { generateUniqueTicketCode } = require("./ticketCode");
 
 // See server.js for why this can't just be admin.credential.applicationDefault()
@@ -348,6 +348,69 @@ const calculateHostBalance = async (hostEmail, hostUid) => {
     withdrawn: withdrawnTotal,
     balance: Math.max(0, gross - withdrawnTotal),
   };
+};
+
+// Unique, opted-in emails across every ticket ever sold, regardless of
+// event — this is the newsletter's recipient list.
+const getNewsletterRecipients = async () => {
+  const [ticketsSnap, optOutsSnap] = await Promise.all([
+    db().ref("tickets").once("value"),
+    db().ref("newsletterOptOuts").once("value"),
+  ]);
+
+  const tickets = ticketsSnap.val() || {};
+  const optOuts = optOutsSnap.val() || {};
+  const optedOut = new Set(Object.values(optOuts).map((entry) => normalizeEmail(entry?.email)));
+
+  const emails = new Set();
+  Object.values(tickets).forEach((ticket) => {
+    const email = normalizeEmail(ticket.email);
+    if (email && !optedOut.has(email)) {
+      emails.add(email);
+    }
+  });
+
+  return Array.from(emails);
+};
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Fires off the actual sends after the HTTP response already went out, since
+// a list of any real size would blow past Render's request timeout. Progress
+// is written back to the campaign record so the admin UI can poll it.
+const runNewsletterCampaign = async ({ campaignId, recipients, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }) => {
+  const campaignRef = db().ref(`newsletterCampaigns/${campaignId}`);
+  const batchSize = 10;
+  let sentCount = 0;
+  let failedCount = 0;
+
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
+    const results = await Promise.allSettled(
+      batch.map((to) => sendNewsletterEmail({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }))
+    );
+
+    results.forEach((result) => {
+      if (result.status === "fulfilled" && result.value?.sent) {
+        sentCount += 1;
+      } else {
+        failedCount += 1;
+      }
+    });
+
+    await campaignRef.update({ sentCount, failedCount });
+
+    if (i + batchSize < recipients.length) {
+      await sleep(250);
+    }
+  }
+
+  await campaignRef.update({
+    status: failedCount > 0 && sentCount === 0 ? "failed" : failedCount > 0 ? "completed_with_errors" : "sent",
+    sentCount,
+    failedCount,
+    completedAt: Date.now(),
+  });
 };
 
 module.exports = (app) => {
@@ -1205,6 +1268,161 @@ function registerRoutes(app) {
     } catch (err) {
       console.error("admin/transactions error", err);
       res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  // Lets the composer show "Sending to N subscribers" before the admin commits.
+  app.get("/admin/newsletter/recipients", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const recipients = await getNewsletterRecipients();
+      res.json({ count: recipients.length });
+    } catch (err) {
+      console.error("admin/newsletter/recipients error", err);
+      res.status(500).json({ error: "Failed to count newsletter recipients" });
+    }
+  });
+
+  app.get("/admin/newsletter/campaigns", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const snap = await db().ref("newsletterCampaigns").once("value");
+      const campaigns = Object.entries(snap.val() || {})
+        .map(([id, campaign]) => ({ id, ...campaign }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 50);
+      res.json({ campaigns });
+    } catch (err) {
+      console.error("admin/newsletter/campaigns error", err);
+      res.status(500).json({ error: "Failed to load newsletter campaigns" });
+    }
+  });
+
+  app.get("/admin/newsletter/campaigns/:campaignId", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const snap = await db().ref(`newsletterCampaigns/${req.params.campaignId}`).once("value");
+      if (!snap.exists()) {
+        return res.status(404).json({ error: "Campaign not found" });
+      }
+      res.json({ id: req.params.campaignId, ...snap.val() });
+    } catch (err) {
+      console.error("admin/newsletter/campaigns/:id error", err);
+      res.status(500).json({ error: "Failed to load campaign" });
+    }
+  });
+
+  app.post("/admin/newsletter/send", verifyAdminMiddleware, async (req, res) => {
+    try {
+      const subject = String(req.body?.subject || "").trim();
+      const heading = String(req.body?.heading || "").trim();
+      const bodyText = String(req.body?.bodyText || "").trim();
+      const heroImageUrl = String(req.body?.heroImageUrl || "").trim();
+      const ctaText = String(req.body?.ctaText || "").trim();
+      const ctaUrl = String(req.body?.ctaUrl || "").trim();
+      // Comma/semicolon-separated so a test send can cover more than one inbox.
+      const testEmails = String(req.body?.testEmail || "")
+        .split(/[,;]/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+      if (!subject || !bodyText) {
+        return res.status(400).json({ error: "Subject and message body are required" });
+      }
+      if ((ctaText && !ctaUrl) || (!ctaText && ctaUrl)) {
+        return res.status(400).json({ error: "Button text and button link must be set together" });
+      }
+
+      if (testEmails.length > 0) {
+        const invalid = testEmails.find((email) => !/\S+@\S+\.\S+/.test(email));
+        if (invalid) {
+          return res.status(400).json({ error: `Invalid test email address: ${invalid}` });
+        }
+
+        const results = await Promise.allSettled(
+          testEmails.map((to) =>
+            sendNewsletterEmail({
+              to,
+              subject: `[Test] ${subject}`,
+              heading,
+              bodyText,
+              heroImageUrl,
+              ctaText,
+              ctaUrl,
+            })
+          )
+        );
+
+        const configured = results.every(
+          (result) => result.status !== "fulfilled" || result.value?.sent !== false
+        );
+        if (!configured) {
+          return res.status(503).json({ error: "SMTP is not configured", sent: false });
+        }
+
+        const failed = results
+          .map((result, index) => ({ result, email: testEmails[index] }))
+          .filter(({ result }) => result.status === "rejected")
+          .map(({ email }) => email);
+
+        if (failed.length > 0) {
+          return res.status(502).json({
+            error: `Failed to send to: ${failed.join(", ")}`,
+            sent: true,
+            partial: true,
+          });
+        }
+
+        return res.json({ success: true, sent: true, test: true, recipients: testEmails });
+      }
+
+      const recipients = await getNewsletterRecipients();
+      if (recipients.length === 0) {
+        return res.status(400).json({ error: "No active subscribers found" });
+      }
+
+      const campaignRef = db().ref("newsletterCampaigns").push();
+      const campaignData = {
+        subject,
+        heading,
+        bodyText,
+        heroImageUrl,
+        ctaText,
+        ctaUrl,
+        recipientCount: recipients.length,
+        sentCount: 0,
+        failedCount: 0,
+        status: "sending",
+        createdAt: Date.now(),
+        createdBy: req.user.email || req.user.uid,
+      };
+      await campaignRef.set(campaignData);
+
+      await db().ref("adminAudit").push({
+        uid: req.user.uid,
+        email: req.user.email || "",
+        name: req.user.name || req.user.email || "",
+        action: "send_newsletter",
+        details: { campaignId: campaignRef.key, subject, recipientCount: recipients.length },
+        timestamp: Date.now(),
+      });
+
+      res.json({ success: true, campaignId: campaignRef.key, recipientCount: recipients.length });
+
+      // Intentionally not awaited — see runNewsletterCampaign's comment.
+      runNewsletterCampaign({
+        campaignId: campaignRef.key,
+        recipients,
+        subject,
+        heading,
+        bodyText,
+        heroImageUrl,
+        ctaText,
+        ctaUrl,
+      }).catch((err) => {
+        console.error("newsletter campaign error", campaignRef.key, err);
+        campaignRef.update({ status: "failed", error: err?.message || "Unknown error" }).catch(() => {});
+      });
+    } catch (err) {
+      console.error("admin/newsletter/send error", err);
+      res.status(500).json({ error: "Failed to send newsletter" });
     }
   });
 };

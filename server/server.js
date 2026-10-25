@@ -29,7 +29,7 @@ const buildFirebaseCredential = () => {
   }
   return admin.credential?.applicationDefault ? admin.credential.applicationDefault() : admin.applicationDefault();
 };
-const { loadEventById, sendTicketReceiptEmail } = require('./emailService');
+const { loadEventById, sendTicketReceiptEmail, normalizeEmail, emailToKey, verifyUnsubscribeToken } = require('./emailService');
 const { getExistingTicketQuantity, getMaxPerUser } = require('./admin-routes');
 const { generateUniqueTicketCode } = require('./ticketCode');
 const { calculateTicketCharge, validateTicketPayment } = require('./paymentValidation');
@@ -331,6 +331,42 @@ app.use(express.json());
 
 // Mount admin routes (summary, sales-trend, hosts/top)
 require('./admin-routes')(app);
+
+// Public, token-verified one-click unsubscribe link sent in every newsletter
+// email. No auth — the HMAC token (scoped to this one email address) is the
+// access control. Renders a plain confirmation page since this is opened
+// directly from an email client, not the SPA.
+app.get('/newsletter/unsubscribe', async (req, res) => {
+  const email = normalizeEmail(req.query.email);
+  const token = String(req.query.token || '');
+
+  const renderPage = (message) => `
+    <!doctype html>
+    <html>
+      <head><meta charset="utf-8" /><title>Unsubscribe</title></head>
+      <body style="font-family:Arial,Helvetica,sans-serif;background:#f4f7f4;padding:40px 20px;text-align:center;color:#0f172a;">
+        <div style="max-width:420px;margin:0 auto;background:#ffffff;border:1px solid #dbe7dd;border-radius:16px;padding:32px;">
+          <p style="margin:0;font-size:16px;line-height:1.6;">${message}</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  if (!email || !token || !verifyUnsubscribeToken(email, token)) {
+    return res.status(400).send(renderPage('This unsubscribe link is invalid or has expired.'));
+  }
+
+  try {
+    await db().ref(`newsletterOptOuts/${emailToKey(email)}`).set({
+      email,
+      unsubscribedAt: Date.now(),
+    });
+    res.send(renderPage(`${email} has been unsubscribed from future newsletter emails.`));
+  } catch (err) {
+    console.error('newsletter/unsubscribe error', err.message);
+    res.status(500).send(renderPage('Something went wrong. Please try again later.'));
+  }
+});
 
 app.get("/get-banks", async (req, res) => {
   try {
