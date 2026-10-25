@@ -235,7 +235,16 @@ const verifyUnsubscribeToken = (email, token) => {
 const buildUnsubscribeUrl = (email) =>
   `${SERVER_PUBLIC_URL}/newsletter/unsubscribe?email=${encodeURIComponent(normalizeEmail(email))}&token=${generateUnsubscribeToken(email)}`;
 
-const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, recipientEmail }) => {
+const buildCtaButtonHtml = (text, url) =>
+  text && url ? `
+    <div style="text-align:center;margin:12px 0;">
+      <a href="${escapeHtml(url)}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:999px;">
+        ${escapeHtml(text)}
+      </a>
+    </div>
+  ` : '';
+
+const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl, recipientEmail }) => {
   const brandName = DEFAULT_BRAND_NAME;
   // The headline mirrors the subject line unless explicitly overridden, and
   // is the first thing the reader sees — before the hero image or body.
@@ -247,11 +256,10 @@ const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText
     .map((block) => `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.7;white-space:pre-line;">${escapeHtml(block)}</p>`)
     .join('');
 
-  const ctaBlock = ctaText && ctaUrl ? `
-    <div style="text-align:center;margin:28px 0 4px;">
-      <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:#F97316;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:999px;">
-        ${escapeHtml(ctaText)}
-      </a>
+  const ctaBlock = (ctaText && ctaUrl) || (secondaryCtaText && secondaryCtaUrl) ? `
+    <div style="margin:24px 0 4px;">
+      ${buildCtaButtonHtml(ctaText, ctaUrl)}
+      ${buildCtaButtonHtml(secondaryCtaText, secondaryCtaUrl)}
     </div>
   ` : '';
 
@@ -293,16 +301,19 @@ const buildNewsletterHtml = ({ subject, heading, bodyText, heroImageUrl, ctaText
   `;
 };
 
-const buildNewsletterText = ({ subject, heading, bodyText, ctaText, ctaUrl, recipientEmail }) => {
+const buildNewsletterText = ({ subject, heading, bodyText, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl, recipientEmail }) => {
   const lines = [heading || subject || DEFAULT_BRAND_NAME, '', String(bodyText || '').trim()];
   if (ctaText && ctaUrl) {
     lines.push('', `${ctaText}: ${ctaUrl}`);
+  }
+  if (secondaryCtaText && secondaryCtaUrl) {
+    lines.push('', `${secondaryCtaText}: ${secondaryCtaUrl}`);
   }
   lines.push('', `Unsubscribe: ${buildUnsubscribeUrl(recipientEmail)}`);
   return lines.join('\n');
 };
 
-const sendNewsletterEmail = async ({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }) => {
+const sendNewsletterEmail = async ({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl }) => {
   if (!transporter) {
     return { sent: false, reason: 'SMTP not configured' };
   }
@@ -310,8 +321,8 @@ const sendNewsletterEmail = async ({ to, subject, heading, bodyText, heroImageUr
     throw new Error('Recipient email is missing');
   }
 
-  const html = buildNewsletterHtml({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, recipientEmail: to });
-  const text = buildNewsletterText({ subject, heading, bodyText, ctaText, ctaUrl, recipientEmail: to });
+  const html = buildNewsletterHtml({ subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl, recipientEmail: to });
+  const text = buildNewsletterText({ subject, heading, bodyText, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl, recipientEmail: to });
 
   await transporter.sendMail({
     from: getFromAddress({ brandName: DEFAULT_BRAND_NAME }),

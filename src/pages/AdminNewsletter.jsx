@@ -11,6 +11,8 @@ const emptyForm = {
   heroImageUrl: '',
   ctaText: '',
   ctaUrl: '',
+  secondaryCtaText: '',
+  secondaryCtaUrl: '',
 };
 
 const statusLabel = (status) => {
@@ -93,7 +95,11 @@ const AdminNewsletter = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const isValid = form.subject.trim() && form.bodyText.trim() && (Boolean(form.ctaText) === Boolean(form.ctaUrl));
+  const isValid =
+    form.subject.trim() &&
+    form.bodyText.trim() &&
+    Boolean(form.ctaText) === Boolean(form.ctaUrl) &&
+    Boolean(form.secondaryCtaText) === Boolean(form.secondaryCtaUrl);
 
   const sendTest = async () => {
     try {
@@ -252,6 +258,27 @@ const AdminNewsletter = () => {
                 />
               </label>
             </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <label className="admin-event-item" style={{ display: 'grid', gap: 8 }}>
+                <strong>Second button text</strong>
+                <input
+                  type="text"
+                  value={form.secondaryCtaText}
+                  onChange={(e) => onChange('secondaryCtaText', e.target.value)}
+                  placeholder="Discover/Create events on Ekotix"
+                />
+              </label>
+              <label className="admin-event-item" style={{ display: 'grid', gap: 8 }}>
+                <strong>Second button link</strong>
+                <input
+                  type="url"
+                  value={form.secondaryCtaUrl}
+                  onChange={(e) => onChange('secondaryCtaUrl', e.target.value)}
+                  placeholder="https://www.ekotixx.com"
+                />
+              </label>
+            </div>
           </div>
 
           <label className="admin-event-item" style={{ display: 'grid', gap: 8, marginTop: '1rem' }}>
@@ -305,22 +332,27 @@ const AdminNewsletter = () => {
                 <p style={{ whiteSpace: 'pre-line', color: '#475569', margin: 0 }}>
                   {form.bodyText || 'Your message will appear here.'}
                 </p>
-                {form.ctaText && form.ctaUrl ? (
-                  <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        background: '#F97316',
-                        color: '#fff',
-                        fontWeight: 700,
-                        padding: '12px 28px',
-                        borderRadius: 999,
-                      }}
-                    >
-                      {form.ctaText}
-                    </span>
-                  </div>
-                ) : null}
+                {[
+                  form.ctaText && form.ctaUrl ? form.ctaText : null,
+                  form.secondaryCtaText && form.secondaryCtaUrl ? form.secondaryCtaText : null,
+                ]
+                  .filter(Boolean)
+                  .map((label, index) => (
+                    <div key={index} style={{ textAlign: 'center', marginTop: index === 0 ? '1.25rem' : '0.75rem' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          background: '#F97316',
+                          color: '#fff',
+                          fontWeight: 700,
+                          padding: '12px 28px',
+                          borderRadius: 999,
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>

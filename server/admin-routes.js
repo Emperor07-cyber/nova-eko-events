@@ -378,7 +378,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // Fires off the actual sends after the HTTP response already went out, since
 // a list of any real size would blow past Render's request timeout. Progress
 // is written back to the campaign record so the admin UI can poll it.
-const runNewsletterCampaign = async ({ campaignId, recipients, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }) => {
+const runNewsletterCampaign = async ({ campaignId, recipients, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl }) => {
   const campaignRef = db().ref(`newsletterCampaigns/${campaignId}`);
   const batchSize = 10;
   let sentCount = 0;
@@ -387,7 +387,7 @@ const runNewsletterCampaign = async ({ campaignId, recipients, subject, heading,
   for (let i = 0; i < recipients.length; i += batchSize) {
     const batch = recipients.slice(i, i + batchSize);
     const results = await Promise.allSettled(
-      batch.map((to) => sendNewsletterEmail({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl }))
+      batch.map((to) => sendNewsletterEmail({ to, subject, heading, bodyText, heroImageUrl, ctaText, ctaUrl, secondaryCtaText, secondaryCtaUrl }))
     );
 
     results.forEach((result) => {
@@ -1317,6 +1317,8 @@ function registerRoutes(app) {
       const heroImageUrl = String(req.body?.heroImageUrl || "").trim();
       const ctaText = String(req.body?.ctaText || "").trim();
       const ctaUrl = String(req.body?.ctaUrl || "").trim();
+      const secondaryCtaText = String(req.body?.secondaryCtaText || "").trim();
+      const secondaryCtaUrl = String(req.body?.secondaryCtaUrl || "").trim();
       // Comma/semicolon-separated so a test send can cover more than one inbox.
       const testEmails = String(req.body?.testEmail || "")
         .split(/[,;]/)
@@ -1328,6 +1330,9 @@ function registerRoutes(app) {
       }
       if ((ctaText && !ctaUrl) || (!ctaText && ctaUrl)) {
         return res.status(400).json({ error: "Button text and button link must be set together" });
+      }
+      if ((secondaryCtaText && !secondaryCtaUrl) || (!secondaryCtaText && secondaryCtaUrl)) {
+        return res.status(400).json({ error: "Second button text and link must be set together" });
       }
 
       if (testEmails.length > 0) {
@@ -1346,6 +1351,8 @@ function registerRoutes(app) {
               heroImageUrl,
               ctaText,
               ctaUrl,
+              secondaryCtaText,
+              secondaryCtaUrl,
             })
           )
         );
@@ -1386,6 +1393,8 @@ function registerRoutes(app) {
         heroImageUrl,
         ctaText,
         ctaUrl,
+        secondaryCtaText,
+        secondaryCtaUrl,
         recipientCount: recipients.length,
         sentCount: 0,
         failedCount: 0,
@@ -1416,6 +1425,8 @@ function registerRoutes(app) {
         heroImageUrl,
         ctaText,
         ctaUrl,
+        secondaryCtaText,
+        secondaryCtaUrl,
       }).catch((err) => {
         console.error("newsletter campaign error", campaignRef.key, err);
         campaignRef.update({ status: "failed", error: err?.message || "Unknown error" }).catch(() => {});
